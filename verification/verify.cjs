@@ -8,7 +8,7 @@ const fs = require('node:fs');
  const errors=[]; page.on('pageerror',e=>errors.push(e.message));
  const click=action=>page.locator(`[data-action="${action}"]`).first().click();
  const saved=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('khonnai-home-mvp-v1')));
- const capture=async name=>{await page.evaluate(()=>{window.scrollTo(0,0);document.querySelector('#toast').classList.remove('visible');});await page.screenshot({path:path.join(__dirname,name+'.png'),fullPage:true});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,name+' horizontal overflow');};
+ const capture=async name=>{await page.evaluate(()=>{window.scrollTo(0,0);document.querySelector('#app').scrollTo(0,0);document.querySelector('#toast').classList.remove('visible');});await page.screenshot({path:path.join(__dirname,name+'.png'),fullPage:true});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,name+' horizontal overflow');};
  await page.goto(require('node:url').pathToFileURL(path.join(__dirname,'../index.html')).href);
  await capture('mobile-home');
  await click('go:catalog');await capture('mobile-catalog');

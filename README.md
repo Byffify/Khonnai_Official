@@ -41,9 +41,12 @@ python -m http.server 4173 --bind 127.0.0.1
 ## ไฟล์
 
 - `index.html`: จุดเปิดแอป
-- `styles.css`: layout responsive และโทนตามต้นแบบ
+- `styles.css`: styles พื้นฐาน
+- `fidelity.css`: ขนาดและระยะตาม node ต้นฉบับ พร้อม Google Sans แบบ local
 - `app.js`: views, state, localStorage และ flow ธุรกรรม
 - `assets/design-*.png`: โลโก้ที่แยกจาก archive ต้นแบบ
+- `assets/revenue-waves.svg`: ลายการ์ดจาก control points ของเวกเตอร์ต้นฉบับ
+- `assets/fonts/`: Google Sans และ SIL Open Font License
 - `verification/`: browser checks และภาพหน้าจอ
 
 ## การตรวจ
@@ -59,3 +62,9 @@ node khonnai-home-mvp/verification/verify.cjs
 
 ผลทดสอบครอบคลุมยอดบิล การตัด/คืนสต็อก การแก้การจอง การรับของไม่ตัดซ้ำ การ reload การค้นหา การลบ/ยกเลิกการลบ validation การเพิ่ม 45 แพ็ก การขายแยกไซซ์/สี การแก้สินค้าไม่คืนจำนวนที่ขายแล้ว และ overflow ที่ 320/393/1440 px ดู `verification/results.json`
 "# Khonnai_Official" 
+
+## อัปเดตความตรงกับต้นแบบ
+
+ใช้จอ 393 × 852 ภายในกรอบมือถือบน desktop และเต็มจอบน mobile พร้อม Google Sans ภาษาไทย/อังกฤษที่โหลดจากไฟล์ในโปรเจกต์ การ์ด เมนู กริด และ footer วัดขนาดจาก FigCraft โดยตรง ฟอนต์เปลี่ยนตามคำขอ จึงไม่ใช่ภาพที่เหมือนต้นฉบับแบบพิกเซลต่อพิกเซลทุกตัวอักษร ส่วนตัวเลขยังคำนวณจากข้อมูลจริงของ MVP
+
+ตรวจเพิ่ม: `node khonnai-home-mvp/verification/fidelity.cjs` — geometry assertions และ Chromium actual-font check ผ่าน ดู `verification/fidelity-results.json` และ `fidelity-*.png`

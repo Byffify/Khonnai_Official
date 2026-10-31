@@ -7,10 +7,14 @@
   <title>Khonnai — ร้านเจ๊หน่อยชุดชั้นใน</title>
   <link rel="icon" href="assets/design-2.png">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="fidelity.css">
   <script src="app.js" defer></script>
 </head>
 <body>
-  <div class="app-shell"><main id="app"></main></div>
+  <div class="device"><div class="app-shell">
+    <div class="status-bar" aria-hidden="true"><span>9:41</span><i class="island"></i><i class="battery"></i></div>
+    <main id="app"></main><div id="action-bar"></div><div class="home-indicator" aria-hidden="true"></div>
+  </div></div>
   <dialog id="dialog" aria-labelledby="dialog-title"></dialog>
   <div id="toast" role="status" aria-live="polite"></div>
 </body>

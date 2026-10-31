@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "font": [
+    {
+      "familyName": "Google Sans",
+      "postScriptName": "Google-Sans-Text",
+      "isCustomFont": true,
+      "glyphCount": 21
+    }
+  ],
+  "source": "khonnai-home-v1.figcraft",
+  "geometry": [
+    "393 × 852 screen",
+    "hero x20 y124 w353 h222",
+    "64px menu circles",
+    "catalog x98 y118 w137.5"
+  ],
+  "note": "Layout dimensions checked against source nodes. Google Sans intentionally replaces original font; dynamic data is not a fixed screenshot."
+}
