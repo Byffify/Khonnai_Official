@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "checks": [
+    "1440 bill and stock deduction",
+    "quantity upper bound",
+    "reload persistence",
+    "reservation reserve and cancellation",
+    "reservation edit updates total and stock hold",
+    "reservation receipt without double deduction",
+    "search by code",
+    "cancel and confirm deletion",
+    "required-field validation",
+    "photo and 45-pack variant form",
+    "variant stock adjustment 45 to 44",
+    "variant sale 44 to 42",
+    "product price edit preserves 42 packs",
+    "remove cart line",
+    "393/320/1440 width overflow",
+    "no browser exceptions"
+  ],
+  "errors": []
+}
