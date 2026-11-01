@@ -6,25 +6,25 @@ Preserve the home alternative's white operational surface, blue primary actions,
 
 | Token | Value |
 | --- | --- |
-| Primary | #194cdb |
-| Pale blue | #eaf0ff |
-| Text | #192130 |
-| Muted | #687383 |
-| Border | #e8ebf1 |
-| Background | #f8f9fc |
-| Orange price | #ff8b42 |
-| Danger | #c5252c |
-| Success | #268356 |
+| Primary | #1650d7 |
+| Pale blue | #e8eefb |
+| Text | #0f172a |
+| Muted | #475569 |
+| Border | #e2e8f0 |
+| Canvas | #f8fafc (home, checkout, reservation detail: #ffffff; cash bill: #f1f5f9) |
+| Orange price | #ff8032 |
+| Danger | #c62828 |
+| Success | #1b7a3e on #eaf7ef |
 | Font | Google Sans, self-hosted variable font, Thai and Latin |
 
-The user requested source-matched geometry and Google Sans. The desktop preview includes the 433 × 876 device shell around a 393 × 852 screen. Below 500px the screen fills the viewport. Status clock / island / home indicator reproduce the reference as decorative, aria-hidden preview chrome. The app scrolls within the screen, while primary actions remain anchored at its bottom. Native dialogs retain Escape and keyboard focus containment. All fonts and images are local; no runtime external requests.
+Layout is mobile first with no device frame: the app fills the phone viewport (header and footer respect safe-area insets) and, from 600px wide, sits in a centred 480px column. All sizes, colours, radii and shadows in `app.css` are transcribed from the FigCraft node data (status bar removed, so every y value is 54px higher than in the source). Primary actions stay in a fixed footer. Native dialogs keep Escape and focus containment. All fonts and images are local; no runtime external requests.
 
 Source PNGs in `assets/` are extracted from the three image entries in the supplied FigCraft archive, in its imageIndex order. No generated or stock imagery was introduced. SVG icons use a consistent outlined stroke.
 
 Functional extensions to the supplied guided prototype: editable data, local persistence, live totals, input validation, search/filter/sort, real print dialog, and explicit size/color selection when a newly added product has variant quantities. The add form uses the source category chips; the plus button opens all supported categories. Reorder values are calculated from available product data, as recorded in README.
 
-## Source fidelity revision
+## Source fidelity revision 2
 
-`fidelity.css` holds the source-dimension overrides without changing the inventory flow. Verified geometry at 393px: hero (20,124,353,222), 64px home menu circles, catalog first image (98,118,137.5,137.5). Revenue curves use the exact vector control points extracted from nodes 1986–1988 in the original archive. Form, list, receipt, sheet, and footer proportions follow the same source spacing. Google Sans intentionally changes glyph appearance and text metrics from the original Leelawadee UI; dynamic values remain live. This is not a claim of a zero-difference full-screen pixel comparison.
+`app.css` replaces the earlier `styles.css` + `fidelity.css` pair. View markup in `app.js` follows the source frames: step pills with numbered dots, segmented channel control with icons, net total and note row, the paper cash bill (book/bill numbers, baht/satang columns, amount in Thai words), sort options with hints and radios, the manage sheet with toggle, the centred delete alert, field-level form errors with the footer summary, colour swatches with suggestions, and the saved state as the product page with "บันทึกแล้ว · กลับสต็อก". Deliberate deviations: a 12px gap between restock thumbnails and names (the source text touches the image and its shortage text is clipped), and Google Sans instead of the source's Leelawadee UI.
 
 Google Sans downloaded from https://github.com/google/fonts/tree/main/ofl/googlesans ; bundled license: assets/fonts/OFL.txt. Chromium platform-font inspection confirmed custom Google Sans draws the Thai shop-name glyphs, rather than a fallback.
