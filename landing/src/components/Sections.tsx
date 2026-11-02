@@ -329,7 +329,7 @@ export function Footer() {
   return (
     <footer id="contact" className="border-t border-line px-5 pt-12 pb-8 md:pt-16 md:pb-10">
       <div className="mx-auto max-w-[1280px]">
-        <div className="grid gap-8 md:grid-cols-[300px_1fr_340px] md:gap-10">
+        <div className="grid gap-8 md:grid-cols-2 md:gap-10 lg:grid-cols-[300px_1fr_340px]">
           <div className="space-y-4">
             <Logo />
             <p className="text-[15px] leading-relaxed text-muted">คนใน · ระบบบริหารสต็อก การจองสินค้า<br />และการออกบิลบนมือถือ</p>

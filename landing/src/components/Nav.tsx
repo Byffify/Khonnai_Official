@@ -153,7 +153,7 @@ function LangButton({ open, onClick, outline = false }: { open?: boolean; onClic
       aria-haspopup="menu"
       aria-expanded={open}
       aria-label="เปลี่ยนภาษา"
-      className={`inline-flex h-11 items-center gap-1.5 rounded-full px-3 text-[15px] font-medium transition-colors ${outline ? "bg-white ring-1 ring-inset ring-line-strong hover:bg-hover" : "bg-hover hover:bg-line"}`}
+      className={`inline-flex h-11 items-center gap-1.5 rounded-full px-3 text-[15px] font-medium transition-colors ${outline ? "bg-white ring-1 ring-inset ring-line-strong hover:bg-hover" : "border border-line bg-white hover:bg-hover"}`}
     >
       <Globe aria-hidden className="size-5" strokeWidth={1.75} />
       TH
@@ -259,12 +259,14 @@ export function Nav() {
   const close = () => setOpen(null);
 
   return (
-    <header ref={root} className="fixed inset-x-0 top-3 z-40 px-4 lg:top-6">
+    <header ref={root} className="fixed inset-x-0 top-4 z-40 px-4">
+      {/* Glass bar after fastwork.com (fixed 16px from the top, 20px blur). The hero is white, so glass alone
+          vanishes there: 80% white, a slate-200 hairline and a soft shadow keep the bar's edge visible. */}
       <div
-        className={`mx-auto flex h-15 max-w-[1200px] items-center justify-between rounded-full bg-white pr-2 pl-[18px] transition-shadow duration-300 lg:h-16 lg:pr-2.5 lg:pl-6 ${scrolled ? "shadow-[0_12px_40px_-8px_rgb(15_23_42/0.22)]" : "shadow-float"}`}
+        className={`mx-auto flex h-15 max-w-[1200px] items-center justify-between rounded-full border border-line bg-white/80 pr-2 pl-[18px] backdrop-blur-[20px] backdrop-saturate-150 transition-shadow duration-300 lg:h-16 lg:pr-2.5 lg:pl-6 ${scrolled ? "shadow-[0_12px_40px_-10px_rgb(15_23_42/0.22)]" : "shadow-[0_10px_30px_-12px_rgb(15_23_42/0.16)]"}`}
       >
         <div className="flex items-center gap-8">
-          <a href="#top" aria-label="khonnai หน้าแรก">
+          <a href="#top" aria-label="khonnai หน้าแรก" className="flex min-h-11 items-center">
             <Logo className="h-6 lg:h-7" />
           </a>
           <nav aria-label="เมนูหลัก" className="hidden items-center gap-1 lg:flex">

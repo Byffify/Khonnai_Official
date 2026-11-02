@@ -18,7 +18,7 @@ export const ILLUSTRATION = true; // set false once the slots hold real photos f
 
 /** What each slot should show; also the brief for generating or shooting it. */
 export const PHOTO_ALT: Record<PhotoSlot, string> = {
-  hero: "มือเจ้าของร้านถือมือถือเปิดแอป khonnai ข้างหลังเป็นชั้นวางกล่องชุดชั้นในเรียงเป็นแพ็ก",
+  hero: "มือเจ้าของร้านถือมือถือหันจอตรงกล้อง (จอดำล้วน ให้วางหน้าจอแอปจริงทับ) ข้างหลังเบลอเป็นชั้นวางชุดชั้นในเรียงเป็นแพ็ก",
   "type-new": "เจ้าของร้านกำลังนับแพ็กสินค้าล็อตแรกบนโต๊ะ พร้อมมือถือวางข้าง ๆ",
   "type-front": "เคาน์เตอร์ร้านค้าส่ง ลูกค้ากำลังเลือกชุดชั้นในจากราว เจ้าของร้านถือมือถือออกบิล",
   "type-line": "มือถือแสดงแชตสั่งของ วางข้างถุงสินค้าที่แพ็กรอลูกค้ามารับ",

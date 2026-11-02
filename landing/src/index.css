@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* Mali (OFL): the handwritten word in the hero headline only */
+@import "@fontsource/mali/600.css";
 
 /* Latin: Google Sans (subset); Thai falls through to Noto Sans Thai. Both OFL, self-hosted. */
 @font-face {
@@ -17,6 +19,7 @@
 /* Tokens mirror the "khonnai" variables in design/khonnai-landing.figcraft */
 @theme {
   --font-sans: "Google Sans", "Noto Sans Thai", system-ui, sans-serif;
+  --font-hand: "Mali", "Noto Sans Thai", cursive;
   --color-brand: #1650d7;
   --color-brand-hover: #1243b8;
   --color-brand-pressed: #0f3a9e;
@@ -52,6 +55,10 @@
   ::selection {
     background: var(--color-accent);
     color: var(--color-ink);
+  }
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
   }
   :focus-visible {
     outline: 2px solid var(--color-brand);
@@ -94,6 +101,45 @@
   z-index: -1;
 }
 
+/* Brand blue → orange across a phrase. The orange end is darkened to #e2640f (3.5:1 on white) so large
+   headings stay readable; the vertical padding keeps Thai marks above and below inside the painted area. */
+.text-gradient-brand {
+  /* blue → violet → orange → violet → blue over twice the width, so sliding it 200% loops without a seam */
+  background: linear-gradient(90deg, #1650d7 0%, #6b55c9 25%, #e2640f 50%, #6b55c9 75%, #1650d7 100%);
+  background-size: 200% 100%;
+  animation: gradient-run 6s linear infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  padding-block: 0.12em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* The colours flow left → right through the phrase, slowly enough to read as a sheen, not a flash */
+@keyframes gradient-run {
+  from {
+    background-position: 200% 50%;
+  }
+  to {
+    background-position: 0% 50%;
+  }
+}
+
+/* Hero cards bob gently once they have orbited in (±6px over 6s, each out of step) */
+@keyframes hero-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+.hero-float {
+  animation: hero-float 6s ease-in-out infinite;
+}
+
 /* Tab progress bar: fills over the cycle (FeedSpring tab-bar-load, 5000ms) */
 @keyframes tab-load {
   from {
@@ -108,7 +154,9 @@
   html {
     scroll-behavior: auto;
   }
-  .glow-ring::before {
+  .glow-ring::before,
+  .hero-float,
+  .text-gradient-brand {
     animation: none;
   }
 }

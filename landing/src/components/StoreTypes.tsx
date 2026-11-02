@@ -43,7 +43,7 @@ export function StoreTypes() {
           <h2 className="text-[28px] leading-[1.35] font-bold md:text-5xl md:leading-[1.3]">
             ร้านแบบไหน ก็เริ่มได้
             <br />
-            จาก<span className="text-brand">มือถือเครื่องเดียว</span>
+            จาก<span className="text-gradient-brand">มือถือเครื่องเดียว</span>
           </h2>
           <p className="mt-4 leading-relaxed text-muted md:text-lg">เลือกแบบที่ใกล้กับร้านคุณ แล้วดูว่า khonnai ช่วยตรงไหน</p>
         </Reveal>
