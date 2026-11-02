@@ -636,8 +636,6 @@ textarea:focus{outline:none;border:2px solid var(--blue);padding:11.5px 14.5px}
 .swatch.big{width:32px;height:32px;border-color:var(--input)}
 .color-pick{height:48px;display:flex;align-items:center;gap:12px;margin-top:6px;padding:0 8px;border:1.5px solid var(--input);border-radius:14px;background:#fff;color:var(--ink);font-size:16px;font-weight:400}
 .color-pick input{width:44px;height:36px;padding:0;border:0;border-radius:8px;background:none;cursor:pointer}
-.order-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
-.order-buttons .secondary{min-height:44px;font-size:16px}
 .sheet-actions{margin-top:14px}
 .sheet-actions .secondary.cancel{width:auto;flex-shrink:0;padding:0 16px;background:var(--danger-bg);color:var(--danger-ink);font-size:16px}
 dialog .notice.warning{margin:12px 0 0}
@@ -804,3 +802,29 @@ dialog[data-kind=alert][open]::backdrop{background:rgba(10,29,79,.5)}
   .content{padding:0}
   .receipt{box-shadow:none;max-width:560px;margin:0 auto}
 }
+
+/* Size × colour table: names are buttons that open the edit sheet */
+.size-head{width:100%;cursor:pointer;transition:background-color var(--routine) ease}
+.size-head b{font-size:16px;line-height:20px;font-weight:700}
+.size-head:active,.color-cell:active{background:var(--pale)}
+.color-cell{width:100%;height:48px;padding:0 4px;border-radius:10px;text-align:left;font-size:16px;font-weight:500;cursor:pointer;transition:background-color var(--routine) ease}
+.color-cell span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decoration:underline dotted var(--dashed);text-underline-offset:4px}
+@media (hover:hover){.size-head:hover,.color-cell:hover{background:var(--pale)}}
+.variant-hint{margin-top:6px;font-size:14px;color:var(--muted)}
+.preset-chips{display:flex;flex-wrap:wrap;gap:8px}
+.preset-chip{min-height:44px;display:flex;align-items:center;gap:8px;padding:0 14px 0 10px;border:1.5px solid var(--input);border-radius:100px;background:#fff;font-size:16px;font-weight:500}
+.preset-chip:active{background:var(--pale);border-color:var(--blue)}
+.sheet-actions .secondary.cancel svg{width:18px;height:18px}
+
+/* Category list: edit mode makes delete explicit */
+.header-text-button{min-width:64px;height:44px;padding:0 14px;border-radius:22px;border:1px solid var(--line);background:#fff;color:var(--blue);font-size:16px;font-weight:700}
+.header-text-button.done{background:var(--blue);border-color:var(--blue);color:#fff}
+.edit-banner{display:flex;align-items:center;gap:10px;min-height:44px;margin-bottom:12px;padding:10px 14px;border-radius:12px;background:var(--danger-bg);color:var(--danger-ink);font-size:14px;font-weight:500;animation:fade-in 200ms linear}
+.edit-banner svg{width:18px;height:18px;flex-shrink:0}
+.editing-row{cursor:default}
+.row-delete{width:44px;height:44px;flex-shrink:0;display:grid;place-items:center;margin-left:-6px;border-radius:22px;background:var(--danger-bg);color:var(--danger);animation:delete-in 240ms var(--ease-out)}
+.row-delete svg{width:20px;height:20px}
+.row-delete:active{background:var(--danger);color:#fff}
+.is-editing .settings-card{border-color:#f5c2c2}
+@keyframes delete-in{from{opacity:0;transform:scale(.6)}}
+@media (prefers-reduced-motion:reduce){.row-delete{animation:none}}
