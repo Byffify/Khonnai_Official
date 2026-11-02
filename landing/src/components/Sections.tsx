@@ -16,6 +16,7 @@ import {
 import { EASE, OUT_QUINT, Reveal } from "../motion";
 import { Button, ICONS, Logo, Phone, Placeholder } from "../ui";
 import { LangButton } from "./Nav";
+import lineQr from "../assets/line-qr.png";
 
 function Heading({ title, body, align = "center" }: { title: ReactNode; body?: ReactNode; align?: "center" | "left" }) {
   return (
@@ -347,11 +348,11 @@ export function Footer() {
               </div>
             ))}
           </nav>
-          {/* TODO: real LINE OA QR and id */}
           <div className="flex flex-col gap-4 rounded-[20px] bg-subtle p-5 ring-1 ring-line sm:flex-row sm:items-start md:flex-col lg:flex-row">
-            <div className="grid size-24 shrink-0 place-items-center rounded-xl border-[1.5px] border-dashed border-orange bg-white text-center text-sm leading-snug text-orange-text">
-              QR LINE OA<br />รอข้อมูลจริง
-            </div>
+            {/* the white padding is the QR's quiet zone; phones fail to scan without it */}
+            <a href={LINE_URL} className="block size-28 shrink-0 rounded-xl bg-white p-2.5 ring-1 ring-line" aria-label="เพิ่มเพื่อน LINE ของ khonnai">
+              <img src={lineQr} alt="QR เพิ่มเพื่อน LINE ของ khonnai" width={360} height={360} className="size-full" loading="lazy" />
+            </a>
             <div className="flex-1 space-y-2">
               <p className="text-lg font-bold">{LINE_CTA}</p>
               <p className="text-[15px] leading-relaxed text-muted">ถามก่อนเริ่มใช้ หรือให้ทีมช่วยตั้งค่าร้าน</p>

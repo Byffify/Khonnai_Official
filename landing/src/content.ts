@@ -4,7 +4,7 @@
 // Facts come from the pitch deck; anything still waiting on the team is marked TODO and shown as a placeholder.
 
 export const APP_URL = "./app/index.html"; // the khonnai prototype, copied in by scripts/sync-app.mjs
-export const LINE_URL = "#contact"; // TODO: the team's LINE OA link (https://lin.ee/...) once it exists
+export const LINE_URL = "https://lin.ee/8PHy1Z1"; // LINE OA add-friend link, decoded from the official QR (src/assets/line-qr.png)
 
 export const PRIMARY = "เริ่มใช้ฟรี";
 export const LINE_CTA = "คุยกับทีมทาง LINE";
