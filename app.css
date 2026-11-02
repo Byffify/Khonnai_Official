@@ -41,7 +41,8 @@ small{font-size:14px}
 .app-shell{position:relative;width:100%;max-width:var(--shell);min-height:100dvh;margin:0 auto}
 #app{min-height:100dvh;padding-bottom:calc(126px + env(safe-area-inset-bottom))}
 #app[data-page=home],#app[data-page=history],#app[data-page=reservations],#app[data-page=stock]{padding-bottom:calc(32px + env(safe-area-inset-bottom))}
-#app[data-page=detail],#app[data-page=saved]{padding-bottom:calc(196px + env(safe-area-inset-bottom))}
+#app[data-page=detail],#app[data-page=saved]{padding-bottom:calc(126px + env(safe-area-inset-bottom))}
+dialog .stepper.detail-quantity{margin:16px 0 0}
 #app[data-page=receipt]{padding-bottom:calc(192px + env(safe-area-inset-bottom))}
 .content{padding:0 var(--gutter)}
 
@@ -828,3 +829,28 @@ dialog[data-kind=alert][open]::backdrop{background:rgba(10,29,79,.5)}
 .is-editing .settings-card{border-color:#f5c2c2}
 @keyframes delete-in{from{opacity:0;transform:scale(.6)}}
 @media (prefers-reduced-motion:reduce){.row-delete{animation:none}}
+
+/* Bill: pick size, then colour, then quantity */
+.pick-label{display:flex;align-items:center;gap:8px;margin:16px 0 10px;font-size:16px;font-weight:700}
+.pick-label:first-child{margin-top:0}
+.pick-label small{margin-left:auto;font-size:14px;font-weight:400;color:var(--muted)}
+.pick-n{width:24px;height:24px;flex-shrink:0;display:grid;place-items:center;border-radius:12px;background:var(--blue);color:#fff;font-size:13px}
+.pick-n svg{width:14px;height:14px;stroke-width:3}
+.pick-label.done .pick-n{background:var(--success-ink)}
+.pick-chips{display:flex;flex-wrap:wrap;gap:8px}
+.pick-chip{position:relative;min-width:72px;min-height:56px;display:grid;justify-items:center;align-content:center;gap:1px;padding:6px 12px;border:1.5px solid var(--input);border-radius:14px;background:#fff;transition:background-color var(--routine) ease,border-color var(--routine) ease}
+.pick-chip b{font-size:16px;line-height:20px}
+.pick-chip small{font-size:12px;color:var(--muted)}
+.pick-chip.color{grid-template-columns:auto auto;column-gap:8px;justify-content:start;text-align:left}
+.pick-chip.color .swatch{grid-row:span 2;width:20px;height:20px}
+.pick-chip.active{border:2px solid var(--blue);background:var(--pale);padding:5.5px 11.5px}
+.pick-chip.active b{color:var(--blue)}
+.pick-chip:disabled{opacity:1;background:var(--canvas);border-style:dashed;color:var(--dashed)}
+.pick-chip:disabled b,.pick-chip:disabled small{color:var(--dashed)}
+.pick-badge{position:absolute;top:-8px;right:-6px;min-width:22px;height:22px;padding:0 6px;display:grid;place-items:center;border-radius:11px;background:var(--blue);color:#fff;font-size:12px;font-style:normal;font-weight:700}
+.pick-hint{margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--canvas);font-size:14px;color:var(--muted)}
+.picked-summary{margin-top:16px;padding:10px 12px;border-radius:14px;background:var(--canvas)}
+.picked-summary>p{font-size:14px;font-weight:500;color:var(--muted);margin-bottom:4px}
+.picked-row{width:100%;min-height:44px;display:flex;align-items:center;gap:10px;padding:0 6px;border-radius:10px;font-size:16px;text-align:left}
+.picked-row.active{background:var(--pale)}
+.picked-row b{color:var(--blue)}
