@@ -854,3 +854,12 @@ dialog[data-kind=alert][open]::backdrop{background:rgba(10,29,79,.5)}
 .picked-row{width:100%;min-height:44px;display:flex;align-items:center;gap:10px;padding:0 6px;border-radius:10px;font-size:16px;text-align:left}
 .picked-row.active{background:var(--pale)}
 .picked-row b{color:var(--blue)}
+
+/* Stock by size/colour: one group per colour, led by its colour dot */
+.allocation-group{margin-top:12px;padding:4px 12px 6px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.allocation-color{display:flex;align-items:center;gap:10px;min-height:44px;margin:0;border-bottom:1px solid var(--line);font-size:16px;font-weight:700}
+.allocation-color .swatch{width:22px;height:22px}
+.allocation-color small{margin-left:auto;font-size:14px;font-weight:500;color:var(--muted)}
+.allocation-group .allocation-row{min-height:52px;margin:0;font-size:16px}
+.allocation-group .allocation-row+.allocation-row{border-top:1px dashed var(--line)}
+.allocation-group .allocation-row input{width:96px;height:44px}
