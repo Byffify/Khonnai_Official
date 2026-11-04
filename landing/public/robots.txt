@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://khonnaiofficial.vercel.app/sitemap.xml
