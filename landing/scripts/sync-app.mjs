@@ -7,8 +7,8 @@ import { fileURLToPath } from "node:url";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const source = resolve(root, "..");
 const target = resolve(root, "public/app");
-// the landing source itself, git data, tooling and test captures are not part of the app
-const skip = new Set(["landing", ".git", ".github", ".claude", "verification", "node_modules"]);
+// the landing source itself, git data, tooling, docs and test captures are not part of the app
+const skip = new Set(["landing", ".git", ".github", ".claude", "verification", "node_modules", "README.md", "DESIGN.md", "vercel.json"]);
 
 if (!existsSync(resolve(source, "index.html"))) {
   console.error(`sync-app: no app found at ${source}; the "เริ่มใช้ฟรี" links will 404.`);
