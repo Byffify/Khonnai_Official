@@ -15,7 +15,7 @@ Preserve the home alternative's white operational surface, blue primary actions,
 | Orange price | #ff8032 |
 | Danger | #c62828 |
 | Success | #1b7a3e on #eaf7ef |
-| Font | Google Sans, self-hosted variable font, Thai and Latin |
+| Font | Noto Sans Thai for Thai, Google Sans for Latin, both self-hosted variable fonts |
 
 Layout is mobile first with no device frame: the app fills the phone viewport (header and footer respect safe-area insets) and, from 600px wide, sits in a centred 480px column. All sizes, colours, radii and shadows in `app.css` are transcribed from the FigCraft node data (status bar removed, so every y value is 54px higher than in the source). Primary actions stay in a fixed footer. Native dialogs keep Escape and focus containment. All fonts and images are local; no runtime external requests.
 
