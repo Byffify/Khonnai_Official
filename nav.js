@@ -1,6 +1,6 @@
 'use strict';
-// Bottom tab bar and the report placeholder. Loaded after app.js and settings.js; app.js guards its calls to renderNav
-// and TAB_PAGES, so a missing or late nav.js never throws. Shrink-on-scroll and the wide-screen sidebar build on this file.
+// Main menu and the report placeholder: a bottom tab bar under 600px, a sidebar from there up, never both at once, so the
+// tour's [data-tab] selectors stay unique. Loaded after app.js and settings.js; app.js guards its calls to renderNav and TAB_PAGES.
 
 const TAB_PAGES = ['home', 'stock', 'report', 'history'];
 const showsNav = page => TAB_PAGES.includes(page) && !searching;
@@ -27,6 +27,8 @@ let navShownPage = null;
 function renderNav() {
   const bar = document.querySelector('#tabbar');
   if (!bar) return;
+  if (WIDE.matches) { bar.replaceChildren(); renderSidebar(); return; }
+  removeSidebar();
   const show = showsNav(page);
   document.body.dataset.nav = show ? 'tabs' : 'none';
   if (!show) { bar.replaceChildren(); return; }
@@ -37,6 +39,123 @@ function renderNav() {
     if (el.dataset.tab === page) el.setAttribute('aria-current', 'page'); else el.removeAttribute('aria-current');
   });
 }
+
+// ---------- sidebar ----------
+// Rows use data-action="go:..." so a click takes the same path as every other link, including the dirty-form guard in app.js.
+const SIDE_KEY = 'khonnai-sidebar';
+const SIDE_ROWS = [['home', 'โฮม', navSvg('home')], ['stock', 'สต็อกสินค้า', navSvg('stock')], ['reservations', 'รายการจอง', icon('bookmark')], ['report', 'รายงาน', navSvg('report')], ['history', 'ประวัติการขาย', navSvg('history')]];
+const SIDE_PARENT = { detail: 'stock', saved: 'stock', add: 'stock', reservation: 'reservations', checkout: 'catalog' };
+let sideChoice = null;
+try { sideChoice = localStorage.getItem(SIDE_KEY); } catch {}
+const sideMode = () => (!DESK.matches || sideChoice === 'collapsed' ? 'rail' : 'open');
+const sideRow = (tab, label, svg, extra = '') => `<button type="button" class="side-item" data-tab="${tab}" data-label="${label}" aria-label="${label}">${svg}<span class="side-label">${label}</span>${extra}</button>`;
+const sideToggleIcon = rail => `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18${rail ? 'm5-12 3 3-3 3' : 'm7-6-3-3 3-3'}"/></svg>`;
+
+function sideMarkup() {
+  return `<img class="side-logo side-logo-full" src="assets/design-0.png" alt="Khonnai"><img class="side-logo side-logo-mark" src="assets/design-2.png" alt="">`
+    + `<button type="button" class="side-sell" data-tab="catalog" data-label="ขาย" aria-label="ขาย">${navSvg('sell')}<span class="side-label">ขาย</span></button>`
+    + `<div class="side-nav">${SIDE_ROWS.map(([tab, label, svg]) => sideRow(tab, label, svg, tab === 'reservations' ? '<span class="side-count"></span>' : '')).join('')}</div>`
+    + `<div class="side-foot">${sideRow('settings', 'ตั้งค่า', icon('gear'))}<button type="button" class="side-item side-toggle" data-action="toggle-sidebar"></button></div>`
+    + '<div class="side-tooltip" aria-hidden="true"></div>';
+}
+
+function renderSidebar() {
+  document.body.dataset.nav = 'side';
+  const mode = sideMode();
+  document.body.dataset.side = mode;
+  let side = document.querySelector('.sidebar');
+  if (!side) {
+    side = document.createElement('nav');
+    side.className = 'sidebar';
+    side.setAttribute('aria-label', 'เมนูหลัก');
+    side.innerHTML = sideMarkup();
+    document.querySelector('.app-shell').prepend(side);
+  }
+  const current = page.startsWith('settings') ? 'settings' : SIDE_PARENT[page] || page;
+  side.querySelectorAll('[data-tab]').forEach(el => {
+    const tab = el.dataset.tab;
+    if (tab === current) el.setAttribute('aria-current', 'page'); else el.removeAttribute('aria-current');
+    if (tab === page) el.removeAttribute('data-action'); else el.dataset.action = 'go:' + tab;
+  });
+  const waiting = state.reservations.filter(r => r.status === 'waiting').length;
+  side.querySelector('.side-count').textContent = waiting || '';
+  side.querySelector('[data-tab="reservations"]').setAttribute('aria-label', waiting ? `รายการจอง ${waiting} ออเดอร์` : 'รายการจอง');
+  const toggle = side.querySelector('.side-toggle'), rail = mode === 'rail', word = rail ? 'ขยายเมนู' : 'ย่อเมนู';
+  if (toggle.dataset.label !== word) {
+    toggle.dataset.label = word;
+    toggle.setAttribute('aria-label', word);
+    toggle.setAttribute('aria-expanded', String(!rail));
+    toggle.innerHTML = `${sideToggleIcon(rail)}<span class="side-label">${word}</span>`;
+  }
+  if (!rail) sideTip(null);
+}
+
+function removeSidebar() {
+  document.querySelector('.sidebar')?.remove();
+  delete document.body.dataset.side;
+}
+
+function sideTip(el) {
+  const tip = document.querySelector('.side-tooltip');
+  if (!tip) return;
+  if (!el || document.body.dataset.side !== 'rail') { tip.classList.remove('visible'); return; }
+  const box = el.getBoundingClientRect();
+  tip.textContent = el.dataset.label;
+  tip.style.left = box.right + 12 + 'px';
+  tip.style.top = box.top + box.height / 2 + 'px';
+  tip.classList.add('visible');
+}
+const sideTarget = el => (el && el.closest ? el.closest('.sidebar [data-label]') : null);
+document.addEventListener('mouseover', event => { const el = sideTarget(event.target); if (el) sideTip(el); });
+document.addEventListener('mouseout', event => { if (sideTarget(event.target)) sideTip(sideTarget(document.activeElement)); });
+document.addEventListener('focusin', event => { const el = sideTarget(event.target); if (el) sideTip(el); });
+document.addEventListener('focusout', event => { if (sideTarget(event.target)) sideTip(null); });
+document.addEventListener('keydown', event => { if (event.key === 'Escape') sideTip(null); });
+
+Object.assign(window.extraActions, {
+  'toggle-sidebar': () => {
+    sideChoice = sideMode() === 'rail' ? 'open' : 'collapsed';
+    try { localStorage.setItem(SIDE_KEY, sideChoice); } catch {}
+    renderNav();
+    if (typeof tourPlace === 'function') tourPlace();
+  },
+});
+
+// ---------- crossing a breakpoint ----------
+// Forms, cart, and search live in state, so a re-render keeps them. Only focus lives in the DOM, so it is put back by hand.
+let navLayout = null, navPrinting = false;
+const layoutName = () => (DESK.matches ? 'desk' : WIDE.matches ? 'tablet' : 'phone');
+
+function focusSelector(el) {
+  if (!el || !el.closest('#app,#action-bar')) return null;
+  if (el.id) return '#' + CSS.escape(el.id);
+  for (const key of ['field', 'draft', 'cell', 'action']) {
+    if (el.dataset[key]) return `[data-${key}="${CSS.escape(el.dataset[key])}"]`;
+  }
+  return null;
+}
+
+function onBreakpoint() {
+  if (navPrinting || layoutName() === navLayout) return;
+  navLayout = layoutName();
+  // The phone search bar is a mode; the wide search field is always there. Keep what was typed on the side that needs it.
+  searching = !WIDE.matches && Boolean(search) && page !== 'history';
+  const active = document.activeElement, selector = focusSelector(active);
+  const start = active?.selectionStart ?? null, end = active?.selectionEnd ?? null;
+  render();
+  const next = selector && document.querySelector(selector);
+  if (next) {
+    next.focus({ preventScroll: true });
+    try { if (start !== null) next.setSelectionRange(start, end); } catch {}
+  }
+  if (typeof tourPlace === 'function') tourPlace();
+}
+WIDE.addEventListener('change', onBreakpoint);
+DESK.addEventListener('change', onBreakpoint);
+window.addEventListener('DOMContentLoaded', () => { navLayout = layoutName(); });
+// Paper width can flip these queries while printing; the screen layout must not re-render under the print dialog.
+window.addEventListener('beforeprint', () => { navPrinting = true; });
+window.addEventListener('afterprint', () => { navPrinting = false; onBreakpoint(); });
 
 // ---------- shrink on scroll ----------
 // Down past DELTA shrinks the bar, up past DELTA grows it, and the top 24px and the page end always show it full.

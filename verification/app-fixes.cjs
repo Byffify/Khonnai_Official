@@ -660,6 +660,368 @@ groups.tour = () => {
   });
 };
 
+groups.wide = () => {
+  check('menu follows the breakpoint', async () => {
+    await open(page, { seed: true, width: 599, height: 800 }); assert.ok(await page.isVisible('#tabbar .tab'));
+    assert.equal(await page.locator('.sidebar').count(), 0);
+    await page.setViewportSize({ width: 600, height: 800 }); await page.waitForTimeout(100);
+    assert.equal(await page.isVisible('#tabbar .tab'), false);
+    assert.equal(await page.$eval('.sidebar', e => e.getBoundingClientRect().width), 88);
+    await page.setViewportSize({ width: 1024, height: 800 }); await page.waitForTimeout(100);
+    assert.equal(await page.$eval('.sidebar', e => e.getBoundingClientRect().width), 240);
+  });
+  check('only one menu exists at a time, so tour selectors stay unique', async () => {
+    for (const [width, nav] of [[393, 'tabs'], [834, 'side'], [1440, 'side']]) {
+      await page.setViewportSize({ width, height: 900 }); await page.waitForTimeout(100);
+      assert.equal(await page.locator('[data-tab="catalog"]').count(), 1, 'catalog@' + width);
+      assert.equal(await page.locator('[data-tab="stock"]').count(), 1, 'stock@' + width);
+      assert.equal(await page.evaluate(() => document.body.dataset.nav), nav);
+    }
+  });
+  check('sidebar spec and all pages keep it', async () => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    const rows = await page.$$eval('.side-item', a => a.map(e => e.getBoundingClientRect().height));
+    for (const h of rows) assert.equal(h, 40);
+    const r = await page.$$eval('.side-nav .side-item', a => a.slice(0, 2).map(e => e.getBoundingClientRect()));
+    assert.equal(Math.round(r[1].top - r[0].bottom), 12);
+    assert.equal(await page.$eval('.side-sell', e => e.getBoundingClientRect().height), 44);
+    assert.equal(await page.$eval('.side-sell', e => e.getBoundingClientRect().left), 16);
+    assert.equal(await page.$eval('.side-logo', e => e.getBoundingClientRect().height), 32);
+    for (const p of ['stock', 'catalog', 'reservations', 'report', 'history', 'settings']) { await go(page, p); assert.ok(await page.isVisible('.sidebar'), p); }
+    assert.equal(await page.locator('.side-item', { hasText: 'รายการจอง' }).count(), 1);
+    assert.match(await page.locator('.side-item', { hasText: 'รายการจอง' }).locator('.side-count').textContent(), /^\d+$/);
+  });
+  check('root pages have no back button on wide, flow pages keep it', async () => {
+    for (const p of ['home', 'stock', 'catalog', 'reservations', 'report', 'history', 'settings']) {
+      await go(page, p); assert.equal(await page.locator('.app-bar [aria-label="กลับ"]').count(), 0, p);
+      const cur = await page.locator('.sidebar [aria-current="page"]').count(); assert.equal(cur, 1, 'current ' + p);
+    }
+    for (const p of ['checkout', 'settings-shop']) { await page.evaluate(n => { if (n === 'settings-shop') startDraft('shop'); }, p); await go(page, p); assert.equal(await page.locator('.app-bar [aria-label="กลับ"]').count(), 1, p); }
+    await page.evaluate(id => navigate('detail', id), 'A-102'); await wait(500);
+    assert.equal(await page.locator('.app-bar [aria-label="กลับ"]').count(), 1);
+    assert.equal(await page.locator('.sidebar [aria-current="page"][data-tab="stock"]').count(), 1);
+  });
+  check('clicking the sidebar navigates, and the current item does nothing', async () => {
+    await go(page, 'home');
+    await page.click('.side-item[data-tab="stock"]'); await wait(500);
+    assert.equal(await page.evaluate(() => page), 'stock');
+    await page.click('.side-sell'); await wait(500);
+    assert.equal(await page.evaluate(() => page), 'catalog');
+    await page.click('.side-item[data-tab="settings"]'); await wait(500);
+    assert.equal(await page.evaluate(() => page), 'settings');
+    const bar = await page.$('#app .app-bar');
+    await page.click('.side-item[data-tab="settings"]'); await wait(100);
+    assert.equal(await page.evaluate(() => page), 'settings');
+    assert.ok(await bar.evaluate(e => e.isConnected), 'the page was not rebuilt');
+  });
+  check('collapse persists, rail has tooltips', async () => {
+    await go(page, 'home'); await page.click('[data-action="toggle-sidebar"]');
+    assert.equal(await page.$eval('.sidebar', e => e.getBoundingClientRect().width), 88);
+    await page.reload(); assert.equal(await page.$eval('.sidebar', e => e.getBoundingClientRect().width), 88);
+    const size = await page.$eval('.side-item[data-tab="stock"]', e => { const b = e.getBoundingClientRect(); return [b.width, b.height]; });
+    assert.deepEqual(size, [56, 44]);
+    await page.hover('.side-item[data-tab="stock"]');
+    assert.match(await page.textContent('.side-tooltip'), /สต็อกสินค้า/);
+    await wait(200); assert.equal(await page.$eval('.side-tooltip', e => getComputedStyle(e).opacity), '1');
+    await page.focus('.side-item[data-tab="report"]');
+    assert.match(await page.textContent('.side-tooltip'), /รายงาน/);
+    await page.click('[data-action="toggle-sidebar"]');
+    assert.equal(await page.$eval('.sidebar', e => e.getBoundingClientRect().width), 240);
+  });
+  check('tablet rail never shows the collapse button', async () => {
+    await page.setViewportSize({ width: 834, height: 1112 }); await page.waitForTimeout(100);
+    assert.equal(await page.isVisible('[data-action="toggle-sidebar"]'), false);
+    assert.equal(await page.$eval('.sidebar', e => e.getBoundingClientRect().width), 88);
+    await page.setViewportSize({ width: 1440, height: 900 }); await page.waitForTimeout(100);
+    assert.equal(await page.isVisible('[data-action="toggle-sidebar"]'), true);
+  });
+  check('sidebar still works when storage throws', async () => {
+    const other = await page.context().browser().newPage();
+    const errors = []; other.on('pageerror', e => errors.push(e.message));
+    await other.addInitScript(() => {
+      const get = Storage.prototype.getItem, set = Storage.prototype.setItem;
+      Storage.prototype.getItem = function (k) { if (k === 'khonnai-sidebar') throw new Error('blocked'); return get.call(this, k); };
+      Storage.prototype.setItem = function (k, v) { if (k === 'khonnai-sidebar') throw new Error('blocked'); return set.call(this, k, v); };
+    });
+    await other.setViewportSize({ width: 1440, height: 900 });
+    await other.goto(APP_URL); await wait(300);
+    assert.equal(await other.$eval('.sidebar', e => e.getBoundingClientRect().width), 240);
+    await other.evaluate(() => { if (dialog.open) dialog.close(); });
+    await other.click('[data-action="toggle-sidebar"]');
+    assert.equal(await other.$eval('.sidebar', e => e.getBoundingClientRect().width), 88);
+    assert.deepEqual(errors, []);
+    await other.close();
+  });
+  check('sidebar click from a dirty form asks first and keeps the input', async () => {
+    await open(page, { seed: true, width: 1440, height: 900 });
+    await page.evaluate(() => { initForm(); navigate('add'); }); await wait(500);
+    assert.ok(await page.isVisible('.sidebar'));
+    await page.fill('[data-field="name"]', 'รุ่นทดสอบกลางฟอร์ม');
+    for (const target of ['.side-item[data-tab="stock"]', '.side-sell']) {
+      await page.click(target); await wait(350);
+      assert.equal(await page.evaluate(() => page), 'add');
+      assert.equal(await page.$eval('#dialog', d => d.open && d.dataset.kind), 'alert');
+      await page.click('dialog .cancel-button[data-action="close"]'); await wait(250);
+      assert.equal(await page.inputValue('[data-field="name"]'), 'รุ่นทดสอบกลางฟอร์ม');
+    }
+    await page.click('.side-item[data-tab="stock"]'); await wait(350);
+    await page.click('dialog [data-action^="leave-form"]'); await wait(500);
+    assert.equal(await page.evaluate(() => page), 'stock');
+  });
+  check('a clean form leaves without asking', async () => {
+    await page.evaluate(() => { initForm(); navigate('add'); }); await wait(500);
+    await page.click('.side-item[data-tab="history"]'); await wait(500);
+    assert.equal(await page.evaluate(() => page), 'history');
+    assert.equal(await page.$eval('#dialog', d => d.open), false);
+  });
+  check('typed form input, cart, and focus survive crossing both breakpoints', async () => {
+    await open(page, { seed: true, width: 393, height: 852 });
+    await page.evaluate(() => { initForm(); navigate('add'); }); await wait(500);
+    await page.fill('[data-field="name"]', 'รุ่นข้ามจุดตัด');
+    await page.fill('[data-field="code"]', 'X-900');
+    await page.fill('[data-field="price"]', '125');
+    await page.focus('[data-field="price"]');
+    for (const width of [700, 1100, 700, 393]) {
+      await page.setViewportSize({ width, height: 852 }); await page.waitForTimeout(120);
+      assert.equal(await page.inputValue('[data-field="name"]'), 'รุ่นข้ามจุดตัด', 'name@' + width);
+      assert.equal(await page.inputValue('[data-field="code"]'), 'X-900', 'code@' + width);
+      assert.equal(await page.inputValue('[data-field="price"]'), '125', 'price@' + width);
+      assert.equal(await page.evaluate(() => document.activeElement.dataset.field), 'price', 'focus@' + width);
+    }
+    assert.ok(await page.evaluate(() => formDirty()));
+    await page.click('[data-action^="cell-edit"]'); await page.fill('#cell-qty', '7');
+    for (const width of [700, 1100, 393]) {
+      await page.setViewportSize({ width, height: 852 }); await page.waitForTimeout(120);
+      assert.equal(await page.inputValue('#cell-qty'), '7', 'cell@' + width);
+      assert.equal(await page.textContent('#form-total'), '7 แพ็ก');
+    }
+    await page.evaluate(() => { form = null; navigate('home'); }); await wait(500);
+  });
+  check('an open sheet survives crossing a breakpoint', async () => {
+    await page.setViewportSize({ width: 1100, height: 852 }); await go(page, 'stock');
+    await page.evaluate(() => { showQuantity(state.products[0].id); });
+    await page.setViewportSize({ width: 800, height: 852 }); await page.waitForTimeout(120);
+    assert.equal(await page.$eval('#dialog', d => d.open), true);
+    await page.evaluate(() => dialog.close()); await wait(250);
+  });
+  check('search typed on one layout carries to the other', async () => {
+    await page.setViewportSize({ width: 1440, height: 900 }); await go(page, 'stock');
+    await page.fill('.app-bar #search', 'บิกินี่');
+    assert.equal(await page.locator('.product-row').count(), 1);
+    assert.equal(await page.evaluate(() => document.activeElement.id), 'search');
+    await page.setViewportSize({ width: 393, height: 852 }); await page.waitForTimeout(120);
+    assert.equal(await page.inputValue('#search'), 'บิกินี่');
+    assert.equal(await page.locator('.product-row').count(), 1);
+    await page.setViewportSize({ width: 1440, height: 900 }); await page.waitForTimeout(120);
+    assert.equal(await page.inputValue('.app-bar #search'), 'บิกินี่');
+    assert.equal(await page.locator('.product-row').count(), 1);
+    assert.ok(await page.isVisible('.sidebar'));
+  });
+  check('tables and paging', async () => {
+    await open(page, { seed: { products: 20, sales: 14 }, width: 1440, height: 900 });
+    await go(page, 'stock');
+    assert.equal(await page.locator('.product-row').count(), 8);
+    assert.match(await page.textContent('.pager'), /แสดง 1–8 จาก 20 รุ่น/);
+    await page.click('[data-action="page:stock:2"]'); assert.match(await page.textContent('.pager'), /แสดง 9–16/);
+    const sizes = await page.$$eval('.pager button', a => a.map(e => e.getBoundingClientRect()).map(b => [b.width, b.height]));
+    for (const [w, h] of sizes) assert.ok(w >= 44 && h >= 44);
+    await go(page, 'history'); assert.equal(await page.locator('.history-row').count(), 6);
+    await page.setViewportSize({ width: 393, height: 852 }); await go(page, 'stock');
+    assert.equal(await page.locator('.pager').count(), 0); assert.equal(await page.locator('.product-row').count(), 20);
+  });
+  check('table columns show on wide, hide on phones, and numbers align right', async () => {
+    assert.equal(await page.locator('.col-wide:visible').count(), 0);
+    assert.equal(await page.isVisible('.table-head'), false);
+    await page.setViewportSize({ width: 1440, height: 900 }); await go(page, 'stock');
+    assert.ok(await page.isVisible('.table-head'));
+    const cols = await page.locator('.product-row').first().locator('.col-wide:visible').allTextContents();
+    assert.equal(cols.length, 3); assert.equal(cols[0], 'A-102');
+    assert.equal(await page.$eval('.product-row .product-meta b', e => getComputedStyle(e).textAlign), 'right');
+    const heads = await page.$$eval('.table-head>*', a => a.map(e => e.getBoundingClientRect()).filter(b => b.width));
+    const cells = await page.$$eval('.product-row:first-of-type>*:not(.product-meta), .product-row:first-of-type .product-meta>*', a => a.map(e => e.getBoundingClientRect()).filter(b => b.width));
+    assert.equal(heads.length, cells.length);
+    heads.slice(1).forEach((b, i) => assert.ok(Math.abs(b.left - cells[i + 1].left) < 1 && Math.abs(b.right - cells[i + 1].right) < 1, 'column ' + (i + 1)));
+    await page.setViewportSize({ width: 834, height: 1112 }); await page.waitForTimeout(120);
+    assert.equal(await page.locator('.product-row').first().locator('.col-wide:visible').count(), 1);
+    assert.equal(await page.locator('.pager [data-action]').count() >= 4, true);
+    await go(page, 'history');
+    assert.equal(await page.locator('.history-row').first().locator('.col-wide:visible').count(), 3);
+    await page.setViewportSize({ width: 1440, height: 900 }); await page.waitForTimeout(120);
+    assert.equal(await page.locator('.history-row').first().locator('.col-wide:visible').count(), 4);
+    assert.match(await page.textContent('.pager'), /แสดง 1–6 จาก 14 บิล/);
+  });
+  check('paging clamps when filtering shrinks the list', async () => {
+    await page.setViewportSize({ width: 1440, height: 900 }); await go(page, 'stock');
+    await page.click('[data-action="page:stock:3"]'); await page.click('[data-action^="category:"]:nth-child(2)');
+    assert.ok(await page.locator('.product-row, .empty').count() > 0);
+  });
+  check('category and search reset paging; a stale page number clamps', async () => {
+    await go(page, 'stock');
+    await page.click('[data-action="page:stock:3"]'); await page.click('.category-tabs .chip:first-child');
+    assert.match(await page.textContent('.pager'), /แสดง 1–8/);
+    await page.click('[data-action="page:stock:3"]'); await page.fill('.app-bar #search', 'เสื้อ');
+    assert.match(await page.textContent('.pager'), /แสดง 1–8/);
+    await page.fill('.app-bar #search', '');
+    await page.click('[data-action="page:stock:3"]');
+    await page.evaluate(() => { state.products = state.products.slice(0, 10); render(); });
+    assert.match(await page.textContent('.pager'), /แสดง 9–10 จาก 10 รุ่น/);
+    await open(page, { seed: { products: 20, sales: 14 }, width: 1440, height: 900 });
+  });
+  check('history search filters on wide and stays out of the phone view', async () => {
+    await go(page, 'history');
+    const name = await page.locator('.history-row b').first().textContent();
+    await page.fill('.app-bar #search', name);
+    assert.ok(await page.locator('.history-row').count() >= 1);
+    for (const t of await page.locator('.history-row .grow b').allTextContents()) assert.equal(t, name);
+    await page.fill('.app-bar #search', 'ไม่มีลูกค้าคนนี้'); assert.equal(await page.locator('.history-row').count(), 0);
+    assert.ok(await page.isVisible('#results .empty'));
+    await page.setViewportSize({ width: 393, height: 852 }); await page.waitForTimeout(120);
+    assert.equal(await page.locator('.history-row').count(), 14);
+    await page.setViewportSize({ width: 1440, height: 900 }); await go(page, 'history');
+  });
+  check('going back from a detail page keeps the table page', async () => {
+    await go(page, 'stock'); await page.click('[data-action="page:stock:2"]');
+    await page.click('.product-row'); await wait(500);
+    await page.click('.app-bar [aria-label="กลับ"]'); await wait(500);
+    assert.match(await page.textContent('.pager'), /แสดง 9–16/);
+    await go(page, 'home'); await go(page, 'stock');
+    assert.match(await page.textContent('.pager'), /แสดง 1–8/);
+  });
+  check('sell is two panes, cart survives resizing', async () => {
+    await go(page, 'catalog');
+    await page.evaluate(() => { state.cart = { [state.products[0].id]: 2 }; render(); });
+    assert.ok(await page.isVisible('.order-panel')); assert.equal(await page.$eval('.order-panel', e => e.getBoundingClientRect().width), 400);
+    await page.setViewportSize({ width: 834, height: 1112 }); await page.waitForTimeout(100);
+    assert.equal(await page.$eval('.order-panel', e => e.getBoundingClientRect().width), 320);
+    await page.setViewportSize({ width: 393, height: 852 }); await page.waitForTimeout(100);
+    assert.equal(await page.evaluate(() => Object.keys(state.cart).length), 1);
+    assert.equal(await page.isVisible('.order-panel'), false);
+  });
+  check('sell grid columns, chips instead of the rail, no footer, panel actions work', async () => {
+    const cols = async () => page.$eval('.product-grid', e => getComputedStyle(e).gridTemplateColumns.split(' ').length);
+    await open(page, { seed: true, width: 1440, height: 900 }); await go(page, 'catalog');
+    assert.equal(await cols(), 4);
+    assert.equal(await page.isVisible('.category-rail'), false);
+    assert.ok(await page.isVisible('.category-tabs .chip'));
+    assert.equal(await page.locator('#action-bar .footer').count(), 0);
+    assert.equal(await page.isDisabled('.order-panel [data-action="confirm-sale"]'), true);
+    await page.setViewportSize({ width: 834, height: 1112 }); await page.waitForTimeout(100);
+    assert.equal(await cols(), 2);
+    await page.setViewportSize({ width: 1440, height: 900 }); await page.waitForTimeout(100);
+    const id = await page.evaluate(() => state.products.find(p => p.stock > 2 && p.values).id);
+    const stockBefore = await page.evaluate(i => product(i).stock, id);
+    await page.evaluate(i => {
+      const p = product(i), a = p.values.map(r => r.map(() => 0));
+      outer: for (let c = 0; c < a.length; c++) for (let s = 0; s < a[c].length; s++) if (p.values[c][s] > 0) { a[c][s] = 1; break outer; }
+      state.cart = { [i]: 1 }; state.cartVariants = { [i]: a }; render();
+    }, id);
+    assert.ok(await page.isEnabled('.order-panel [data-action="confirm-sale"]'));
+    await page.click('.order-panel [data-action="confirm-sale"]'); await wait(1100);
+    assert.equal(await page.evaluate(() => page), 'receipt');
+    assert.equal(await page.evaluate(i => product(i).stock, id), stockBefore - 1);
+  });
+  check('bill sits beside its actions on desktop and prints alone', async () => {
+    await page.setViewportSize({ width: 1440, height: 900 }); await page.waitForTimeout(120);
+    assert.equal(await page.$eval('.receipt', e => e.getBoundingClientRect().width), 620);
+    assert.equal(await page.locator('#action-bar .footer').count(), 0);
+    const [bill, card] = await page.$$eval('.receipt, .receipt-actions', a => a.map(e => e.getBoundingClientRect()));
+    assert.ok(card.left >= bill.right, 'card sits to the right');
+    assert.ok(await page.locator('.receipt-actions [data-action="export-bill"]').isVisible());
+    assert.ok(await page.locator('.receipt-actions [data-action="new-order"]').isVisible());
+    assert.match(await page.textContent('.receipt-actions .notice'), /ออกบิลแล้ว/);
+    await page.emulateMedia({ media: 'print' });
+    assert.equal(await page.$eval('.sidebar', e => getComputedStyle(e).display), 'none');
+    assert.equal(await page.$eval('#app', e => getComputedStyle(e).marginLeft), '0px');
+    assert.equal(await page.$eval('.receipt-actions', e => getComputedStyle(e).display), 'none');
+    assert.ok(await page.$eval('.receipt', e => e.getBoundingClientRect().width <= 560));
+    await page.emulateMedia({ media: null });
+    const pdf = await page.pdf({ format: 'A4', printBackground: true });
+    const pages = (pdf.toString('latin1').match(/\/Type\s*\/Page[^s]/g) || []).length;
+    assert.equal(pages, 1, 'the bill prints on one page');
+    fs.writeFileSync(path.join(ROOT, '.superpowers/sdd/2026-11-07-app-menu-and-fixes/t9-bill-1440.pdf'), pdf);
+    assert.equal(await page.$eval('.receipt', e => e.getBoundingClientRect().width), 620, 'screen layout restored');
+    assert.ok(await page.isVisible('.sidebar'));
+  });
+  check('bill opened from history keeps its back button, tablet keeps the footer', async () => {
+    await go(page, 'history'); await page.click('.history-row'); await wait(500);
+    assert.equal(await page.locator('.app-bar [aria-label="กลับ"]').count(), 1);
+    assert.ok(await page.locator('.receipt-actions [data-action="export-bill"]').isVisible());
+    assert.equal(await page.locator('.receipt-actions [data-action="new-order"]').count(), 0);
+    await page.setViewportSize({ width: 834, height: 1112 }); await page.waitForTimeout(120);
+    assert.equal(await page.locator('.receipt-actions').count(), 0);
+    assert.ok(await page.isVisible('#action-bar .footer [data-action="export-bill"]'));
+    await page.setViewportSize({ width: 1440, height: 900 }); await page.waitForTimeout(120);
+  });
+  check('forms stay 640px wide, footers clear the sidebar', async () => {
+    for (const width of [834, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.evaluate(() => { initForm(); navigate('add'); }); await wait(500);
+      assert.ok(await page.$eval('.product-form', e => e.getBoundingClientRect().width <= 640), 'form@' + width);
+      const side = await page.$eval('.sidebar', e => e.getBoundingClientRect().right);
+      const foot = await page.$eval('#action-bar .footer', e => e.getBoundingClientRect());
+      assert.ok(foot.left >= side, 'footer@' + width); assert.ok(foot.right <= width, 'footer right@' + width);
+      const btn = await page.$eval('#action-bar .footer [data-action="save-product"]', e => e.getBoundingClientRect().width);
+      assert.ok(btn <= 640, 'button@' + width);
+      await page.evaluate(() => { form = null; navigate('settings'); }); await wait(500);
+      assert.ok(await page.$eval('#app .content', e => e.getBoundingClientRect().width <= 640), 'settings@' + width);
+      await go(page, 'reservations');
+      assert.ok(await page.$eval('#app .content', e => e.getBoundingClientRect().width <= 640), 'reservations@' + width);
+    }
+    await go(page, 'home');
+  });
+  check('dialogs: alert 380px, sheet 480px at most and centred', async () => {
+    await page.setViewportSize({ width: 1440, height: 900 }); await go(page, 'stock');
+    await page.click('[data-action="sort"]'); await wait(450);
+    let b = await page.$eval('#dialog', e => e.getBoundingClientRect());
+    assert.ok(b.width <= 480); assert.ok(Math.abs(b.left + b.width / 2 - 720) < 1); assert.ok(b.bottom < 900);
+    await page.evaluate(() => dialog.close()); await wait(250);
+    await page.evaluate(() => openSheet('ทดสอบ', '<p>ข้อความ</p><button class="cancel-button" data-action="close">ปิด</button>', 'alert')); await wait(350);
+    b = await page.$eval('#dialog', e => e.getBoundingClientRect());
+    assert.equal(b.width, 380);
+    await page.evaluate(() => dialog.close()); await wait(250);
+    await page.evaluate(() => toast('ทดสอบ')); await wait(350);
+    const t = await page.$eval('#toast', e => e.getBoundingClientRect());
+    assert.ok(t.width <= 480); assert.ok(t.left >= 240);
+  });
+  check('tour at 1440 points into the sidebar with its card beside it', async () => {
+    for (const collapsed of [false, true]) {
+      await open(page, { seed: false, width: 1440, height: 900 });
+      if (collapsed) await page.evaluate(() => { dialog.close(); document.querySelector('[data-action="toggle-sidebar"]').click(); });
+      await page.evaluate(() => tourWelcome()); await page.click('[data-action="tour-start"]'); await page.waitForSelector('#coach'); await wait(100);
+      const inside = (b, w) => b.left >= 0 && b.top >= 0 && b.right <= w.width && b.bottom <= w.height;
+      const win = { width: 1440, height: 900 };
+      let card = await page.$eval('.coach-card', e => e.getBoundingClientRect());
+      assert.ok(inside(card, win), 'step 1 card fits'); assert.ok(card.width <= 400, 'step 1 card keeps a readable width');
+      for (const sel of ['.side-sell', '.side-item[data-tab="stock"]']) {
+        await page.click('[data-action="tour-next"]'); await wait(100);
+        const hole = await page.$eval('.coach-hole', e => e.getBoundingClientRect());
+        const t = await page.$eval(sel, e => e.getBoundingClientRect());
+        assert.ok(hole.left <= t.left && hole.right >= t.right && hole.top <= t.top && hole.bottom >= t.bottom, 'hole covers ' + sel);
+        card = await page.$eval('.coach-card', e => e.getBoundingClientRect());
+        assert.ok(inside(card, win), 'card fits ' + sel);
+        assert.ok(card.left >= hole.right, 'card sits beside ' + sel);
+      }
+      await page.click('[data-action="tour-next"]'); assert.equal(await page.locator('#coach').count(), 0);
+      if (collapsed) await page.click('[data-action="toggle-sidebar"]');
+    }
+  });
+  check('no overflow at any width', async () => {
+    await open(page, { seed: { products: 20, sales: 14 }, width: 1440, height: 900 });
+    await page.evaluate(() => { lastSale = state.sales[0]; });
+    for (const width of [320, 375, 393, 600, 834, 1024, 1440, 1920]) {
+      await page.setViewportSize({ width, height: 900 });
+      for (const p of ['home', 'stock', 'catalog', 'history', 'report', 'receipt']) {
+        await go(page, p); assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${p}@${width}`);
+      }
+    }
+  });
+  check('content stops at 1440px on very wide screens', async () => {
+    await page.setViewportSize({ width: 1920, height: 1000 }); await go(page, 'stock');
+    assert.ok(await page.$eval('#app', e => e.getBoundingClientRect().width <= 1440));
+    assert.equal(await page.$eval('#app', e => e.getBoundingClientRect().left), 240);
+  });
+};
+
 // ---- runner --------------------------------------------------------------
 (async () => {
   const wanted = process.argv.slice(2);
