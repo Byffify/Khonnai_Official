@@ -242,7 +242,7 @@ groups.compact = () => {
   const compact = () => page.evaluate(() => document.querySelector('#tabbar .tabbar').classList.contains('compact'));
   const scrollTo = async y => { await page.evaluate(v => scrollTo(0, v), y); await page.waitForTimeout(450); };
   check('shrinks going down, grows going up and at the ends', async () => {
-    await open(page, { seed: true, width: 393, height: 600 });
+    await open(page, { seed: true, width: 393, height: 420 });
     await scrollTo(0); assert.equal(await compact(), false);
     await page.evaluate(() => scrollTo(0, 16)); await page.waitForTimeout(100); assert.equal(await compact(), false, 'inside first 24px');
     await scrollTo(120); await scrollTo(300); assert.equal(await compact(), true);
@@ -257,6 +257,23 @@ groups.compact = () => {
     const r = await page.$$eval('#tabbar .tab, #tabbar .sell', a => a.map(e => { const b = e.getBoundingClientRect(); return [b.width, b.height, e.getAttribute('aria-label')]; }));
     assert.equal(r.length, 5);
     for (const [w, h, label] of r) { assert.ok(w >= 44 && h >= 44, `${label} ${w}x${h}`); assert.ok(label); }
+  });
+  check('a tap beside the compact capsule reaches the page, the capsule still takes taps', async () => {
+    await open(page, { seed: true, width: 393, height: 420 });
+    await scrollTo(0); await scrollTo(120); await scrollTo(300);
+    assert.equal(await compact(), true, 'setup: bar is compact');
+    const hit = await page.evaluate(() => {
+      const holder = document.querySelector('#tabbar').getBoundingClientRect(), cap = document.querySelector('#tabbar .tabbar').getBoundingClientRect();
+      const x = (holder.left + cap.left) / 2, y = cap.top + cap.height / 2;
+      const beside = document.elementFromPoint(x, y);
+      const tab = document.querySelector('#tabbar .tab').getBoundingClientRect();
+      const on = document.elementFromPoint(tab.left + tab.width / 2, tab.top + tab.height / 2);
+      return { capLeft: cap.left, holderLeft: holder.left, beside: !!beside.closest('#tabbar'), on: !!on.closest('#tabbar .tabbar') };
+    });
+    assert.ok(hit.capLeft - hit.holderLeft > 20, 'there is an empty margin to test');
+    assert.equal(hit.beside, false, 'margin lets the tap through');
+    assert.equal(hit.on, true, 'capsule still takes taps');
+    await scrollTo(0);
   });
   check('only transform and opacity animate', async () => {
     const props = await page.$$eval('#tabbar .tabbar, #tabbar svg, #tabbar .tab span, #tabbar .sell, #tabbar .sell-word', a => a.map(e => getComputedStyle(e).transitionProperty));
@@ -279,6 +296,127 @@ groups.compact = () => {
     assert.equal(await compact(), false);
     await page.mouse.wheel(0, 200); await wait(450);
     assert.equal(await compact(), false);
+  });
+};
+
+groups.home = () => {
+  const HOME_ROWS = ['[data-action="add-stock"]', '[data-action="go:reservations"]', '.low-card [data-action="low-stock"]', '.low-row'];
+  check('one row per job', async () => {
+    await open(page, { seed: true, width: 393, height: 852 });
+    const home = await page.textContent('#app');
+    assert.match(home, /3 ออเดอร์ · \d+ แพ็ก · ฿[\d,]+/);
+    assert.match(home, /\d+ ไซซ์\/สี เหลือต่ำกว่า 3 แพ็ก/);
+    for (const gone of ['ดูทั้งหมด', 'ของขาดรวม', 'ออเดอร์ที่จองไว้', 'ขาด ', 'ตัวเลือก', 'ประวัติการขาย']) assert.ok(!home.includes(gone), gone);
+    assert.equal(await page.locator('.quick-actions').count(), 0);
+    await page.click('[data-action="go:reservations"]'); await page.waitForTimeout(500);
+    assert.equal(await page.evaluate(() => page), 'reservations');
+  });
+  check('low card: header row opens low-stock sort, at most 3 rows, only out or left', async () => {
+    await go(page, 'home');
+    assert.equal(await page.locator('.low-card [data-action="low-stock"]').count(), 1);
+    const rows = await page.$$eval('.low-row', a => a.map(e => e.querySelector('.low-status').textContent.trim()));
+    assert.ok(rows.length >= 1 && rows.length <= 3, String(rows.length));
+    for (const t of rows) assert.match(t, /^(หมดแล้ว|เหลือ \d+)$/);
+    await page.click('.low-card [data-action="low-stock"]'); await page.waitForTimeout(500);
+    assert.equal(await page.evaluate(() => [page, sort].join()), 'stock,low');
+  });
+  check('add stock bar is 72px on --pale and opens the add-stock sheet', async () => {
+    await go(page, 'home');
+    const b = await page.$eval('[data-action="add-stock"]', e => ({ h: e.getBoundingClientRect().height, bg: getComputedStyle(e).backgroundColor }));
+    assert.equal(b.h, 72);
+    assert.equal(b.bg, 'rgb(232, 238, 251)');
+    await page.click('[data-action="add-stock"]'); await page.waitForTimeout(400);
+    assert.equal(await page.evaluate(() => dialog.open), true);
+    await page.keyboard.press('Escape'); await page.waitForTimeout(300);
+  });
+  check('home rows are 44px+ and have hover and focus-visible styles', async () => {
+    await go(page, 'home');
+    for (const sel of HOME_ROWS) {
+      const h = await page.$$eval(sel, a => a.map(e => e.getBoundingClientRect().height));
+      assert.ok(h.length && h.every(x => x >= 44), sel + ' ' + h);
+    }
+    for (const sel of HOME_ROWS) {
+      await page.mouse.move(0, 0); await wait(250);
+      const before = await page.$eval(sel, e => getComputedStyle(e).backgroundColor);
+      await page.hover(sel); await wait(250);
+      const after = await page.$eval(sel, e => getComputedStyle(e).backgroundColor);
+      assert.notEqual(before, after, 'hover ' + sel);
+      await page.mouse.move(0, 0); await wait(250);
+      await page.focus(sel); await page.keyboard.press('Tab'); await page.keyboard.press('Shift+Tab');
+      const ring = await page.$eval(sel, e => { const c = getComputedStyle(e); return c.outlineStyle !== 'none' && parseFloat(c.outlineWidth) >= 2; });
+      assert.ok(ring, 'focus ' + sel);
+    }
+  });
+  check('home numbers use tabular figures', async () => {
+    for (const sel of ['.revenue strong', '.job-sub', '.low-status']) assert.match(await page.$eval(sel, e => getComputedStyle(e).fontVariantNumeric), /tabular-nums/, sel);
+  });
+  check('money has one format', async () => {
+    await go(page, 'home');
+    assert.doesNotMatch(await page.textContent('.revenue strong'), /\.\d\d/);
+  });
+  check('counting up stays whole, a real fraction still shows', async () => {
+    await page.evaluate(() => { shownRevenue = 0; render(); });
+    const seen = [];
+    for (let i = 0; i < 16; i++) { seen.push(await page.textContent('.revenue strong')); await wait(50); }
+    assert.ok(new Set(seen).size > 3, 'it counted: ' + seen.join(' '));
+    for (const t of seen) assert.doesNotMatch(t, /\.\d/, t);
+    await page.evaluate(() => { state.sales[0].total = 960.5; shownRevenue = null; render(); });
+    assert.match(await page.textContent('.revenue strong'), /฿2,040\.5$/);
+    await page.evaluate(() => { state.sales[0].total = 960; render(); });
+  });
+  check('bill keeps its satang amounts', async () => {
+    const out = await page.evaluate(() => { state.settings.promptpay = { type: 'phone', number: '0812345678', account: 'ร้านทดสอบ', showQr: true }; return billQr(960); });
+    assert.match(out, /ยอด ฿960\.00/);
+    await page.evaluate(() => { lastSale = state.sales[0]; navigate('receipt'); }); await wait(500);
+    assert.ok(await page.locator('.receipt td.satang').count() > 0);
+    assert.match(await page.$eval('.receipt tfoot td.satang', e => e.textContent.trim()), /^\d\d$/);
+  });
+  check('hero shadow is neutral', async () => {
+    await go(page, 'home');
+    assert.match(await page.$eval('.hero', e => getComputedStyle(e).boxShadow), /rgba\(15, 23, 42, 0\.06\)/);
+  });
+  check('empty rows still lead somewhere', async () => {
+    await open(page, { seed: { reservations: [], lowOff: true }, width: 393, height: 852 });
+    assert.equal(await page.locator('[data-action="go:reservations"]').count(), 1);
+    assert.match(await page.textContent('#app'), /ยังไม่มีออเดอร์รอรับของ/);
+    assert.doesNotMatch(await page.textContent('#app'), /0 ไซซ์\/สี/);
+    assert.equal(await page.locator('.low-card').count(), 0);
+  });
+  check('long names truncate', async () => {
+    await open(page, { seed: { longNames: true }, width: 320, height: 700 });
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+    const rows = await page.$$eval('.low-row', a => a.map(e => { const r = e.getBoundingClientRect(), n = e.querySelector('strong'), s = e.querySelector('.low-status').getBoundingClientRect(); return { rowRight: r.right, statusRight: s.right, statusLeft: s.left, nameRight: n.getBoundingClientRect().right, ellipsis: getComputedStyle(n).textOverflow, cut: n.scrollWidth > n.clientWidth }; }));
+    assert.ok(rows.length > 0);
+    for (const r of rows) { assert.equal(r.ellipsis, 'ellipsis'); assert.ok(r.cut, 'name is cut'); assert.ok(r.statusRight <= r.rowRight, 'status inside row'); assert.ok(r.nameRight <= r.statusLeft, 'name stops before status'); }
+    const shop = await page.$eval('.hero .shop-name', e => ({ right: e.getBoundingClientRect().right, hero: e.closest('.hero').getBoundingClientRect().right }));
+    assert.ok(shop.right <= shop.hero);
+  });
+  check('new shop defaults to 3, saved value stays', async () => {
+    await open(page, { seed: false, width: 393, height: 852 });
+    assert.equal(await page.evaluate(() => state.settings.lowStock.default), 3);
+    await open(page, { seed: { low: 10 }, width: 393, height: 852 });
+    assert.equal(await page.evaluate(() => state.settings.lowStock.default), 10);
+  });
+  check('settings shortcuts are 3, 5, 10 and speak of size and colour', async () => {
+    await open(page, { seed: true, width: 393, height: 852 });
+    await page.evaluate(() => { startDraft('lowStock'); }); await go(page, 'settings-low');
+    assert.deepEqual(await page.$$eval('.quick-chips .chip', a => a.map(e => e.textContent.trim())), ['3 แพ็ก', '5 แพ็ก', '10 แพ็ก']);
+    const t = await page.textContent('.settings-hint');
+    assert.match(t, /ไซซ์\/สี/); assert.ok(!t.includes('ตัวเลือก'));
+  });
+  check('new shop step 2 says sell', async () => {
+    await open(page, { seed: false, width: 393, height: 852 });
+    assert.match(await page.textContent('.get-started'), /ขายครั้งแรก/);
+    assert.match(await page.textContent('.get-started'), /เลือกสินค้า แล้วออกบิลให้ลูกค้า/);
+    assert.equal((await page.locator('.get-started [data-action="go:catalog"]').textContent()).trim(), 'ขาย');
+  });
+  check('a new shop has the add-stock bar and no reservations row', async () => {
+    assert.equal(await page.locator('[data-action="add-stock"]').count(), 1);
+    assert.equal(await page.locator('[data-action="go:reservations"]').count(), 0);
+  });
+  check('tour does not throw while its target is gone', async () => {
+    await open(page, { seed: true, width: 393, height: 852 });
+    await page.evaluate(() => tourStart()); await wait(1500);
   });
 };
 

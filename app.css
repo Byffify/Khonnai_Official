@@ -87,41 +87,14 @@ body[data-page=receipt] .app-bar{background:#f1f5f9}
 .home-bar .icon-button svg{stroke-width:2;width:26px;height:26px}
 .home-bar .logo{position:absolute;left:20px;top:calc(29px + env(safe-area-inset-top));width:119px;height:26px;object-fit:contain;object-position:left center}
 .hero{position:relative;height:222px;border-radius:24px;padding:20px;color:#fff;overflow:hidden;isolation:isolate;
-  background:url("assets/revenue-waves.svg") right bottom/100% 100% no-repeat,linear-gradient(135deg,#0a1a47,#13307e);box-shadow:0 16px 32px rgba(10,29,79,.35)}
-.hero-account{display:flex;align-items:center;gap:10px;height:40px;padding-right:118px}
+  background:url("assets/revenue-waves.svg") right bottom/100% 100% no-repeat,linear-gradient(135deg,#0a1a47,#13307e);box-shadow:0 8px 24px rgba(15,23,42,.06)}
+.hero-account{display:flex;align-items:center;gap:10px;height:40px}
 .hero .brand{width:40px;height:40px;border-radius:10px;background:#fff;flex-shrink:0}
 .hero .shop-name{font-size:16px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hero .history{position:absolute;top:18px;right:20px;height:44px;padding:0 13px 0 10px;display:flex;align-items:center;gap:5px;border-radius:100px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);font-size:14px;font-weight:500;white-space:nowrap}
-.hero .history svg{width:15px;height:15px;stroke-width:1.8}
 .revenue{position:absolute;left:20px;top:112px}
 .revenue span{display:block;font-size:16px;line-height:20px;color:rgba(255,255,255,.8)}
 .revenue strong{display:block;font-size:32px;line-height:40px;font-weight:600;font-variant-numeric:tabular-nums}
 .hero-foot{position:absolute;left:20px;right:20px;top:180px;display:flex;justify-content:space-between;gap:8px;font-size:16px;line-height:21px;color:rgba(255,255,255,.8)}
-.quick-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:24px 0 20px}
-.quick-actions button{display:grid;justify-items:center;gap:10px;font-size:16px;font-weight:500;line-height:20px;white-space:nowrap}
-.quick-actions .circle{width:64px;height:64px;border-radius:32px;display:grid;place-items:center;background:var(--pale);color:var(--blue)}
-.quick-actions svg{width:28px;height:28px;stroke-width:2.33}
-.section-title{display:flex;align-items:center;justify-content:space-between;height:44px;margin-bottom:10px}
-.section-title h3{font-size:18px;font-weight:600}
-.see-all{display:flex;align-items:center;gap:4px;height:44px;padding:0 8px;margin-right:-4px;color:var(--blue);font-size:16px;font-weight:500}
-.see-all svg{width:18px;height:18px;stroke-width:2}
-.panel{padding:16px;border:1px solid var(--line);border-radius:20px;background:var(--canvas);box-shadow:0 2px 8px rgba(15,23,42,.05)}
-.panel+.section-title{margin-top:24px}
-.summary-label{font-size:16px;font-weight:500;line-height:18px;color:var(--muted)}
-.summary-value{display:flex;align-items:baseline;gap:8px;margin-top:2px;color:var(--blue)}
-.summary-value b{font-size:32px;line-height:40px;font-weight:600}
-.summary-value span{font-size:18px;font-weight:500}
-.summary-value.orange{color:var(--orange-ink)}
-.summary-sub{font-size:16px;line-height:18px;color:var(--muted)}
-.restock-rows{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
-.low-row{width:100%;height:56px;display:flex;align-items:center;gap:12px;text-align:left}
-.low-row .thumb{width:40px;height:40px;border-radius:10px}
-.low-row .thumb svg{width:18px;height:18px;stroke-width:1.6}
-.low-row strong{display:block;font-size:16px;line-height:20px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.low-row small{display:block;font-size:16px;line-height:18px;color:var(--muted)}
-.low-row .shortage{text-align:right;flex-shrink:0}
-.low-row .shortage b{display:block;font-size:16px;line-height:20px;color:var(--orange-ink)}
-.low-row .shortage small.out{color:var(--danger-ink)}
 .demo-note{margin-top:20px;text-align:center;font-size:14px;color:var(--muted-2)}
 
 /* Placeholder images */
@@ -505,7 +478,6 @@ button[aria-busy=true]:disabled{opacity:1}
 .start-go{height:44px;flex-shrink:0;padding:0 14px;border-radius:12px;border:1.5px solid var(--blue);font-size:16px;font-weight:600}
 .start-go.primary-solid{background:var(--blue);color:#fff}
 .start-go.outline{background:#fff;color:var(--blue)}
-.home-content .get-started+.section-title{margin-top:24px}
 
 /* Empty stock */
 .empty-icon.large{width:80px;height:80px;border-radius:40px}
@@ -657,9 +629,7 @@ dialog .notice.warning{margin:12px 0 0}
 /* Very narrow phones */
 @media (max-width:359px){
   :root{--gutter:16px}
-  .quick-actions button{font-size:14px}
   .hero-foot{font-size:14px}
-  .quick-actions .circle{width:56px;height:56px}
   .hero .shop-name{font-size:14px}
   .catalog-layout{grid-template-columns:76px minmax(0,1fr);gap:8px}
   .category-rail{padding:10px 6px}
@@ -727,10 +697,9 @@ dialog[data-kind=alert][open]::backdrop{background:rgba(10,29,79,.5)}
 @starting-style{#toast.visible{opacity:0;transform:translate(-50%,12px)}}
 
 /* Press feedback: compact controls dip, full-width rows tint */
-:is(.primary,.secondary,.danger,.icon-button,.chip,.start-go,.cancel-button,.logout,.add-color,.add-size,.stepper>button,.big-stepper>button,.tabs button,.channels button,.quick-actions .circle,.toast-undo){transition:transform var(--quick) var(--ease-out),background-color var(--routine) ease,color var(--routine) ease,border-color var(--routine) ease,box-shadow var(--routine) ease}
+:is(.primary,.secondary,.danger,.icon-button,.chip,.start-go,.cancel-button,.logout,.add-color,.add-size,.stepper>button,.big-stepper>button,.tabs button,.channels button,.toast-undo){transition:transform var(--quick) var(--ease-out),background-color var(--routine) ease,color var(--routine) ease,border-color var(--routine) ease,box-shadow var(--routine) ease}
 :is(.primary,.secondary,.danger,.icon-button,.chip,.start-go,.cancel-button,.logout,.add-color,.add-size,.stepper>button,.big-stepper>button,.toast-undo):active:not(:disabled){transform:scale(.96)}
-.quick-actions button:active .circle{transform:scale(.92)}
-:is(.product-row,.settings-row,.history-row,.reservation-card,.customer-row,.walk-in,.low-row,dialog .option,dialog .action-row,dialog .choice,.shop-profile,.swatch-tile){transition:background-color var(--routine) ease,box-shadow var(--routine) ease}
+:is(.product-row,.settings-row,.history-row,.reservation-card,.customer-row,.walk-in,.low-row,.job-row,.add-stock-bar,dialog .option,dialog .action-row,dialog .choice,.shop-profile,.swatch-tile){transition:background-color var(--routine) ease,box-shadow var(--routine) ease}
 :is(.product-row,.settings-row,.history-row,.low-row,dialog .choice,.customer-row):active{background-color:rgba(22,80,215,.06)}
 :is(.reservation-card,.shop-profile,.walk-in,dialog .option,dialog .action-row):active{background-color:rgba(22,80,215,.08)}
 .product-tile .visual{transition:box-shadow var(--routine) ease,transform var(--quick) var(--ease-out)}
@@ -771,7 +740,7 @@ dialog[data-kind=alert][open]::backdrop{background:rgba(10,29,79,.5)}
   @starting-style{dialog[open],dialog[data-kind=alert][open]{transform:none;opacity:0}}
   #toast,#toast.visible{transform:translate(-50%,0)}
   @starting-style{#toast.visible{transform:translate(-50%,0)}}
-  :is(.primary,.secondary,.danger,.icon-button,.chip,.start-go,.cancel-button,.logout,.add-color,.add-size,.stepper>button,.big-stepper>button,.toast-undo):active:not(:disabled),.quick-actions button:active .circle,.product-tile:active:not(:disabled) .visual{transform:none}
+  :is(.primary,.secondary,.danger,.icon-button,.chip,.start-go,.cancel-button,.logout,.add-color,.add-size,.stepper>button,.big-stepper>button,.toast-undo):active:not(:disabled),.product-tile:active:not(:disabled) .visual{transform:none}
   .product-tile.bump .count,.footer .primary.bump b,:is(input.invalid,.upload.invalid,.affix-input.invalid,.qty-input.invalid),.color-suggestions:not(.hidden){animation:none}
   .toggle::before{transition-duration:0s}
 }
@@ -848,10 +817,6 @@ dialog[data-kind=alert][open]::backdrop{background:rgba(10,29,79,.5)}
 .allocation-group .allocation-row input{width:96px;height:44px}
 
 /* MVP-test feedback: home actions, first-use guide, stock form, sizes, cart */
-.quick-actions .qa-bill{color:var(--success-ink);font-weight:600}
-.quick-actions .qa-bill .circle{background:var(--success-ink);color:#fff}
-.quick-actions .qa-add{color:var(--blue);font-weight:600}
-.quick-actions .qa-add .circle{background:var(--blue);color:#fff}
 #action-bar .footer{transform:translateY(calc(var(--kb,0px) * -1))}
 
 .alert-icon.blue{background:var(--pale);color:var(--blue)}
@@ -928,8 +893,9 @@ dialog[data-kind=quantity]:has(#variant-picker) .sheet-image svg{width:44px;heig
 #qty-save{position:sticky;bottom:0;z-index:1}
 
 /* Tab bar: #tabbar only positions; the glass capsule is its .tabbar child, which shrinks on scroll with transform and opacity only. */
-#tabbar{--nav-ease:cubic-bezier(.22,1,.36,1);position:fixed;left:0;right:0;bottom:max(12px,env(safe-area-inset-bottom));z-index:20;width:min(369px,calc(100vw - 24px));height:68px;margin:0 auto}
+#tabbar{pointer-events:none;--nav-ease:cubic-bezier(.22,1,.36,1);position:fixed;left:0;right:0;bottom:max(12px,env(safe-area-inset-bottom));z-index:20;width:min(369px,calc(100vw - 24px));height:68px;margin:0 auto}
 #tabbar:empty{display:none}
+#tabbar .tabbar{pointer-events:auto}
 #tabbar .tabbar{width:100%;height:100%;display:grid;grid-template-columns:repeat(5,1fr);padding:4px 3px;border-radius:34px;background:rgba(255,255,255,.65);-webkit-backdrop-filter:blur(20px) saturate(1.5);backdrop-filter:blur(20px) saturate(1.5);
   border:1px solid #fff;box-shadow:0 10px 30px -12px rgba(15,23,42,.24);transform-origin:50% 100%;transition:transform 280ms var(--nav-ease);will-change:transform}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){#tabbar .tabbar{background:#fff}}
@@ -968,3 +934,30 @@ body[data-nav=tabs] #app{padding-bottom:calc(68px + 48px + env(safe-area-inset-b
 .report-soon .outline-button:active{background:var(--pale)}
 @media (hover:hover){.report-soon .outline-button:hover{background:var(--pale)}}
 
+/* Home: one row per job. Rows are 44px or taller, quiet on hover, orange ring on keyboard focus (global :focus-visible). */
+.add-stock-bar{width:100%;min-height:72px;margin-top:24px;display:flex;align-items:center;gap:12px;padding:8px 20px 8px 12px;border-radius:20px;background:var(--pale);color:var(--blue);text-align:left}
+.add-stock-bar .add-stock-icon{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;flex-shrink:0;background:#fff}
+.add-stock-bar .add-stock-icon svg{width:24px;height:24px;stroke-width:2}
+.add-stock-bar b{display:block;font-size:18px;line-height:24px;font-weight:600}
+.add-stock-bar small{display:block;font-size:16px;line-height:20px}
+.add-stock-bar>svg{width:20px;height:20px;stroke-width:2;flex-shrink:0}
+.add-stock-bar:active{background:#dbe5fa}
+.home-content .add-stock-bar+.get-started{margin-top:20px}
+.job-card{margin-top:20px;padding:4px;border:1px solid var(--line);border-radius:20px;background:#fff}
+.job-card>.job-row,.job-card .low-row{width:100%;display:flex;align-items:center;gap:12px;padding:0 12px;border-radius:16px;text-align:left}
+.job-row{min-height:64px}
+.job-row b{display:block;font-size:18px;line-height:24px;font-weight:600}
+.job-row .job-sub{display:block;font-size:16px;line-height:20px;color:var(--muted);font-variant-numeric:tabular-nums}
+.job-row>svg{width:20px;height:20px;stroke-width:2;flex-shrink:0;color:var(--muted)}
+.low-rows{margin-top:4px}
+.low-row{min-height:56px;padding-top:8px;padding-bottom:8px}
+.low-row .grow{min-width:0}
+.low-row strong{display:block;font-size:16px;line-height:20px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.low-row small{display:block;font-size:16px;line-height:20px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.low-status{flex-shrink:0;font-size:16px;line-height:20px;font-weight:500;color:var(--muted);font-variant-numeric:tabular-nums}
+.low-status.out{font-weight:600;color:var(--danger-ink)}
+@media (hover:hover){
+  .add-stock-bar:hover{background:#dde6fa}
+  .job-card :is(.job-row,.low-row):hover{background-color:rgba(22,80,215,.04)}
+}
+.job-card :is(.job-row,.low-row):active{background-color:rgba(22,80,215,.06)}

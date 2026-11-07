@@ -811,7 +811,7 @@
   },
   "nextBill": 7,
   "lowStock": {
-   "default": 10,
+   "default": 3,
    "overrides": {}
   },
   "categories": [
