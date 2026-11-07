@@ -1,0 +1,890 @@
+{
+ "version": 1,
+ "products": [
+  {
+   "id": "A-102",
+   "name": "กางเกงในบิกินี่",
+   "category": "กางเกงใน",
+   "price": 240,
+   "pack": 12,
+   "image": "assets/design-2.png",
+   "sizes": [
+    "รวม"
+   ],
+   "colors": [
+    "ทั้งหมด"
+   ],
+   "mixed": false,
+   "sold": 40,
+   "stock": 48,
+   "description": "ไซซ์ รวม · ทั้งหมด · แพ็กละ 12 ตัว",
+   "details": "รหัส A-102 · ไซซ์ รวม · สีทั้งหมด · แพ็กละ 12 ตัว"
+  },
+  {
+   "id": "P-310",
+   "name": "กางเกงในเอวสูง",
+   "category": "กางเกงใน",
+   "price": 240,
+   "pack": 12,
+   "image": "assets/design-2.png",
+   "sizes": [
+    "L",
+    "XL",
+    "2XL",
+    "3XL"
+   ],
+   "colors": [
+    "ดำ",
+    "เนื้อ"
+   ],
+   "mixed": false,
+   "sold": 22,
+   "values": [
+    [
+     1,
+     3,
+     6,
+     8
+    ],
+    [
+     15,
+     1,
+     0,
+     9
+    ]
+   ],
+   "stock": 43,
+   "variants": [
+    {
+     "color": "ดำ",
+     "size": "L",
+     "qty": 1
+    },
+    {
+     "color": "ดำ",
+     "size": "XL",
+     "qty": 3
+    },
+    {
+     "color": "ดำ",
+     "size": "2XL",
+     "qty": 6
+    },
+    {
+     "color": "ดำ",
+     "size": "3XL",
+     "qty": 8
+    },
+    {
+     "color": "เนื้อ",
+     "size": "L",
+     "qty": 15
+    },
+    {
+     "color": "เนื้อ",
+     "size": "XL",
+     "qty": 1
+    },
+    {
+     "color": "เนื้อ",
+     "size": "2XL",
+     "qty": 0
+    },
+    {
+     "color": "เนื้อ",
+     "size": "3XL",
+     "qty": 9
+    }
+   ],
+   "description": "ไซซ์ L–XL–2XL–3XL · ดำ เนื้อ · แพ็กละ 12 ตัว",
+   "details": "รหัส P-310 · ไซซ์ L–3XL · สีดำ เนื้อ · แพ็กละ 12 ตัว"
+  },
+  {
+   "id": "S-501",
+   "name": "ถุงเท้าข้อสั้น",
+   "category": "ถุงเท้า",
+   "price": 120,
+   "pack": 12,
+   "image": "assets/design-2.png",
+   "sizes": [
+    "ฟรีไซซ์"
+   ],
+   "colors": [
+    "ดำ",
+    "ขาว",
+    "เทา"
+   ],
+   "mixed": false,
+   "sold": 31,
+   "values": [
+    [
+     2
+    ],
+    [
+     4
+    ],
+    [
+     7
+    ]
+   ],
+   "stock": 13,
+   "variants": [
+    {
+     "color": "ดำ",
+     "size": "ฟรีไซซ์",
+     "qty": 2
+    },
+    {
+     "color": "ขาว",
+     "size": "ฟรีไซซ์",
+     "qty": 4
+    },
+    {
+     "color": "เทา",
+     "size": "ฟรีไซซ์",
+     "qty": 7
+    }
+   ],
+   "description": "ไซซ์ ฟรีไซซ์ · ดำ ขาว เทา · แพ็กละ 12 ตัว",
+   "details": "รหัส S-501 · ไซซ์ ฟรีไซซ์ · สีดำ ขาว เทา · แพ็กละ 12 คู่"
+  },
+  {
+   "id": "B-220",
+   "name": "เสื้อกล้ามคอกลม",
+   "category": "เสื้อกล้าม",
+   "price": 280,
+   "pack": 6,
+   "image": "assets/design-2.png",
+   "sizes": [
+    "S",
+    "M",
+    "L",
+    "XL"
+   ],
+   "colors": [
+    "ขาว",
+    "ดำ"
+   ],
+   "mixed": false,
+   "sold": 18,
+   "values": [
+    [
+     1,
+     15,
+     6,
+     9
+    ],
+    [
+     8,
+     18,
+     4,
+     3
+    ]
+   ],
+   "stock": 64,
+   "variants": [
+    {
+     "color": "ขาว",
+     "size": "S",
+     "qty": 1
+    },
+    {
+     "color": "ขาว",
+     "size": "M",
+     "qty": 15
+    },
+    {
+     "color": "ขาว",
+     "size": "L",
+     "qty": 6
+    },
+    {
+     "color": "ขาว",
+     "size": "XL",
+     "qty": 9
+    },
+    {
+     "color": "ดำ",
+     "size": "S",
+     "qty": 8
+    },
+    {
+     "color": "ดำ",
+     "size": "M",
+     "qty": 18
+    },
+    {
+     "color": "ดำ",
+     "size": "L",
+     "qty": 4
+    },
+    {
+     "color": "ดำ",
+     "size": "XL",
+     "qty": 3
+    }
+   ],
+   "description": "ไซซ์ S–M–L–XL · ขาว ดำ · แพ็กละ 6 ตัว",
+   "details": "รหัส B-220 · ไซซ์ S–XL · สีขาว ดำ · แพ็กละ 6 ตัว"
+  },
+  {
+   "id": "A-110",
+   "name": "เสื้อในฟองน้ำ",
+   "category": "เสื้อใน",
+   "price": 300,
+   "pack": 6,
+   "image": "assets/design-2.png",
+   "sizes": [
+    "32",
+    "34",
+    "36",
+    "38"
+   ],
+   "colors": [
+    "เนื้อ",
+    "ชมพู"
+   ],
+   "mixed": false,
+   "sold": 9,
+   "values": [
+    [
+     2,
+     1,
+     0,
+     9
+    ],
+    [
+     8,
+     4,
+     2,
+     12
+    ]
+   ],
+   "stock": 38,
+   "variants": [
+    {
+     "color": "เนื้อ",
+     "size": "32",
+     "qty": 2
+    },
+    {
+     "color": "เนื้อ",
+     "size": "34",
+     "qty": 1
+    },
+    {
+     "color": "เนื้อ",
+     "size": "36",
+     "qty": 0
+    },
+    {
+     "color": "เนื้อ",
+     "size": "38",
+     "qty": 9
+    },
+    {
+     "color": "ชมพู",
+     "size": "32",
+     "qty": 8
+    },
+    {
+     "color": "ชมพู",
+     "size": "34",
+     "qty": 4
+    },
+    {
+     "color": "ชมพู",
+     "size": "36",
+     "qty": 2
+    },
+    {
+     "color": "ชมพู",
+     "size": "38",
+     "qty": 12
+    }
+   ],
+   "description": "ไซซ์ 32–34–36–38 · เนื้อ ชมพู · แพ็กละ 6 ตัว",
+   "details": "รหัส A-110 · ไซซ์ 32–38 · สีเนื้อ ชมพู · แพ็กละ 6 ตัว"
+  },
+  {
+   "id": "A-216",
+   "name": "เสื้อในมีโครง",
+   "category": "เสื้อใน",
+   "price": 350,
+   "pack": 6,
+   "image": "assets/design-2.png",
+   "sizes": [
+    "32",
+    "34",
+    "36",
+    "38",
+    "40"
+   ],
+   "colors": [
+    "ดำ",
+    "เนื้อ"
+   ],
+   "mixed": false,
+   "sold": 14,
+   "values": [
+    [
+     1,
+     2,
+     12,
+     3,
+     6
+    ],
+    [
+     7,
+     5,
+     15,
+     1,
+     0
+    ]
+   ],
+   "stock": 52,
+   "variants": [
+    {
+     "color": "ดำ",
+     "size": "32",
+     "qty": 1
+    },
+    {
+     "color": "ดำ",
+     "size": "34",
+     "qty": 2
+    },
+    {
+     "color": "ดำ",
+     "size": "36",
+     "qty": 12
+    },
+    {
+     "color": "ดำ",
+     "size": "38",
+     "qty": 3
+    },
+    {
+     "color": "ดำ",
+     "size": "40",
+     "qty": 6
+    },
+    {
+     "color": "เนื้อ",
+     "size": "32",
+     "qty": 7
+    },
+    {
+     "color": "เนื้อ",
+     "size": "34",
+     "qty": 5
+    },
+    {
+     "color": "เนื้อ",
+     "size": "36",
+     "qty": 15
+    },
+    {
+     "color": "เนื้อ",
+     "size": "38",
+     "qty": 1
+    },
+    {
+     "color": "เนื้อ",
+     "size": "40",
+     "qty": 0
+    }
+   ],
+   "description": "ไซซ์ 32–34–36–38–40 · ดำ เนื้อ · แพ็กละ 6 ตัว",
+   "details": "รหัส A-216 · ไซซ์ 32–40 · สีดำ เนื้อ · แพ็กละ 6 ตัว"
+  },
+  {
+   "id": "A-215",
+   "name": "เสื้อในไร้โครง",
+   "category": "เสื้อใน",
+   "price": 320,
+   "pack": 6,
+   "image": "assets/design-2.png",
+   "sizes": [
+    "32",
+    "34",
+    "36",
+    "38"
+   ],
+   "colors": [
+    "ขาว",
+    "เทา"
+   ],
+   "mixed": false,
+   "sold": 7,
+   "values": [
+    [
+     2,
+     18,
+     4,
+     3
+    ],
+    [
+     9,
+     11,
+     7,
+     5
+    ]
+   ],
+   "stock": 59,
+   "variants": [
+    {
+     "color": "ขาว",
+     "size": "32",
+     "qty": 2
+    },
+    {
+     "color": "ขาว",
+     "size": "34",
+     "qty": 18
+    },
+    {
+     "color": "ขาว",
+     "size": "36",
+     "qty": 4
+    },
+    {
+     "color": "ขาว",
+     "size": "38",
+     "qty": 3
+    },
+    {
+     "color": "เทา",
+     "size": "32",
+     "qty": 9
+    },
+    {
+     "color": "เทา",
+     "size": "34",
+     "qty": 11
+    },
+    {
+     "color": "เทา",
+     "size": "36",
+     "qty": 7
+    },
+    {
+     "color": "เทา",
+     "size": "38",
+     "qty": 5
+    }
+   ],
+   "description": "ไซซ์ 32–34–36–38 · ขาว เทา · แพ็กละ 6 ตัว",
+   "details": "รหัส A-215 · ไซซ์ 32–38 · สีขาว เทา · แพ็กละ 6 ตัว"
+  },
+  {
+   "id": "A-302",
+   "name": "เสื้อในลูกไม้",
+   "category": "เสื้อใน",
+   "price": 380,
+   "pack": 6,
+   "image": "assets/design-2.png",
+   "sizes": [
+    "32",
+    "34",
+    "36"
+   ],
+   "colors": [
+    "แดง",
+    "ดำ"
+   ],
+   "mixed": false,
+   "sold": 5,
+   "values": [
+    [
+     1,
+     4,
+     2
+    ],
+    [
+     9,
+     7,
+     5
+    ]
+   ],
+   "stock": 28,
+   "variants": [
+    {
+     "color": "แดง",
+     "size": "32",
+     "qty": 1
+    },
+    {
+     "color": "แดง",
+     "size": "34",
+     "qty": 4
+    },
+    {
+     "color": "แดง",
+     "size": "36",
+     "qty": 2
+    },
+    {
+     "color": "ดำ",
+     "size": "32",
+     "qty": 9
+    },
+    {
+     "color": "ดำ",
+     "size": "34",
+     "qty": 7
+    },
+    {
+     "color": "ดำ",
+     "size": "36",
+     "qty": 5
+    }
+   ],
+   "description": "ไซซ์ 32–34–36 · แดง ดำ · แพ็กละ 6 ตัว",
+   "details": "รหัส A-302 · ไซซ์ 32–36 · สีแดง ดำ · แพ็กละ 6 ตัว"
+  }
+ ],
+ "cart": {},
+ "cartVariants": {},
+ "customer": "ลูกค้าหน้าร้าน",
+ "channel": "หน้าร้าน",
+ "discount": 0,
+ "note": "",
+ "sales": [
+  {
+   "id": "CS000001",
+   "no": 6,
+   "customer": "คุณสมใจ",
+   "channel": "หน้าร้าน",
+   "note": "",
+   "items": [
+    {
+     "id": "A-102",
+     "name": "กางเกงในบิกินี่",
+     "category": "กางเกงใน",
+     "price": 240,
+     "pack": 12,
+     "image": "assets/design-2.png",
+     "qty": 4
+    }
+   ],
+   "discount": 0,
+   "total": 960,
+   "date": "2026-11-07T07:05:00.000Z"
+  },
+  {
+   "id": "CS000002",
+   "no": 5,
+   "customer": "ร้านป้าแดง",
+   "channel": "LINE",
+   "note": "",
+   "items": [
+    {
+     "id": "B-220",
+     "name": "เสื้อกล้ามคอกลม",
+     "category": "เสื้อกล้าม",
+     "price": 280,
+     "pack": 6,
+     "image": "assets/design-2.png",
+     "qty": 3
+    }
+   ],
+   "discount": 0,
+   "total": 840,
+   "date": "2026-11-07T06:05:00.000Z"
+  },
+  {
+   "id": "CS000003",
+   "no": 4,
+   "customer": "คุณเอ",
+   "channel": "หน้าร้าน",
+   "note": "",
+   "items": [
+    {
+     "id": "S-501",
+     "name": "ถุงเท้าข้อสั้น",
+     "category": "ถุงเท้า",
+     "price": 120,
+     "pack": 12,
+     "image": "assets/design-2.png",
+     "qty": 2
+    }
+   ],
+   "discount": 0,
+   "total": 240,
+   "date": "2026-11-07T05:05:00.000Z"
+  },
+  {
+   "id": "CS000004",
+   "no": 3,
+   "customer": "ร้านแม่ศรี",
+   "channel": "LINE",
+   "note": "",
+   "items": [
+    {
+     "id": "A-110",
+     "name": "เสื้อในฟองน้ำ",
+     "category": "เสื้อใน",
+     "price": 300,
+     "pack": 6,
+     "image": "assets/design-2.png",
+     "qty": 8
+    }
+   ],
+   "discount": 0,
+   "total": 2400,
+   "date": "2026-11-06T04:05:00.000Z"
+  },
+  {
+   "id": "CS000005",
+   "no": 2,
+   "customer": "คุณบี",
+   "channel": "หน้าร้าน",
+   "note": "",
+   "items": [
+    {
+     "id": "A-215",
+     "name": "เสื้อในไร้โครง",
+     "category": "เสื้อใน",
+     "price": 320,
+     "pack": 6,
+     "image": "assets/design-2.png",
+     "qty": 6
+    }
+   ],
+   "discount": 0,
+   "total": 1920,
+   "date": "2026-11-06T03:05:00.000Z"
+  },
+  {
+   "id": "CS000006",
+   "no": 1,
+   "customer": "คุณต้อม",
+   "channel": "หน้าร้าน",
+   "note": "",
+   "items": [
+    {
+     "id": "A-302",
+     "name": "เสื้อในลูกไม้",
+     "category": "เสื้อใน",
+     "price": 380,
+     "pack": 6,
+     "image": "assets/design-2.png",
+     "qty": 3
+    }
+   ],
+   "discount": 0,
+   "total": 1140,
+   "date": "2026-11-06T02:05:00.000Z"
+  }
+ ],
+ "reservations": [
+  {
+   "id": "R001",
+   "customer": "ร้านป้าแดง",
+   "channel": "LINE",
+   "items": [
+    {
+     "id": "B-220",
+     "name": "เสื้อกล้ามคอกลม",
+     "category": "เสื้อกล้าม",
+     "price": 280,
+     "pack": 6,
+     "image": "assets/design-2.png",
+     "qty": 3,
+     "allocation": [
+      [
+       0,
+       0,
+       1,
+       0
+      ],
+      [
+       0,
+       2,
+       0,
+       0
+      ]
+     ]
+    }
+   ],
+   "note": "",
+   "discount": 0,
+   "total": 840,
+   "date": "2026-11-07T02:00:00.000Z",
+   "status": "waiting"
+  },
+  {
+   "id": "R002",
+   "customer": "คุณสมใจ",
+   "channel": "หน้าร้าน",
+   "items": [
+    {
+     "id": "A-102",
+     "name": "กางเกงในบิกินี่",
+     "category": "กางเกงใน",
+     "price": 240,
+     "pack": 12,
+     "image": "assets/design-2.png",
+     "qty": 2
+    }
+   ],
+   "note": "",
+   "discount": 0,
+   "total": 480,
+   "date": "2026-11-07T03:00:00.000Z",
+   "status": "waiting"
+  },
+  {
+   "id": "R003",
+   "customer": "ร้านแม่ศรี",
+   "channel": "LINE",
+   "items": [
+    {
+     "id": "A-216",
+     "name": "เสื้อในมีโครง",
+     "category": "เสื้อใน",
+     "price": 350,
+     "pack": 6,
+     "image": "assets/design-2.png",
+     "qty": 2,
+     "allocation": [
+      [
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      [
+       0,
+       0,
+       2,
+       0,
+       0
+      ]
+     ]
+    },
+    {
+     "id": "S-501",
+     "name": "ถุงเท้าข้อสั้น",
+     "category": "ถุงเท้า",
+     "price": 120,
+     "pack": 12,
+     "image": "assets/design-2.png",
+     "qty": 1,
+     "allocation": [
+      [
+       1
+      ],
+      [
+       0
+      ],
+      [
+       0
+      ]
+     ]
+    }
+   ],
+   "note": "",
+   "discount": 0,
+   "total": 820,
+   "date": "2026-11-07T04:00:00.000Z",
+   "status": "waiting"
+  }
+ ],
+ "customers": [],
+ "settings": {
+  "tourDone": true,
+  "shop": {
+   "name": "ร้านตัวอย่าง",
+   "phone": "081-234-5678",
+   "address": "กรุงเทพฯ",
+   "line": "",
+   "logo": ""
+  },
+  "promptpay": {
+   "type": "phone",
+   "number": "",
+   "account": "",
+   "showQr": false
+  },
+  "nextBill": 7,
+  "lowStock": {
+   "default": 10,
+   "overrides": {}
+  },
+  "categories": [
+   "เสื้อใน",
+   "กางเกงใน",
+   "เสื้อกล้าม",
+   "ถุงเท้า"
+  ],
+  "colors": [
+   {
+    "name": "ดำ",
+    "hex": "#0f172a"
+   },
+   {
+    "name": "ขาว",
+    "hex": "#ffffff"
+   },
+   {
+    "name": "เนื้อ",
+    "hex": "#e8c4a8"
+   },
+   {
+    "name": "ครีม",
+    "hex": "#f3e5c8"
+   },
+   {
+    "name": "เทา",
+    "hex": "#9ca3af"
+   },
+   {
+    "name": "กรมท่า",
+    "hex": "#1e2a5a"
+   },
+   {
+    "name": "น้ำตาล",
+    "hex": "#7b4a2b"
+   },
+   {
+    "name": "เขียว",
+    "hex": "#2e7d32"
+   },
+   {
+    "name": "ชมพู",
+    "hex": "#f48fb1"
+   },
+   {
+    "name": "ชมพูอ่อน",
+    "hex": "#f8bbd0"
+   },
+   {
+    "name": "บานเย็น",
+    "hex": "#d81b60"
+   },
+   {
+    "name": "แดง",
+    "hex": "#c62828"
+   },
+   {
+    "name": "เลือดหมู",
+    "hex": "#7b1e2b"
+   },
+   {
+    "name": "ม่วง",
+    "hex": "#7e57c2"
+   },
+   {
+    "name": "ฟ้า",
+    "hex": "#64b5f6"
+   },
+   {
+    "name": "เหลือง",
+    "hex": "#f2c94c"
+   }
+  ]
+ }
+}
