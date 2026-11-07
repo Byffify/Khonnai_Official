@@ -209,8 +209,12 @@
 
 @media screen and (min-width:1024px){
   #app[data-page=catalog]{grid-template-columns:minmax(0,1fr) 400px}
-  #app[data-page=receipt]{padding-bottom:32px}
   .search-inline{flex-basis:280px}
+}
+
+/* The bill sits beside its actions only where both fit on screen; below this it keeps the tablet footer. */
+@media screen and (min-width:1240px){
+  #app[data-page=receipt]{padding-bottom:32px}
   .receipt-layout{display:flex;flex-wrap:wrap;align-items:flex-start;gap:32px;padding:var(--gutter)}
   .receipt-layout .receipt{flex:none;margin:0}
   .app-bar+.receipt-layout{margin-top:0;padding-top:8px}
@@ -225,9 +229,9 @@
 }
 
 @media screen and (hover:hover){
-  .side-item:hover:not([aria-current]){background:var(--canvas)}
+  .side-item:hover:not([aria-current]){background:var(--seg)}
   .side-sell:hover{background:#123fb0}
-  .pager button:hover:not(:disabled):not([aria-current]){background:var(--canvas)}
+  .pager button:hover:not(:disabled):not([aria-current]){background:var(--seg)}
   .search-inline:hover:not(:focus-within){border-color:var(--input)}
 }
 

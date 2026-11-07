@@ -106,9 +106,11 @@ function sideTip(el) {
   tip.classList.add('visible');
 }
 const sideTarget = el => (el && el.closest ? el.closest('.sidebar [data-label]') : null);
-document.addEventListener('mouseover', event => { const el = sideTarget(event.target); if (el) sideTip(el); });
-document.addEventListener('mouseout', event => { if (sideTarget(event.target)) sideTip(sideTarget(document.activeElement)); });
-document.addEventListener('focusin', event => { const el = sideTarget(event.target); if (el) sideTip(el); });
+// Clicks and taps also focus a row, and the sidebar outlives navigation, so only a real hover or keyboard focus may show the label.
+const sideKeyboardTarget = el => { const row = sideTarget(el); return row && row.matches(':focus-visible') ? row : null; };
+document.addEventListener('pointerover', event => { const el = sideTarget(event.target); if (el && event.pointerType === 'mouse') sideTip(el); });
+document.addEventListener('pointerout', event => { if (sideTarget(event.target)) sideTip(sideKeyboardTarget(document.activeElement)); });
+document.addEventListener('focusin', event => { const el = sideKeyboardTarget(event.target); if (el) sideTip(el); });
 document.addEventListener('focusout', event => { if (sideTarget(event.target)) sideTip(null); });
 document.addEventListener('keydown', event => { if (event.key === 'Escape') sideTip(null); });
 
@@ -124,7 +126,7 @@ Object.assign(window.extraActions, {
 // ---------- crossing a breakpoint ----------
 // Forms, cart, and search live in state, so a re-render keeps them. Only focus lives in the DOM, so it is put back by hand.
 let navLayout = null, navPrinting = false;
-const layoutName = () => (DESK.matches ? 'desk' : WIDE.matches ? 'tablet' : 'phone');
+const layoutName = () => (BILL_BESIDE.matches ? 'desk-bill' : DESK.matches ? 'desk' : WIDE.matches ? 'tablet' : 'phone');
 
 function focusSelector(el) {
   if (!el || !el.closest('#app,#action-bar')) return null;
@@ -152,6 +154,7 @@ function onBreakpoint() {
 }
 WIDE.addEventListener('change', onBreakpoint);
 DESK.addEventListener('change', onBreakpoint);
+BILL_BESIDE.addEventListener('change', onBreakpoint);
 window.addEventListener('DOMContentLoaded', () => { navLayout = layoutName(); });
 // Paper width can flip these queries while printing; the screen layout must not re-render under the print dialog.
 window.addEventListener('beforeprint', () => { navPrinting = true; });

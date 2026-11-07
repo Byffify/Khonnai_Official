@@ -728,6 +728,37 @@ groups.wide = () => {
     await page.click('[data-action="toggle-sidebar"]');
     assert.equal(await page.$eval('.sidebar', e => e.getBoundingClientRect().width), 240);
   });
+  check('rail tooltip leaves after a click or tap, and keyboard focus still shows it', async () => {
+    const shown = p => p.$eval('.side-tooltip', e => e.classList.contains('visible'));
+    await page.setViewportSize({ width: 834, height: 1112 }); await page.waitForTimeout(120);
+    await go(page, 'home');
+    await page.click('.side-item[data-tab="report"]'); await wait(500);
+    assert.equal(await page.evaluate(() => page), 'report');
+    await page.mouse.move(500, 900); await wait(50);
+    assert.equal(await shown(page), false, 'hidden once the mouse moved away');
+    await page.hover('.side-item[data-tab="stock"]');
+    assert.equal(await shown(page), true, 'hover still shows it');
+    await page.mouse.move(500, 900); await wait(50);
+    assert.equal(await shown(page), false);
+    await page.evaluate(() => document.activeElement.blur());
+    await page.keyboard.press('Tab'); await wait(50);
+    const label = await page.evaluate(() => document.activeElement.dataset.label);
+    assert.ok(label, 'Tab lands in the sidebar');
+    assert.equal(await shown(page), true, 'keyboard focus shows it');
+    assert.equal(await page.textContent('.side-tooltip'), label);
+    await page.keyboard.press('Tab'); await wait(50);
+    assert.equal(await page.textContent('.side-tooltip'), await page.evaluate(() => document.activeElement.dataset.label));
+    await page.evaluate(() => document.activeElement.blur());
+    assert.equal(await shown(page), false);
+    const context = await page.context().browser().newContext({ hasTouch: true, viewport: { width: 834, height: 1112 } });
+    const touch = await context.newPage();
+    await open(touch, { seed: true, width: 834, height: 1112 });
+    await touch.tap('.side-item[data-tab="stock"]'); await wait(500);
+    assert.equal(await touch.evaluate(() => page), 'stock');
+    assert.equal(await shown(touch), false, 'hidden after a tap');
+    await context.close();
+    await page.setViewportSize({ width: 1440, height: 900 }); await page.waitForTimeout(120);
+  });
   check('tablet rail never shows the collapse button', async () => {
     await page.setViewportSize({ width: 834, height: 1112 }); await page.waitForTimeout(100);
     assert.equal(await page.isVisible('[data-action="toggle-sidebar"]'), false);
@@ -950,6 +981,33 @@ groups.wide = () => {
     await page.setViewportSize({ width: 834, height: 1112 }); await page.waitForTimeout(120);
     assert.equal(await page.locator('.receipt-actions').count(), 0);
     assert.ok(await page.isVisible('#action-bar .footer [data-action="export-bill"]'));
+    await page.setViewportSize({ width: 1440, height: 900 }); await page.waitForTimeout(120);
+  });
+  check('bill actions stay on screen at every desktop width', async () => {
+    await page.setViewportSize({ width: 1440, height: 900 }); await page.waitForTimeout(120);
+    await page.evaluate(() => { lastSale = state.sales[0]; receiptOrigin = 'issued'; navigate('receipt'); }); await wait(500);
+    const inView = async (w, h) => {
+      for (const sel of ['[data-action="export-bill"]', '[data-action="new-order"]']) {
+        const b = await page.locator(sel).boundingBox();
+        assert.ok(b && b.y >= 0 && b.y + b.height <= h && b.x >= 0 && b.x + b.width <= w, sel + '@' + w);
+      }
+    };
+    for (const [w, h] of [[1024, 768], [1180, 768], [1239, 768]]) {
+      await page.setViewportSize({ width: w, height: h }); await page.waitForTimeout(120);
+      assert.equal(await page.locator('.receipt-actions').count(), 0, 'no card@' + w);
+      assert.equal(await page.locator('#action-bar .footer').count(), 1, 'footer@' + w);
+      await inView(w, h);
+    }
+    for (const [w, h] of [[1240, 768], [1280, 800], [1440, 900]]) {
+      await page.setViewportSize({ width: w, height: h }); await page.waitForTimeout(120);
+      assert.equal(await page.locator('#action-bar .footer').count(), 0, 'no footer@' + w);
+      const [bill, card] = await page.$$eval('.receipt, .receipt-actions', a => a.map(e => e.getBoundingClientRect()));
+      assert.ok(card.left >= bill.right, 'card beside bill@' + w);
+      assert.equal(Math.round(bill.width), 620);
+      await inView(w, h);
+    }
+    await page.setViewportSize({ width: 1180, height: 768 }); await page.waitForTimeout(120);
+    assert.equal(await page.locator('#action-bar .footer').count(), 1, 'back to the footer');
     await page.setViewportSize({ width: 1440, height: 900 }); await page.waitForTimeout(120);
   });
   check('forms stay 640px wide, footers clear the sidebar', async () => {
