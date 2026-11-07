@@ -64,6 +64,8 @@ body[data-page=receipt] .app-bar{background:#f1f5f9}
 .primary{background:var(--blue);color:#fff}
 .secondary{background:var(--pale);color:var(--blue)}
 .danger{background:var(--danger);color:#fff}
+.primary.muted,.primary.muted:disabled{background:var(--pale);color:var(--muted);opacity:1}
+.footer .primary.receive{padding:8px 16px;font-size:18px;line-height:1.2;white-space:normal;text-align:center}
 .primary.between{justify-content:space-between}
 .primary.between>span{font-size:16px}
 .primary svg,.secondary svg{width:20px;height:20px;stroke-width:2.2}
@@ -161,21 +163,22 @@ input[role=switch]:focus{border:0;padding:0}
 .product-tile .stock{position:absolute;top:8px;left:8px;height:23px;padding:0 8px 0 7px;gap:5px;border-radius:100px;background:rgba(255,255,255,.92);font-size:14px;color:var(--ink)}
 .product-tile .stock::before{width:6px;height:6px}
 .product-tile .stock.out{color:var(--out-ink)}
-.product-tile .price{position:absolute;left:8px;bottom:8px;height:26px;padding:0 10px;display:flex;align-items:center;border-radius:100px;background:var(--orange);color:var(--ink);font-size:14px;font-weight:600}
+.product-tile .price{display:block;margin-top:2px;font-size:16px;font-weight:600;line-height:20px;color:var(--ink);font-variant-numeric:tabular-nums}
 .product-tile .count{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:14px;display:grid;place-items:center;background:var(--blue);color:#fff;font-size:14px;font-weight:600}
 .product-tile .name{display:block;margin-top:8px;font-size:16px;font-weight:500;line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .product-tile.sold-out{opacity:1}
 .product-tile.sold-out .placeholder{background:var(--line)}
-.product-tile.sold-out .price{background:var(--muted-2);color:#fff}
+.product-tile.sold-out .price{color:var(--muted-2)}
 .product-tile.sold-out .name{color:var(--muted-2)}
 
 /* Steps */
-.steps{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:6px 0 0;padding:0}
-.steps li{height:34px;display:flex;align-items:center;justify-content:center;gap:6px;border-radius:100px;background:#f1f5f9;color:var(--muted);font-size:16px;font-weight:500;white-space:nowrap;overflow:hidden}
+.steps{list-style:none;display:flex;gap:8px;margin:6px 0 0;padding:0}
+.steps li{flex:0 0 auto;height:34px;display:flex;align-items:center;justify-content:center;gap:6px;padding:0 12px 0 7px;border-radius:100px;background:#f1f5f9;color:var(--muted);font-size:16px;font-weight:500;white-space:nowrap;overflow:hidden}
 .step-number{width:20px;height:20px;flex-shrink:0;display:grid;place-items:center;border-radius:10px;background:#fff;font-size:12px;font-weight:600}
-.steps li.done{background:var(--pale);color:var(--blue)}
+.steps li.done{flex:0 0 44px;width:44px;padding:0;background:var(--pale);color:var(--blue)}
+.steps li.done .step-number svg{width:14px;height:14px;stroke-width:3}
 .steps li.done .step-number{background:var(--blue);color:#fff}
-.steps li.active{background:var(--blue);color:#fff}
+.steps li.active{flex:1 1 0;min-width:0;background:var(--blue);color:#fff}
 .steps li.active .step-number{color:var(--blue)}
 
 /* Order review (checkout + reservation) */
@@ -207,7 +210,7 @@ input[role=switch]:focus{border:0;padding:0}
 .total-row:first-child span:first-child,.discount-row>span:first-child{color:var(--muted)}
 .total-row:first-child span:last-child{font-weight:500}
 .discount-row{height:64px;border-bottom:1px solid var(--line)}
-.discount-link{display:flex;align-items:center;gap:8px;height:44px;color:var(--orange-ink);font-size:16px;font-weight:500}
+.discount-link{display:flex;align-items:center;gap:8px;height:44px;color:var(--blue);font-size:16px;font-weight:500}
 .discount-link svg{width:18px;height:18px}
 .net-row{height:58px}
 .net-row b:first-child{font-size:18px}
@@ -634,7 +637,7 @@ dialog .notice.warning{margin:12px 0 0}
   .catalog-layout{grid-template-columns:76px minmax(0,1fr);gap:8px}
   .category-rail{padding:10px 6px}
   .category-rail button{width:64px;font-size:14px}
-  .steps li{font-size:14px;gap:4px}
+  .steps li{font-size:14px;gap:4px;padding:0 10px 0 5px}
   .channels button{padding:0 10px}
   .product-row .thumb{width:52px;height:52px}
 }

@@ -420,6 +420,62 @@ groups.home = () => {
   });
 };
 
+groups.sell = () => {
+  check('steps never clip at 320', async () => {
+    await open(page, { seed: true, width: 320, height: 700 });
+    // setup only: checkout needs something in the cart to look like a real order
+    await page.evaluate(() => { state.cart = { [state.products[0].id]: 2 }; });
+    await go(page, 'checkout');
+    assert.equal(await page.$$eval('.steps li', a => a.filter(e => e.scrollWidth > e.clientWidth + 1).length), 0);
+    assert.ok(await page.$eval('.steps li.done', e => e.getBoundingClientRect().width) <= 44.5);
+    assert.match(await page.$eval('.steps li.done', e => e.textContent), /เลือกสินค้า/, 'label kept for screen readers');
+  });
+  check('tile price is plain text', async () => {
+    await go(page, 'catalog');
+    const p = await page.$eval('.product-tile .price', e => { const c = getComputedStyle(e); return [c.backgroundColor, c.position]; });
+    assert.equal(p[0], 'rgba(0, 0, 0, 0)'); assert.equal(p[1], 'static');
+  });
+  check('zero quantity: pale when new, red only when removing', async () => {
+    await page.evaluate(() => { state.cart = {}; showQuantity(state.products[0].id); });
+    await page.evaluate(() => { qty = 0; }); await page.locator('#qty').fill('0');
+    await wait(400); // let the colour tween finish before reading the computed colour
+    const s = await page.$eval('#qty-save', e => { const c = getComputedStyle(e); return [e.disabled, c.backgroundColor, e.textContent]; });
+    assert.equal(s[0], true); assert.equal(s[1], 'rgb(232, 238, 251)'); assert.match(s[2], /เลือกอย่างน้อย 1 แพ็ก/);
+    await page.evaluate(() => { dialog.close(); state.cart = { [state.products[0].id]: 1 }; showQuantity(state.products[0].id); });
+    await page.locator('#qty').fill('0');
+    assert.match(await page.$eval('#qty-save', e => e.className), /danger/);
+  });
+  check('discount link is brand blue', async () => {
+    await page.evaluate(() => dialog.close()); await go(page, 'checkout');
+    assert.equal(await page.$eval('.discount-link', e => getComputedStyle(e).color), 'rgb(22, 80, 215)');
+  });
+  check('reservation button wording', async () => {
+    await page.evaluate(() => { activeReservation = state.reservations[0].id; navigate('reservation'); }); await page.waitForTimeout(500);
+    const b = page.locator('[data-action="receive-reservation"]');
+    assert.match(await b.textContent(), /ลูกค้ารับของแล้ว · ออกบิล/); assert.doesNotMatch(await b.textContent(), /฿/);
+    assert.equal(await b.evaluate(e => e.scrollWidth <= e.clientWidth), true);
+  });
+  check('bill: fresh vs from history', async () => {
+    await go(page, 'catalog');
+    await page.evaluate(() => { state.cart = { [state.products[0].id]: 1 }; confirmSale(); }); await page.waitForTimeout(800);
+    assert.equal(await page.locator('.steps').count(), 0); assert.equal(await page.locator('.notice').count(), 1);
+    assert.equal(await page.locator('[data-action="new-order"]').count(), 1);
+    await go(page, 'history'); await page.click('.history-row'); await page.waitForTimeout(500);
+    assert.equal(await page.locator('.notice').count(), 0); assert.equal(await page.locator('[data-action="new-order"]').count(), 0);
+    assert.equal(await page.locator('[data-action="export-bill"]').count(), 1);
+  });
+  check('bill from history goes back to history', async () => {
+    await page.click('.app-bar [aria-label="กลับ"]'); await page.waitForTimeout(500);
+    assert.equal(await page.evaluate(() => page), 'history');
+  });
+  check('transactions unchanged', async () => {
+    const before = await page.evaluate(() => { const p = state.products.find(x => x.stock > 2 && !x.values); return p ? [p.id, p.stock] : null; });
+    assert.ok(before, 'fixture has a simple product with stock above 2');
+    await page.evaluate(id => { state.cart = { [id]: 2 }; confirmSale(); }, before[0]); await page.waitForTimeout(600);
+    assert.equal(await page.evaluate(id => product(id).stock, before[0]), before[1] - 2);
+  });
+};
+
 // ---- runner --------------------------------------------------------------
 (async () => {
   const wanted = process.argv.slice(2);
