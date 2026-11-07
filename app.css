@@ -927,27 +927,36 @@ dialog[data-kind=quantity]:has(#variant-picker) .sheet-image{height:96px}
 dialog[data-kind=quantity]:has(#variant-picker) .sheet-image svg{width:44px;height:44px}
 #qty-save{position:sticky;bottom:0;z-index:1}
 
-/* Tab bar: a floating glass capsule with the sell button raised in the middle. Moves with transform and opacity only. */
-#tabbar{position:fixed;left:0;right:0;bottom:max(12px,env(safe-area-inset-bottom));z-index:20;width:min(369px,calc(100vw - 24px));height:68px;margin:0 auto;
-  display:grid;grid-template-columns:repeat(5,1fr);padding:4px 3px;border-radius:34px;background:rgba(255,255,255,.65);-webkit-backdrop-filter:blur(20px) saturate(1.5);backdrop-filter:blur(20px) saturate(1.5);
-  border:1px solid #fff;box-shadow:0 10px 30px -12px rgba(15,23,42,.24);transform-origin:50% 100%}
+/* Tab bar: #tabbar only positions; the glass capsule is its .tabbar child, which shrinks on scroll with transform and opacity only. */
+#tabbar{--nav-ease:cubic-bezier(.22,1,.36,1);position:fixed;left:0;right:0;bottom:max(12px,env(safe-area-inset-bottom));z-index:20;width:min(369px,calc(100vw - 24px));height:68px;margin:0 auto}
 #tabbar:empty{display:none}
-@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){#tabbar{background:#fff}}
+#tabbar .tabbar{width:100%;height:100%;display:grid;grid-template-columns:repeat(5,1fr);padding:4px 3px;border-radius:34px;background:rgba(255,255,255,.65);-webkit-backdrop-filter:blur(20px) saturate(1.5);backdrop-filter:blur(20px) saturate(1.5);
+  border:1px solid #fff;box-shadow:0 10px 30px -12px rgba(15,23,42,.24);transform-origin:50% 100%;transition:transform 280ms var(--nav-ease);will-change:transform}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){#tabbar .tabbar{background:#fff}}
 body[data-nav=tabs] #app{padding-bottom:calc(68px + 48px + env(safe-area-inset-bottom))}
 #tabbar .tab{display:grid;justify-items:center;align-content:center;gap:2px;min-width:44px;margin:0 3px;border-radius:30px;color:var(--ink);font-size:14px;font-weight:500;line-height:1.2;text-align:center;transition:background-color var(--routine) ease,color var(--routine) ease}
-#tabbar .tab svg{width:24px;height:24px}
+#tabbar .tab svg{width:24px;height:24px;transition:transform 280ms var(--nav-ease)}
+#tabbar .tab span{transition:opacity 160ms linear}
 #tabbar .tab[aria-current]{background:rgba(255,255,255,.92);color:var(--blue);font-weight:600}
 #tabbar .tab:active:not([aria-current]){background:rgba(255,255,255,.7)}
 #tabbar .tab:focus-visible,#tabbar .sell:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
 #tabbar .sell-wrap{position:relative}
-#tabbar .sell{position:absolute;left:50%;top:-34px;width:60px;height:60px;margin-left:-30px;display:grid;place-items:center;border-radius:30px;border:4px solid #fff;background:var(--blue);color:#fff;transition:background-color var(--routine) ease}
-#tabbar .sell svg{width:28px;height:28px}
+#tabbar .sell{position:absolute;left:50%;top:-34px;width:60px;height:60px;margin-left:-30px;display:grid;place-items:center;border-radius:30px;border:4px solid #fff;background:var(--blue);color:#fff;transition:transform 280ms var(--nav-ease),background-color var(--routine) ease,border-color 160ms linear}
+#tabbar .sell svg{width:28px;height:28px;transition:none}
 #tabbar .sell:active{background:#123fb0}
-#tabbar .sell-word{position:absolute;left:0;right:0;bottom:6px;text-align:center;font-size:14px;font-weight:600;line-height:1.2;pointer-events:none}
+#tabbar .sell-word{position:absolute;left:0;right:0;bottom:6px;text-align:center;font-size:14px;font-weight:600;line-height:1.2;pointer-events:none;transition:opacity 160ms linear}
 @media (hover:hover){
   #tabbar .tab:not([aria-current]):hover{background:rgba(255,255,255,.55)}
   #tabbar .sell:hover{background:#123fb0}
 }
+/* compact: scrolled down. Whole capsule scales from its bottom edge, labels fade, icons settle lower, the raised circle drops into the bar. */
+@media (prefers-reduced-motion:no-preference){
+  #tabbar .tabbar.compact{transform:scale(.8)}
+  #tabbar .compact .tab span,#tabbar .compact .sell-word{opacity:0}
+  #tabbar .compact .tab svg{transform:translateY(9px) scale(1.1)}
+  #tabbar .compact .sell{transform:translateY(32px) scale(.92);border-color:transparent}
+}
+@media (prefers-reduced-motion:reduce){#tabbar .tabbar,#tabbar .tab svg,#tabbar .sell{transition:none}}
 
 /* Report placeholder */
 .report-soon{min-height:calc(100dvh - 52px - 116px - env(safe-area-inset-top) - env(safe-area-inset-bottom));display:grid;justify-items:center;align-content:center;text-align:center}

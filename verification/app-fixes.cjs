@@ -238,6 +238,50 @@ groups.nav = () => {
   });
 };
 
+groups.compact = () => {
+  const compact = () => page.evaluate(() => document.querySelector('#tabbar .tabbar').classList.contains('compact'));
+  const scrollTo = async y => { await page.evaluate(v => scrollTo(0, v), y); await page.waitForTimeout(450); };
+  check('shrinks going down, grows going up and at the ends', async () => {
+    await open(page, { seed: true, width: 393, height: 600 });
+    await scrollTo(0); assert.equal(await compact(), false);
+    await page.evaluate(() => scrollTo(0, 16)); await page.waitForTimeout(100); assert.equal(await compact(), false, 'inside first 24px');
+    await scrollTo(120); await scrollTo(300); assert.equal(await compact(), true);
+    const b = await page.$eval('#tabbar .tabbar', e => { const r = e.getBoundingClientRect(); return [r.width, r.height]; });
+    assert.ok(Math.abs(b[0] / 369 - .8) < .02);
+    await scrollTo(200); assert.equal(await compact(), false, 'up');
+    await scrollTo(300); await page.evaluate(() => scrollTo(0, 1e6)); await page.waitForTimeout(450); assert.equal(await compact(), false, 'end');
+  });
+  check('targets stay 44px when compact, labels stay for assistive tech', async () => {
+    await scrollTo(0); await scrollTo(120); await scrollTo(300);
+    assert.equal(await compact(), true, 'setup: bar is compact');
+    const r = await page.$$eval('#tabbar .tab, #tabbar .sell', a => a.map(e => { const b = e.getBoundingClientRect(); return [b.width, b.height, e.getAttribute('aria-label')]; }));
+    assert.equal(r.length, 5);
+    for (const [w, h, label] of r) { assert.ok(w >= 44 && h >= 44, `${label} ${w}x${h}`); assert.ok(label); }
+  });
+  check('only transform and opacity animate', async () => {
+    const props = await page.$$eval('#tabbar .tabbar, #tabbar svg, #tabbar .tab span, #tabbar .sell, #tabbar .sell-word', a => a.map(e => getComputedStyle(e).transitionProperty));
+    for (const p of props) assert.ok(!/width|height|backdrop|\ball\b/.test(p), p);
+  });
+  check('reduced motion keeps the bar full', async () => {
+    await page.emulateMedia({ reducedMotion: 'reduce' }); await scrollTo(0); await scrollTo(120); await scrollTo(300);
+    assert.ok(await page.$eval('#tabbar .tabbar', e => e.getBoundingClientRect().height) >= 68);
+    assert.equal(await page.$eval('#tabbar .tab span', e => getComputedStyle(e).opacity), '1', 'labels stay visible');
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+  });
+  check('resets on navigation and keyboard focus', async () => {
+    await scrollTo(0); await scrollTo(120); await scrollTo(300); assert.equal(await compact(), true, 'setup');
+    await go(page, 'stock'); assert.equal(await compact(), false);
+    await scrollTo(120); await scrollTo(300); assert.equal(await compact(), true, 'setup');
+    await page.focus('#tabbar [data-tab="home"]'); assert.equal(await compact(), false);
+  });
+  check('report placeholder is not stuck compact when it is short', async () => {
+    await page.setViewportSize({ width: 393, height: 852 }); await go(page, 'report'); await wait(450);
+    assert.equal(await compact(), false);
+    await page.mouse.wheel(0, 200); await wait(450);
+    assert.equal(await compact(), false);
+  });
+};
+
 // ---- runner --------------------------------------------------------------
 (async () => {
   const wanted = process.argv.slice(2);

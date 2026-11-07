@@ -22,6 +22,8 @@ function navMarkup() {
     + navTab('report') + navTab('history');
 }
 
+let navShownPage = null;
+
 function renderNav() {
   const bar = document.querySelector('#tabbar');
   if (!bar) return;
@@ -29,11 +31,41 @@ function renderNav() {
   document.body.dataset.nav = show ? 'tabs' : 'none';
   if (!show) { bar.replaceChildren(); return; }
   // keep the same buttons between pages so focus and later bar state survive; only the current mark moves
-  if (!bar.querySelector('[data-tab]')) bar.innerHTML = navMarkup();
+  if (!bar.querySelector('[data-tab]')) bar.innerHTML = `<div class="tabbar">${navMarkup()}</div>`;
+  if (page !== navShownPage) { navShownPage = page; setCompact(false); navLast = window.scrollY; }
   bar.querySelectorAll('[data-tab]').forEach(el => {
     if (el.dataset.tab === page) el.setAttribute('aria-current', 'page'); else el.removeAttribute('aria-current');
   });
 }
+
+// ---------- shrink on scroll ----------
+// Down past DELTA shrinks the bar, up past DELTA grows it, and the top 24px and the page end always show it full.
+const NAV_DELTA = 8, NAV_TOP = 24;
+let navLast = window.scrollY, navTicking = false, navScrollBound = false;
+
+function setCompact(on) {
+  const capsule = document.querySelector('#tabbar .tabbar');
+  if (capsule) capsule.classList.toggle('compact', Boolean(on));
+}
+
+function navScrollUpdate() {
+  navTicking = false;
+  const capsule = document.querySelector('#tabbar .tabbar');
+  if (!capsule) { navLast = window.scrollY; return; }
+  const y = window.scrollY, atEnd = window.innerHeight + y >= document.documentElement.scrollHeight - 4;
+  if (y < NAV_TOP || atEnd) setCompact(false);
+  else if (y - navLast > NAV_DELTA) setCompact(true);
+  else if (navLast - y > NAV_DELTA) setCompact(false);
+  if (Math.abs(y - navLast) > NAV_DELTA || y < NAV_TOP) navLast = y;
+}
+
+function initNavScroll() {
+  if (navScrollBound) return;
+  navScrollBound = true;
+  window.addEventListener('scroll', () => { if (!navTicking) { navTicking = true; requestAnimationFrame(navScrollUpdate); } }, { passive: true });
+  document.addEventListener('focusin', event => { if (event.target.closest && event.target.closest('#tabbar')) setCompact(false); });
+}
+initNavScroll();
 
 document.addEventListener('click', event => {
   const hit = event.target.closest('#tabbar [data-tab], #tabbar .sell-wrap');
