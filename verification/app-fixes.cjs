@@ -585,6 +585,81 @@ groups.lists = () => {
   });
 };
 
+groups.tour = () => {
+  const measure = () => page.evaluate(() => {
+    const h = document.querySelector('.coach-hole').getBoundingClientRect(), c = document.querySelector('.coach-card').getBoundingClientRect();
+    const bar = document.querySelector('#tabbar .tabbar');
+    return { hole: [h.top, h.bottom, h.width, h.left, h.right], card: [c.top, c.bottom, c.left, c.right], vh: innerHeight, vw: innerWidth,
+      overlap: !(c.bottom <= h.top || c.top >= h.bottom), compact: bar ? bar.classList.contains('compact') : null,
+      sw: document.documentElement.scrollWidth };
+  });
+  // A fresh shop saves tourDone as soon as the welcome shows, and open() reloads, so reopen the welcome by hand.
+  const begin = async () => { await page.evaluate(() => tourWelcome()); await page.click('[data-action="tour-start"]'); await page.waitForSelector('#coach'); };
+  const rectOf = sel => page.evaluate(s => { const r = document.querySelector(s).getBoundingClientRect(); return [r.top, r.bottom, r.left, r.right]; }, sel);
+  check('three steps point at the new controls on every size', async () => {
+    for (const [width, height] of [[320, 568], [393, 852]]) {
+      await open(page, { seed: false, width, height });
+      await begin();
+      const titles = ['เริ่มที่เพิ่มสต็อก', 'ขายของกดปุ่มนี้', 'ดูของในร้านที่สต็อก'];
+      for (let i = 0; i < 3; i++) {
+        assert.match(await page.textContent('.coach-card'), new RegExp(titles[i]));
+        const box = await measure();
+        assert.ok(box.hole[2] > 0); assert.equal(box.overlap, false, 'card overlaps hole at step ' + (i + 1) + ' ' + width);
+        assert.ok(box.hole[1] <= box.vh && box.card[0] >= 0 && box.card[1] <= box.vh, 'fits in view ' + width);
+        assert.ok(box.card[2] >= 0 && box.card[3] <= box.vw && box.sw <= box.vw, 'no horizontal overflow ' + width);
+        if (i > 0) assert.ok(box.card[1] <= box.hole[0], 'step ' + (i + 1) + ' card sits above the target');
+        await page.click('[data-action="tour-next"]');
+      }
+      assert.equal(await page.locator('#coach').count(), 0);
+    }
+  });
+  check('step 2 hole holds the whole sell circle and step 3 the stock tab', async () => {
+    await open(page, { seed: false, width: 393, height: 852 });
+    await begin();
+    await page.click('[data-action="tour-next"]');
+    let b = await measure(), s = await rectOf('#tabbar .sell');
+    assert.ok(b.hole[0] <= s[0] && b.hole[1] >= s[1] && b.hole[3] <= s[2] && b.hole[4] >= s[3], 'circle inside hole');
+    await page.click('[data-action="tour-next"]');
+    b = await measure(); s = await rectOf('[data-tab="stock"]');
+    assert.ok(b.hole[0] <= s[0] && b.hole[1] >= s[1] && b.hole[3] <= s[2] && b.hole[4] >= s[3], 'tab inside hole');
+  });
+  check('tour keeps the bar full even if the page was scrolled before it started', async () => {
+    await open(page, { seed: true, width: 393, height: 852 });
+    await page.evaluate(() => { document.body.style.minHeight = '2000px'; window.scrollTo(0, 400); }); await wait(300);
+    assert.equal(await page.$eval('#tabbar .tabbar', e => e.classList.contains('compact')), true, 'setup: bar shrank');
+    await page.evaluate(() => tourStart()); await page.waitForSelector('#coach');
+    for (let i = 0; i < 3; i++) {
+      await wait(400);
+      const b = await measure();
+      assert.equal(b.compact, false, 'bar full at step ' + (i + 1));
+      assert.equal(await page.evaluate(() => scrollY), 0);
+      const sel = ['[data-action="add-stock"]', '#tabbar .sell', '[data-tab="stock"]'][i], t = await rectOf(sel);
+      assert.ok(Math.abs(b.hole[0] + 5 - t[0]) < 1 || i === 1, 'hole top tracks target');
+      if (i === 1) assert.ok(b.hole[0] <= t[0] && b.hole[1] >= t[1]);
+      await page.click('[data-action="tour-next"]');
+    }
+  });
+  check('hole follows the target when the page scrolls during step 1', async () => {
+    await open(page, { seed: false, width: 320, height: 568 });
+    await begin();
+    await page.evaluate(() => window.scrollTo(0, 60)); await wait(300);
+    const b = await measure(), t = await rectOf('[data-action="add-stock"]');
+    assert.ok(Math.abs(b.hole[0] + 5 - t[0]) < 1, 'hole tracks after scroll');
+    assert.equal(b.compact, false);
+  });
+  check('tour code no longer mentions the old menu', async () => {
+    const src = fs.readFileSync(path.join(ROOT, 'tour.js'), 'utf8');
+    assert.ok(!/quick-actions|menu/.test(src.replace(/home menu|\/\/.*$/gm, '')), 'no quick-actions or menu');
+    assert.ok(!src.includes('go:catalog') && !src.includes('go:stock'));
+  });
+  check('replays from settings', async () => {
+    await open(page, { seed: true, width: 393, height: 852 });
+    await page.evaluate(() => navigate('settings')); await page.waitForTimeout(500);
+    await page.click('[data-action="tour-start"]'); await page.waitForSelector('#coach');
+    assert.match(await page.textContent('.coach-card'), /เริ่มที่เพิ่มสต็อก/);
+  });
+};
+
 // ---- runner --------------------------------------------------------------
 (async () => {
   const wanted = process.argv.slice(2);
