@@ -476,6 +476,115 @@ groups.sell = () => {
   });
 };
 
+groups.lists = () => {
+  check('stock row has two lines and quiet code', async () => {
+    await open(page, { seed: true, width: 393, height: 852 }); await go(page, 'stock');
+    assert.equal(await page.locator('.product-row .description').count(), 0);
+    const code = page.locator('.product-row .code').first();
+    assert.match(await code.textContent(), /^[A-Z]-\d+( · .+)?$/);
+    assert.equal(await code.evaluate(e => getComputedStyle(e).color), 'rgb(71, 85, 105)');
+  });
+  check('sizeRange and productCode', async () => {
+    const r = await page.evaluate(() => [
+      sizeRange({ values: [[1]], sizes: ['M', 'L', 'XL'] }), sizeRange({ values: [[1]], sizes: ['ฟรีไซซ์'] }),
+      sizeRange({ sizes: ['รวม'] }), sizeRange({ values: [[1]], sizes: ['รวม'] }), sizeRange({}),
+      productCode({ id: 'A-102', values: [[1, 1]], sizes: ['M', 'XL'] }), productCode({ id: 'A-102', sizes: ['รวม'] })]);
+    assert.deepEqual(r, ['M–XL', 'ฟรีไซซ์', '', '', '', 'A-102 · M–XL', 'A-102']);
+  });
+  check('free size and single-total products read well', async () => {
+    assert.doesNotMatch((await page.textContent('#app')), /· ·/);
+    const codes = await page.$$eval('.product-row .code', a => a.map(e => e.textContent));
+    assert.ok(codes.includes('A-102'), 'single-total product shows only its code');
+    assert.ok(codes.includes('S-501 · ฟรีไซซ์'), 'free size shows its name');
+  });
+  check('hidden product keeps its closed-sale note', async () => {
+    await page.evaluate(() => { state.products[0].hidden = true; render(); });
+    assert.match(await page.locator('.product-row .code').filter({ hasText: 'A-102' }).textContent(), /^A-102 · ปิดการขาย$/);
+    await page.evaluate(() => { state.products[0].hidden = false; render(); });
+  });
+  check('long names do not push the price out at 320', async () => {
+    await open(page, { seed: { longNames: true }, width: 320, height: 700 }); await go(page, 'stock');
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'no sideways scroll');
+    const bad = await page.$$eval('.product-row', rows => rows.filter(r => {
+      const m = r.querySelector('.product-meta').getBoundingClientRect(), box = r.getBoundingClientRect();
+      return m.right > box.right + 0.5 || m.left < r.querySelector('.product-info').getBoundingClientRect().right - 0.5;
+    }).length);
+    assert.equal(bad, 0);
+  });
+  check('sheet product code is muted too', async () => {
+    await open(page, { seed: true });
+    await page.evaluate(() => showQuantity(state.products[0].id));
+    assert.equal(await page.$eval('.sheet-product .code', e => getComputedStyle(e).color), 'rgb(71, 85, 105)');
+  });
+  check('reservations: no repeated badge, no special first card', async () => {
+    await go(page, 'reservations');
+    assert.equal(await page.locator('.reservation-card .badge').count(), 0);
+    assert.ok(await page.locator('.reservation-card').count() >= 2);
+    assert.equal(await page.$eval('.reservation-card', e => getComputedStyle(e).borderTopWidth), '1px');
+    assert.equal(await page.$eval('.reservation-card', e => getComputedStyle(e).borderTopColor), await page.$eval('.reservation-card:nth-of-type(2)', e => getComputedStyle(e).borderTopColor));
+    assert.equal(await page.locator('.app-bar [aria-label="กลับ"]').count(), 1);
+  });
+  check('received tab keeps its status', async () => {
+    await page.evaluate(() => { state.reservations[0].status = 'received'; });
+    await page.click('[data-action="reservation-tab:received"]');
+    assert.equal(await page.locator('.badge.waiting').count(), 0);
+    assert.equal(await page.locator('.reservation-card .badge.received').count(), 1);
+  });
+  check('history shows the bill number, not an icon', async () => {
+    await go(page, 'history');
+    assert.equal(await page.locator('.history-icon').count(), 0);
+    assert.match(await page.locator('.history-row small').first().textContent(), /^\d{4} · /);
+  });
+  check('history bill number matches the bill', async () => {
+    const small = await page.locator('.history-row small').first().textContent();
+    const no = await page.evaluate(() => billNumber(state.sales[0]));
+    assert.equal(small.split(' · ')[0], no);
+    await page.click('.history-row'); await wait(500);
+    assert.equal(await page.locator('.receipt-box b').last().textContent(), no);
+  });
+  check('categories have one way to edit', async () => {
+    await go(page, 'settings-categories');
+    assert.equal(await page.locator('[data-action="category-mode"]').count(), 0);
+    assert.equal(await page.locator('.row-delete').count(), 0);
+    assert.equal(await page.evaluate(() => document.querySelector('.settings-card').innerHTML.includes(icon('edit'))), false);
+    assert.match(await page.textContent('.settings-hint'), /แตะหมวดเพื่อเปลี่ยนชื่อ เลื่อนลำดับ หรือลบ/);
+    await page.locator('[data-action^="category-edit:"]').first().click();
+    assert.match(await page.textContent('dialog'), /ลบ/, 'delete lives in the edit sheet');
+  });
+  check('category delete still asks where the products go', async () => {
+    await page.evaluate(() => dialog.close());
+    const n = await page.evaluate(() => state.products.filter(p => p.category === 'กางเกงใน').length);
+    assert.ok(n > 0, 'fixture category has products');
+    await page.locator('[data-action="category-edit:1"]').click();
+    await page.locator('dialog [data-action="category-delete-ask:1"]').click();
+    assert.equal(await page.locator('dialog [data-action^="category-delete:"]').count(), 0, 'no direct delete');
+    assert.equal(await page.locator('dialog [data-action^="category-move-delete:1:"]').count(), 3);
+    await page.locator('dialog [data-action="category-move-delete:1:เสื้อใน"]').click();
+    const r = await page.evaluate(() => [state.settings.categories.slice(), state.products.filter(p => p.category === 'กางเกงใน').length, state.products.filter(p => p.category === 'เสื้อใน').length]);
+    assert.deepEqual(r[0], ['เสื้อใน', 'เสื้อกล้าม', 'ถุงเท้า']);
+    assert.equal(r[1], 0); assert.ok(r[2] >= n);
+  });
+  check('category can be moved in the edit sheet', async () => {
+    await page.locator('[data-action="category-edit:0"]').click();
+    await page.locator('dialog [data-action="category-shift:0:1"]').click();
+    assert.deepEqual(await page.evaluate(() => state.settings.categories.slice(0, 2)), ['เสื้อกล้าม', 'เสื้อใน']);
+    assert.match(await page.$eval('#category-name', e => e.value), /เสื้อใน/, 'sheet stays on the moved category');
+  });
+  check('every page title fits at 320', async () => {
+    await open(page, { seed: true, width: 320, height: 700 });
+    await page.evaluate(() => { state.cart = { [state.products[0].id]: 2 }; activeReservation = state.reservations[0].id; });
+    const targets = ['home', 'stock', 'catalog', 'checkout', 'reservations', 'reservation', 'history', 'add', 'receipt',
+      'settings', 'settings-shop', 'settings-promptpay', 'settings-bill', 'settings-low', 'settings-categories', 'settings-colors', 'settings-users', 'settings-invite', 'settings-plan'];
+    const clipped = [];
+    for (const t of targets) {
+      await go(page, t);
+      const r = await page.evaluate(() => { const h = document.querySelector('.app-bar h1'); return h ? [h.scrollWidth > h.clientWidth + 1 || h.scrollHeight > h.clientHeight + 1, h.textContent] : null; });
+      if (r && r[0]) clipped.push(t + ':' + r[1]);
+    }
+    assert.deepEqual(clipped, []);
+  });
+};
+
 // ---- runner --------------------------------------------------------------
 (async () => {
   const wanted = process.argv.slice(2);

@@ -52,7 +52,8 @@ dialog .stepper.detail-quantity{margin:16px 0 0}
 body:not([data-page=home]) .app-bar{background:var(--canvas)}
 body[data-page=checkout] .app-bar,body[data-page=reservation] .app-bar{background:#fff}
 body[data-page=receipt] .app-bar{background:#f1f5f9}
-.app-bar h1{position:absolute;left:96px;right:96px;bottom:4px;height:44px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:600;pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.app-bar h1{position:absolute;left:96px;right:96px;bottom:4px;height:44px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:600;line-height:20px;text-align:center;text-wrap:balance;pointer-events:none;overflow:hidden}
+@media (max-width:359px){.app-bar:not(:has(.header-actions)) h1{left:64px;right:64px}.app-bar h1{font-size:16px}}
 .app-bar .spacer{width:44px}
 .header-actions{margin-left:auto;display:flex;gap:8px}
 .icon-button{width:44px;height:44px;flex-shrink:0;display:inline-grid;place-items:center;border-radius:22px;background:#fff;border:1px solid var(--line);color:var(--ink)}
@@ -130,8 +131,7 @@ input[role=switch]:focus{border:0;padding:0}
 .product-row:last-child{border-bottom:0}
 .product-info{flex:1;min-width:0;display:grid;gap:2px}
 .product-info strong{font-size:16px;line-height:20px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.product-info .code{color:var(--blue);font-size:16px;font-weight:500;line-height:18px}
-.product-info .description{font-size:16px;line-height:18px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.product-info .code{color:var(--muted);font-size:16px;font-weight:500;line-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
 .product-meta{flex-shrink:0;display:grid;justify-items:end;gap:6px}
 .product-meta b{font-size:18px;line-height:23px}
 .stock{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:500;line-height:18px;color:var(--muted);white-space:nowrap}
@@ -291,7 +291,6 @@ input[role=switch]:focus{border:0;padding:0}
 .tabs button{border-radius:11px;color:var(--muted);font-size:16px;font-weight:500;text-align:center}
 .tabs .active{background:#fff;color:var(--ink);font-weight:600;box-shadow:var(--seg-shadow)}
 .reservation-card{display:block;width:100%;margin-bottom:12px;padding:15px 17px 15px;border:1px solid var(--line);border-radius:16px;background:#fff;text-align:left}
-.reservation-card:first-of-type{border:2px solid var(--blue);padding:14px 16px}
 .reservation-card strong{font-size:18px;line-height:23px}
 .reservation-card p{margin:7px 0;font-size:16px;line-height:18px;color:var(--muted)}
 .reservation-card small{font-size:16px;color:var(--muted)}
@@ -308,10 +307,8 @@ input[role=switch]:focus{border:0;padding:0}
 .history-heading span{font-size:16px;font-weight:500;color:var(--muted)}
 .history-row{width:100%;height:64px;display:flex;align-items:center;gap:12px;margin-bottom:8px;padding:0 14px;border-radius:14px;background:#fff;text-align:left}
 .history-row .grow b{display:block;font-size:16px;line-height:20px}
-.history-row small{display:block;font-size:16px;line-height:18px;color:var(--muted)}
+.history-row small{display:block;font-size:16px;line-height:18px;color:var(--muted);font-variant-numeric:tabular-nums}
 .history-row>b{font-size:16px}
-.history-icon{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--pale);color:var(--blue)}
-.history-icon svg{width:20px;height:20px}
 
 /* Add model form */
 .product-form{padding-top:8px}
@@ -364,7 +361,7 @@ input.invalid,.affix-input.invalid{background:var(--error-bg);border:2px solid v
 .color-suggestions button{height:44px;display:flex;align-items:center;gap:10px;padding:0 10px;border-radius:9px;font-size:16px;font-weight:500}
 .color-suggestions button.active{background:var(--pale)}
 .color-suggestions .swatch{width:20px;height:20px}
-.add-color{width:100%;height:44px;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:6px;border:1.5px solid var(--dashed);border-radius:12px;color:var(--blue);font-size:16px;font-weight:500}
+.add-color{width:100%;height:44px;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:6px;border:1.5px dashed var(--dashed);border-radius:12px;color:var(--blue);font-size:16px;font-weight:500}
 .add-color svg{width:18px;height:18px}
 .variant-total{display:flex;align-items:center;justify-content:space-between;height:48px;margin-top:4px;font-size:16px;color:var(--muted)}
 .variant-total .link{display:flex;align-items:center;gap:6px;font-size:16px}
@@ -421,7 +418,7 @@ dialog[data-kind=quantity]>.close{top:43px;right:32px;z-index:1;border:0;backgro
 .sheet-image svg{width:56px;height:56px;stroke-width:1.4}
 .sheet-product{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-top:16px}
 .sheet-product h3{font-size:24px;line-height:30px;font-weight:600}
-.sheet-product .code{display:block;margin-top:2px;color:var(--blue);font-size:16px;font-weight:500;line-height:20px}
+.sheet-product .code{display:block;margin-top:2px;color:var(--muted);font-size:16px;font-weight:500;line-height:20px}
 dialog .price-line{margin-top:6px;padding:0}
 dialog .divider{height:1px;margin:16px 0;background:var(--line)}
 .qty-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
@@ -772,18 +769,15 @@ dialog[data-kind=alert][open]::backdrop{background:rgba(10,29,79,.5)}
 .preset-chip:active{background:var(--pale);border-color:var(--blue)}
 .sheet-actions .secondary.cancel svg{width:18px;height:18px}
 
-/* Category list: edit mode makes delete explicit */
+/* Category list: one tap opens the sheet that renames, moves and deletes */
 .header-text-button{min-width:64px;height:44px;padding:0 14px;border-radius:22px;border:1px solid var(--line);background:#fff;color:var(--blue);font-size:16px;font-weight:600}
-.header-text-button.done{background:var(--blue);border-color:var(--blue);color:#fff}
-.edit-banner{display:flex;align-items:center;gap:10px;min-height:44px;margin-bottom:12px;padding:10px 14px;border-radius:12px;background:var(--danger-bg);color:var(--danger-ink);font-size:16px;font-weight:500;animation:fade-in 200ms linear}
-.edit-banner svg{width:18px;height:18px;flex-shrink:0}
-.editing-row{cursor:default}
-.row-delete{width:44px;height:44px;flex-shrink:0;display:grid;place-items:center;margin-left:-6px;border-radius:22px;background:var(--danger-bg);color:var(--danger);animation:delete-in 240ms var(--ease-out)}
-.row-delete svg{width:20px;height:20px}
-.row-delete:active{background:var(--danger);color:#fff}
-.is-editing .settings-card{border-color:#f5c2c2}
-@keyframes delete-in{from{opacity:0;transform:scale(.6)}}
-@media (prefers-reduced-motion:reduce){.row-delete{animation:none}}
+.category-tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.category-tools .secondary{display:flex;align-items:center;justify-content:center;gap:8px;height:48px;border-radius:14px;font-size:16px;font-weight:500}
+.category-tools .secondary:disabled{background:var(--canvas);color:var(--muted-2)}
+.category-tools svg,.category-delete svg{width:18px;height:18px;flex-shrink:0}
+.category-delete{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:48px;margin-top:8px;border-radius:14px;background:var(--danger-bg);color:var(--danger-ink);font-size:16px;font-weight:500;transition:background-color var(--routine) ease,color var(--routine) ease}
+.category-delete:active{background:var(--danger);color:#fff}
+@media (hover:hover){.category-delete:hover{background:#fbdcdc}}
 
 /* Bill: pick size, then colour, then quantity */
 .pick-label{display:flex;align-items:center;gap:8px;margin:16px 0 10px;font-size:16px;font-weight:600}
