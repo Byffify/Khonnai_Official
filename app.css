@@ -82,9 +82,10 @@ body[data-page=receipt] .app-bar{background:#f1f5f9}
 
 /* Home */
 .home-bar{position:relative;height:calc(82px + env(safe-area-inset-top));padding:calc(20px + env(safe-area-inset-top)) 14px 0;background:#fff}
-.home-bar .icon-button{border:0;background:transparent;border-radius:12px}
-.home-bar .icon-button svg{stroke-width:2.5;width:26px;height:26px}
-.home-bar .logo{position:absolute;left:50%;top:calc(29px + env(safe-area-inset-top));width:119px;height:26px;object-fit:contain;transform:translateX(-50%)}
+.home-bar .icon-button{position:absolute;right:16px;top:calc(20px + env(safe-area-inset-top));border:0;background:transparent;border-radius:12px}
+.home-bar .icon-button:hover{background:var(--canvas)}
+.home-bar .icon-button svg{stroke-width:2;width:26px;height:26px}
+.home-bar .logo{position:absolute;left:20px;top:calc(29px + env(safe-area-inset-top));width:119px;height:26px;object-fit:contain;object-position:left center}
 .hero{position:relative;height:222px;border-radius:24px;padding:20px;color:#fff;overflow:hidden;isolation:isolate;
   background:url("assets/revenue-waves.svg") right bottom/100% 100% no-repeat,linear-gradient(135deg,#0a1a47,#13307e);box-shadow:0 16px 32px rgba(10,29,79,.35)}
 .hero-account{display:flex;align-items:center;gap:10px;height:40px;padding-right:118px}
@@ -538,22 +539,6 @@ dialog[data-kind=customer],dialog[data-kind=category]{padding-left:20px;padding-
 dialog[data-kind=customer]>h2,dialog[data-kind=category]>h2{padding-left:0}
 #new-customer .field{padding:0}
 
-/* Drawer menu */
-dialog[data-kind=drawer]{inset:0 auto 0 0;width:300px;max-width:85vw;height:100dvh;max-height:none;margin:0;padding:calc(64px + env(safe-area-inset-top)) 14px 24px;border-radius:0 28px 28px 0;box-shadow:8px 0 32px rgba(15,23,42,.2)}
-dialog[data-kind=drawer]::before,dialog[data-kind=drawer]>h2{display:none}
-dialog[data-kind=drawer]>.close{top:calc(14px + env(safe-area-inset-top));right:14px}
-.drawer-shop{display:flex;align-items:center;gap:12px;min-height:66px;padding:4px}
-.drawer-shop img{width:44px;height:44px;border-radius:12px;object-fit:cover}
-.drawer-shop b{display:block;font-size:16px;line-height:20px}
-.drawer-shop small{display:block;font-size:16px;line-height:18px;color:var(--muted)}
-.drawer-nav{display:grid;gap:4px}
-.drawer-item{min-height:52px;display:flex;align-items:center;gap:14px;padding:0 14px;border-radius:12px;font-size:16px;font-weight:500;text-align:left}
-.drawer-item svg{width:22px;height:22px;color:var(--muted)}
-.drawer-item.active{background:var(--pale);color:var(--blue);font-weight:600}
-.drawer-item.active svg{color:var(--blue)}
-.drawer-badge{min-width:27px;height:22px;padding:0 8px;display:grid;place-items:center;border-radius:100px;background:var(--warn-bg);color:var(--warn-ink);font-size:14px;font-weight:600}
-.drawer-nav hr{width:100%;height:1px;margin:0;border:0;background:var(--line)}
-
 /* Cash bill PromptPay QR */
 .receipt-qr{display:flex;align-items:center;gap:12px;margin-top:10px;padding:8px;border:1px solid var(--bill-soft);border-radius:8px}
 .receipt-qr svg{width:96px;height:96px;flex-shrink:0}
@@ -724,13 +709,10 @@ dialog .notice.warning{margin:12px 0 0}
 @keyframes notice-in{from{opacity:0;transform:scale(.97)}}
 @keyframes draw{to{stroke-dashoffset:0}}
 
-/* Sheets rise from the bottom, the drawer slides from the edge, alerts settle in; exits are quicker */
+/* Sheets rise from the bottom, alerts settle in; exits are quicker */
 dialog{opacity:0;transform:translateY(100%);transition:transform 200ms var(--ease-in),opacity 200ms linear,overlay 200ms allow-discrete,display 200ms allow-discrete}
 dialog[open]{opacity:1;transform:none;transition:transform 380ms var(--ease-out),opacity 160ms linear,overlay 380ms allow-discrete,display 380ms allow-discrete}
 @starting-style{dialog[open]{opacity:0;transform:translateY(100%)}}
-dialog[data-kind=drawer]{transform:translateX(-100%)}
-dialog[data-kind=drawer][open]{transform:none}
-@starting-style{dialog[data-kind=drawer][open]{transform:translateX(-100%)}}
 dialog[data-kind=alert]{transform:scale(.94)}
 dialog[data-kind=alert][open]{transform:none;transition-duration:280ms}
 @starting-style{dialog[data-kind=alert][open]{opacity:0;transform:scale(.94)}}
@@ -748,15 +730,14 @@ dialog[data-kind=alert][open]::backdrop{background:rgba(10,29,79,.5)}
 :is(.primary,.secondary,.danger,.icon-button,.chip,.start-go,.cancel-button,.logout,.add-color,.add-size,.stepper>button,.big-stepper>button,.tabs button,.channels button,.quick-actions .circle,.toast-undo){transition:transform var(--quick) var(--ease-out),background-color var(--routine) ease,color var(--routine) ease,border-color var(--routine) ease,box-shadow var(--routine) ease}
 :is(.primary,.secondary,.danger,.icon-button,.chip,.start-go,.cancel-button,.logout,.add-color,.add-size,.stepper>button,.big-stepper>button,.toast-undo):active:not(:disabled){transform:scale(.96)}
 .quick-actions button:active .circle{transform:scale(.92)}
-:is(.product-row,.settings-row,.history-row,.reservation-card,.drawer-item,.customer-row,.walk-in,.low-row,dialog .option,dialog .action-row,dialog .choice,.shop-profile,.swatch-tile){transition:background-color var(--routine) ease,box-shadow var(--routine) ease}
+:is(.product-row,.settings-row,.history-row,.reservation-card,.customer-row,.walk-in,.low-row,dialog .option,dialog .action-row,dialog .choice,.shop-profile,.swatch-tile){transition:background-color var(--routine) ease,box-shadow var(--routine) ease}
 :is(.product-row,.settings-row,.history-row,.low-row,dialog .choice,.customer-row):active{background-color:rgba(22,80,215,.06)}
-:is(.reservation-card,.shop-profile,.drawer-item,.walk-in,dialog .option,dialog .action-row):active{background-color:rgba(22,80,215,.08)}
+:is(.reservation-card,.shop-profile,.walk-in,dialog .option,dialog .action-row):active{background-color:rgba(22,80,215,.08)}
 .product-tile .visual{transition:box-shadow var(--routine) ease,transform var(--quick) var(--ease-out)}
 .product-tile:active:not(:disabled) .visual{transform:scale(.97)}
 @media (hover:hover){
   :is(.product-row,.settings-row,.history-row,.customer-row,dialog .choice):hover{background-color:rgba(22,80,215,.04)}
   .reservation-card:hover,.shop-profile:hover{box-shadow:0 4px 14px rgba(15,23,42,.06)}
-  .drawer-item:not(.active):hover{background-color:var(--canvas)}
 }
 
 /* Toggles move their knob */
@@ -786,8 +767,8 @@ dialog[data-kind=alert][open]::backdrop{background:rgba(10,29,79,.5)}
   .enter :is(.product-row,.product-tile,.reservation-card,.history-row,.order-row,.settings-card,.swatch-tile,.start-step){animation:none}
   .printing .receipt,.printing .notice{animation:fade-in 200ms linear both}
   .printing .notice svg path{animation:none;stroke-dashoffset:0}
-  dialog,dialog[open],dialog[data-kind=drawer],dialog[data-kind=drawer][open],dialog[data-kind=alert],dialog[data-kind=alert][open]{transform:none}
-  @starting-style{dialog[open],dialog[data-kind=drawer][open],dialog[data-kind=alert][open]{transform:none;opacity:0}}
+  dialog,dialog[open],dialog[data-kind=alert],dialog[data-kind=alert][open]{transform:none}
+  @starting-style{dialog[open],dialog[data-kind=alert][open]{transform:none;opacity:0}}
   #toast,#toast.visible{transform:translate(-50%,0)}
   @starting-style{#toast.visible{transform:translate(-50%,0)}}
   :is(.primary,.secondary,.danger,.icon-button,.chip,.start-go,.cancel-button,.logout,.add-color,.add-size,.stepper>button,.big-stepper>button,.toast-undo):active:not(:disabled),.quick-actions button:active .circle,.product-tile:active:not(:disabled) .visual{transform:none}
@@ -801,7 +782,7 @@ dialog[data-kind=alert][open]::backdrop{background:rgba(10,29,79,.5)}
   .receipt{clip-path:none!important}
   .app-shell{max-width:none}
   #app{padding:0}
-  .app-bar,.steps,.notice,#action-bar,#toast,dialog{display:none!important}
+  .app-bar,.steps,.notice,#action-bar,#tabbar,#toast,dialog{display:none!important}
   .content{padding:0}
   .receipt{box-shadow:none;max-width:560px;margin:0 auto}
 }
@@ -945,3 +926,36 @@ dialog .size-rows~.primary{margin-top:12px;width:100%}
 dialog[data-kind=quantity]:has(#variant-picker) .sheet-image{height:96px}
 dialog[data-kind=quantity]:has(#variant-picker) .sheet-image svg{width:44px;height:44px}
 #qty-save{position:sticky;bottom:0;z-index:1}
+
+/* Tab bar: a floating glass capsule with the sell button raised in the middle. Moves with transform and opacity only. */
+#tabbar{position:fixed;left:0;right:0;bottom:max(12px,env(safe-area-inset-bottom));z-index:20;width:min(369px,calc(100vw - 24px));height:68px;margin:0 auto;
+  display:grid;grid-template-columns:repeat(5,1fr);padding:4px 3px;border-radius:34px;background:rgba(255,255,255,.65);-webkit-backdrop-filter:blur(20px) saturate(1.5);backdrop-filter:blur(20px) saturate(1.5);
+  border:1px solid #fff;box-shadow:0 10px 30px -12px rgba(15,23,42,.24);transform-origin:50% 100%}
+#tabbar:empty{display:none}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){#tabbar{background:#fff}}
+body[data-nav=tabs] #app{padding-bottom:calc(68px + 48px + env(safe-area-inset-bottom))}
+#tabbar .tab{display:grid;justify-items:center;align-content:center;gap:2px;min-width:44px;margin:0 3px;border-radius:30px;color:var(--ink);font-size:14px;font-weight:500;line-height:1.2;text-align:center;transition:background-color var(--routine) ease,color var(--routine) ease}
+#tabbar .tab svg{width:24px;height:24px}
+#tabbar .tab[aria-current]{background:rgba(255,255,255,.92);color:var(--blue);font-weight:600}
+#tabbar .tab:active:not([aria-current]){background:rgba(255,255,255,.7)}
+#tabbar .tab:focus-visible,#tabbar .sell:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+#tabbar .sell-wrap{position:relative}
+#tabbar .sell{position:absolute;left:50%;top:-34px;width:60px;height:60px;margin-left:-30px;display:grid;place-items:center;border-radius:30px;border:4px solid #fff;background:var(--blue);color:#fff;transition:background-color var(--routine) ease}
+#tabbar .sell svg{width:28px;height:28px}
+#tabbar .sell:active{background:#123fb0}
+#tabbar .sell-word{position:absolute;left:0;right:0;bottom:6px;text-align:center;font-size:14px;font-weight:600;line-height:1.2;pointer-events:none}
+@media (hover:hover){
+  #tabbar .tab:not([aria-current]):hover{background:rgba(255,255,255,.55)}
+  #tabbar .sell:hover{background:#123fb0}
+}
+
+/* Report placeholder */
+.report-soon{min-height:calc(100dvh - 52px - 116px - env(safe-area-inset-top) - env(safe-area-inset-bottom));display:grid;justify-items:center;align-content:center;text-align:center}
+.report-soon .soon-icon{width:88px;height:88px;display:grid;place-items:center;border-radius:44px;background:var(--pale);color:var(--blue)}
+.report-soon .soon-icon svg{width:36px;height:36px}
+.report-soon h2{margin-top:20px;font-size:20px;line-height:28px}
+.report-soon p{margin-top:8px;font-size:16px;line-height:24px;color:var(--muted)}
+.report-soon .outline-button{min-height:52px;margin-top:24px;padding:0 32px;border:2px solid var(--blue);border-radius:16px;background:#fff;color:var(--blue);font-size:16px;font-weight:600;transition:background-color var(--routine) ease}
+.report-soon .outline-button:active{background:var(--pale)}
+@media (hover:hover){.report-soon .outline-button:hover{background:var(--pale)}}
+

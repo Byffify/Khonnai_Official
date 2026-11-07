@@ -173,6 +173,71 @@ groups.type = () => {
   });
 };
 
+groups.nav = () => {
+  check('tabs in order with sell in the middle', async () => {
+    await open(page, { seed: true, width: 393, height: 852 });
+    assert.deepEqual(await page.$$eval('#tabbar [data-tab]', a => a.map(e => e.dataset.tab)), ['home', 'stock', 'catalog', 'report', 'history']);
+    assert.equal(await page.getAttribute('#tabbar [aria-current="page"]', 'data-tab'), 'home');
+  });
+  check('bar hidden in flows and while searching', async () => {
+    assert.equal(await page.isVisible('#tabbar .tab'), true, 'visible on home');
+    for (const [p, id] of [['catalog'], ['checkout'], ['receipt'], ['reservations'], ['settings'], ['detail', 'A-102']]) { await go(page, p, id); assert.equal(await page.isVisible('#tabbar .tab'), false, p); }
+    await go(page, 'stock'); await page.click('[data-action="search"]'); assert.equal(await page.isVisible('#tabbar .tab'), false);
+  });
+  check('no back button on root tabs, no drawer', async () => {
+    for (const p of ['stock', 'history', 'report']) { await go(page, p); assert.equal(await page.locator('.app-bar [aria-label="กลับ"]').count(), 0, p); }
+    await go(page, 'home');
+    assert.equal(await page.locator('[data-action="menu"]').count(), 0);
+    assert.equal(await page.locator('.home-bar [data-action="go:settings"]').count(), 1);
+  });
+  check('back from sell returns to the origin tab', async () => {
+    await go(page, 'stock'); await page.click('[data-tab="catalog"]'); await page.waitForTimeout(500);
+    assert.match(await page.textContent('.app-bar h1'), /ขาย/);
+    await page.click('.app-bar [aria-label="กลับ"]'); await page.waitForTimeout(500);
+    assert.equal(await page.evaluate(() => page), 'stock');
+  });
+  check('sell origin follows every entry from a tab page and survives checkout', async () => {
+    // setup only: stale origin from the previous check is 'stock'; entering from home by any route must replace it
+    await go(page, 'home'); await go(page, 'catalog');
+    assert.equal(await page.evaluate(() => sellOrigin), 'home');
+    await go(page, 'checkout'); await go(page, 'catalog');
+    assert.equal(await page.evaluate(() => sellOrigin), 'home');
+    await go(page, 'history'); await go(page, 'catalog');
+    assert.equal(await page.evaluate(() => sellOrigin), 'history');
+  });
+  check('sell origin defaults to home after reload', async () => {
+    await page.reload(); await page.evaluate(() => navigate('catalog')); await page.waitForTimeout(500);
+    await page.click('.app-bar [aria-label="กลับ"]'); await page.waitForTimeout(500);
+    assert.equal(await page.evaluate(() => page), 'home');
+  });
+  check('report is coming soon and links to history', async () => {
+    await page.click('[data-tab="report"]'); await page.waitForTimeout(500);
+    assert.match(await page.textContent('#app'), /รายงาน เร็ว ๆ นี้/);
+    await page.click('[data-action="go:history"]'); await page.waitForTimeout(500);
+    assert.equal(await page.evaluate(() => page), 'history');
+  });
+  check('bar geometry and targets at 320, 393', async () => {
+    for (const width of [320, 393]) {
+      await page.setViewportSize({ width, height: 800 }); await go(page, 'home');
+      const r = await page.$$eval('#tabbar .tab, #tabbar .sell', a => a.map(e => e.getBoundingClientRect()).map(b => [b.width, b.height]));
+      assert.equal(r.length, 5, 'four tabs and the sell button');
+      for (const [w, h] of r) assert.ok(w >= 44 && h >= 44);
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+    }
+  });
+  check('toast sits above the bar and the last row clears it', async () => {
+    await page.setViewportSize({ width: 393, height: 800 }); await go(page, 'history');
+    await page.evaluate(() => toast('ทดสอบ'));
+    const t = await page.evaluate(() => document.querySelector('#toast').getBoundingClientRect().bottom);
+    const b = await page.evaluate(() => document.querySelector('#tabbar .sell').getBoundingClientRect().top);
+    assert.ok(t <= b, `toast bottom ${t} vs sell top ${b}`);
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight)); await wait(300);
+    const last = await page.evaluate(() => [...document.querySelectorAll('#app .history-row')].at(-1).getBoundingClientRect().bottom);
+    const bar = await page.evaluate(() => document.querySelector('#tabbar').getBoundingClientRect().top);
+    assert.ok(last <= bar, `last row ${last} vs bar ${bar}`);
+  });
+};
+
 // ---- runner --------------------------------------------------------------
 (async () => {
   const wanted = process.argv.slice(2);
