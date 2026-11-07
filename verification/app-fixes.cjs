@@ -159,6 +159,20 @@ groups.guard = () => {
   });
 };
 
+groups.type = () => {
+  check('one family, max 600, min 11px', async () => {
+    await open(page, { seed: true, width: 393, height: 852 });
+    for (const p of ['home', 'stock', 'catalog', 'checkout', 'receipt', 'history']) {
+      // setup only: the receipt page needs an issued bill to show
+      if (p === 'receipt') await page.evaluate(() => { lastSale = state.sales[0]; });
+      await go(page, p);
+      const bad = await page.evaluate(() => [...document.querySelectorAll('#app *, #action-bar *')].filter(e => e.childElementCount === 0 && e.textContent.trim()).map(e => getComputedStyle(e)).filter(c => parseFloat(c.fontSize) < 11 || Number(c.fontWeight) > 600 || !c.fontFamily.startsWith('"Google Sans"')).length);
+      assert.equal(bad, 0, p);
+    }
+    assert.ok(await page.evaluate(() => document.fonts.check('16px "Google Sans"', 'ขาย')));
+  });
+};
+
 // ---- runner --------------------------------------------------------------
 (async () => {
   const wanted = process.argv.slice(2);
