@@ -1080,6 +1080,172 @@ groups.wide = () => {
   });
 };
 
+
+groups.motion = () => {
+  check('no bounce, stagger capped at six', async () => {
+    const css = fs.readFileSync(path.join(ROOT, 'app.css'), 'utf8') + fs.readFileSync(path.join(ROOT, 'layout.css'), 'utf8');
+    const pop = css.match(/@keyframes pop\{.*?\}\}/s)?.[0] ?? '';
+    assert.ok(pop, 'pop keyframes exist');
+    const scales = [...pop.matchAll(/scale\(([\d.]+)\)/g)].map(m => Number(m[1]));
+    assert.ok(scales.length >= 2 && Math.max(...scales) <= 1.05, 'pop never overshoots 1.05: ' + scales);
+    assert.ok(!/1\.18/.test(pop));
+    assert.ok(!/nth-child\(n\+7\)\{animation-delay/.test(css), 'row 7 and later get no staggered delay');
+    assert.ok(/nth-child\(n\+7\)\{animation:none\}/.test(css), 'row 7 and later do not animate');
+    assert.ok(!/cubic-bezier\([^)]*-\d/.test(css), 'no overshooting easing');
+  });
+  check('no leftover drawer or menu references', () => {
+    const js = ['app.js', 'settings.js', 'tour.js', 'nav.js'].map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('');
+    for (const gone of ["case 'menu'", 'drawer-nav', 'quick-actions']) assert.ok(!js.includes(gone), gone);
+    // the app screens drop satang; billMoney keeps two places on the bill by design
+    const full = fs.readFileSync(path.join(ROOT, 'app.js'), 'utf8').split('\n').filter(l => l.startsWith('const fullMoney'));
+    assert.equal(full.length, 1, 'one fullMoney line');
+    assert.ok(!full[0].includes('minimumFractionDigits:2'), full[0]);
+  });
+  check('category tools share one 48px height and delete hover stays in the palette', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'app.css'), 'utf8');
+    assert.ok(/\.category-tools \.secondary\{[^}]*min-height:48px/.test(css), 'secondary uses min-height:48px');
+    assert.ok(/\.category-delete:hover\{background:var\(--danger-bg/.test(css), 'hover uses a palette token, not a literal');
+  });
+  check('report placeholder never makes a short page scroll', async () => {
+    for (const [width, height] of [[320, 480], [320, 568], [393, 852], [600, 700], [1024, 600], [1440, 900]]) {
+      await open(page, { seed: true, width, height }); await go(page, 'report');
+      const m = await page.evaluate(() => ({ s: document.documentElement.scrollHeight, c: document.documentElement.clientHeight }));
+      assert.ok(m.s <= m.c, `report ${width}x${height}: scrollHeight ${m.s} > ${m.c}`);
+    }
+  });
+};
+
+groups.flows = () => {
+  const SIM = 'A-102';
+  const stockOf = id => page.evaluate(i => product(i).stock, id);
+  const sell = (id, qty, reserve) => page.evaluate(([i, q, r]) => { state.cart = { [i]: q }; state.cartVariants = {}; confirmSale(r); }, [id, qty, !!reserve]);
+  const statusOf = id => page.evaluate(i => state.reservations.find(r => r.id === i).status, id);
+  check('a sale cuts stock once and survives a reload', async () => {
+    await open(page, { seed: true }); await go(page, 'catalog');
+    const before = await stockOf(SIM), sales = await page.evaluate(() => state.sales.length);
+    await sell(SIM, 2, false); await wait(700);
+    assert.equal(await stockOf(SIM), before - 2);
+    assert.equal(await page.evaluate(() => state.sales.length), sales + 1);
+    await page.reload(); await wait(300);
+    assert.equal(await stockOf(SIM), before - 2, 'reload does not cut again');
+  });
+  let rid = null, held = null;
+  check('a reservation holds stock without making a sale', async () => {
+    await open(page, { seed: true }); await go(page, 'catalog');
+    const before = await stockOf(SIM), sales = await page.evaluate(() => state.sales.length);
+    await sell(SIM, 3, true); await wait(700);
+    held = before - 3;
+    assert.equal(await stockOf(SIM), held);
+    assert.equal(await page.evaluate(() => state.sales.length), sales, 'no bill yet');
+    rid = await page.evaluate(() => state.reservations[0].id);
+    assert.equal(await statusOf(rid), 'waiting');
+  });
+  check('a bill from a reservation does not cut stock again', async () => {
+    const sales = await page.evaluate(() => state.sales.length);
+    await page.evaluate(id => { activeReservation = id; navigate('reservation'); }, rid); await wait(500);
+    await page.click('[data-action="receive-reservation"]'); await wait(900);
+    assert.equal(await stockOf(SIM), held, 'stock unchanged by the bill');
+    assert.equal(await page.evaluate(() => state.sales.length), sales + 1);
+    assert.equal(await statusOf(rid), 'received');
+    assert.equal(await page.evaluate(() => page), 'receipt');
+  });
+  check('cancelling a reservation returns its stock', async () => {
+    await go(page, 'catalog');
+    const before = await stockOf(SIM);
+    await sell(SIM, 2, true); await wait(700);
+    assert.equal(await stockOf(SIM), before - 2);
+    const id = await page.evaluate(() => state.reservations[0].id);
+    await page.evaluate(i => { activeReservation = i; navigate('reservation'); }, id); await wait(500);
+    await page.click('[data-action="cancel-reservation"]'); await wait(300);
+    await page.click('[data-action="cancel-reservation-confirm"]'); await wait(700);
+    assert.equal(await stockOf(SIM), before, 'stock is back');
+    assert.equal(await statusOf(id), 'cancelled');
+  });
+  check('undoing a stock update restores the old count', async () => {
+    const before = await stockOf(SIM);
+    await go(page, 'detail', SIM);
+    await page.click('[data-action="save-stock"]'); await wait(400);
+    await page.fill('#stock-qty', String(before + 7));
+    await page.click('[data-action="apply-stock"]'); await wait(500);
+    assert.equal(await stockOf(SIM), before + 7);
+    await page.click('[data-action="toast-undo"]'); await wait(400);
+    assert.equal(await stockOf(SIM), before);
+    await page.reload(); await wait(300);
+    assert.equal(await stockOf(SIM), before, 'undo was saved');
+  });
+  check('a brand new shop shows the welcome on first load', async () => {
+    const ctx = await page.context().browser().newContext({ viewport: { width: 393, height: 852 } });
+    const p = await ctx.newPage(); const errs = [];
+    p.on('pageerror', e => errs.push(e.message));
+    await p.goto(APP_URL); await wait(900);
+    assert.equal(await p.evaluate(() => dialog.open), true, 'welcome is open without any manual call');
+    assert.match(await p.$eval('dialog', e => e.textContent), /ยินดีต้อนรับ/);
+    assert.equal(await p.$eval('dialog', e => getComputedStyle(e).opacity), '1', 'welcome is fully opaque once settled');
+    assert.equal(await p.evaluate(() => state.settings.tourDone), true);
+    await p.reload(); await wait(600);
+    assert.equal(await p.evaluate(() => dialog.open), false, 'welcome does not come back');
+    assert.deepEqual(errs, []);
+    await ctx.close();
+  });
+  check('keyboard reaches every tab with a visible focus ring', async () => {
+    for (const width of [393, 1440]) {
+      await open(page, { seed: true, width, height: 852 });
+      await page.evaluate(() => { document.activeElement.blur(); });
+      const seen = new Set();
+      for (let i = 0; i < 40 && seen.size < 5; i++) {
+        await page.keyboard.press('Tab');
+        const f = await page.evaluate(() => {
+          const e = document.activeElement; if (!e || !e.matches('[data-tab]')) return null;
+          const cs = getComputedStyle(e);
+          return { key: e.dataset.tab + (e.matches('.sell,.side-sell') ? '*' : ''), ring: e.matches(':focus-visible'), style: cs.outlineStyle, w: parseFloat(cs.outlineWidth), color: cs.outlineColor };
+        });
+        if (!f) continue;
+        assert.ok(f.ring && f.style !== 'none' && f.w >= 2 && !/rgba\(0, 0, 0, 0\)/.test(f.color), `ring on ${f.key}@${width}: ${JSON.stringify(f)}`);
+        seen.add(f.key);
+      }
+      assert.equal(seen.size, 5, `all five menu items reached @${width}: ${[...seen]}`);
+    }
+  });
+  check('sweep: bar pages, sell flow, reservation detail and tour at seven widths', async () => {
+    // text that is cut off without an ellipsis
+    const clipped = () => page.evaluate(() => {
+      const bad = [];
+      for (const el of document.querySelectorAll('body *')) {
+        if (el.closest('svg,.hidden,[hidden],.visually-hidden') || !el.offsetParent && getComputedStyle(el).position !== 'fixed') continue;
+        if (!el.textContent.trim() || (el.children.length > 0 && !['BUTTON', 'A'].includes(el.tagName))) continue;
+        const cs = getComputedStyle(el);
+        if (el.scrollWidth > el.clientWidth + 1 && /hidden|clip/.test(cs.overflowX) && cs.textOverflow !== 'ellipsis' && cs.display !== 'inline')
+          bad.push((el.className || el.tagName) + ': ' + el.textContent.trim().slice(0, 20));
+      }
+      return bad;
+    });
+    for (const width of [320, 375, 393, 600, 834, 1024, 1440]) {
+      const height = width < 600 ? 800 : 900;
+      await open(page, { seed: { products: 12, sales: 8 }, width, height });
+      const stage = async label => {
+        await wait(150);
+        assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `overflow: ${label}@${width}`);
+        assert.deepEqual(await clipped(), [], `clipped text: ${label}@${width}`);
+      };
+      for (const p of ['home', 'stock', 'report', 'history']) { await go(page, p); await stage(p); }
+      await go(page, 'catalog'); await stage('catalog');
+      await page.evaluate(() => { state.cart = { [state.products[0].id]: 2, [state.products[1].id]: 1 }; });
+      await go(page, 'checkout'); await stage('checkout');
+      await go(page, 'reservations'); await stage('reservations');
+      await page.evaluate(() => { activeReservation = state.reservations[0].id; navigate('reservation'); }); await wait(500); await stage('reservation detail');
+      await go(page, 'home');
+      await page.evaluate(() => tourWelcome()); await stage('welcome');
+      await page.click('[data-action="tour-start"]'); await page.waitForSelector('#coach');
+      for (let s = 1; s <= 3; s++) {
+        await stage('tour step ' + s);
+        const card = await page.$eval('.coach-card', e => { const r = e.getBoundingClientRect(); return [r.left, r.top, r.right, r.bottom]; });
+        assert.ok(card[0] >= 0 && card[1] >= 0 && card[2] <= width && card[3] <= height, `tour card inside screen step ${s}@${width}`);
+        await page.click('[data-action="tour-next"]');
+      }
+    }
+  });
+};
+
 // ---- runner --------------------------------------------------------------
 (async () => {
   const wanted = process.argv.slice(2);

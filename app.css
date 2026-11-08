@@ -6,7 +6,7 @@
 :root{
   --blue:#1650d7;--blue-soft:#3d6ef5;--ink:#0f172a;--muted:#475569;--muted-2:#64748b;--line:#e2e8f0;--pale:#e8eefb;
   --canvas:#f8fafc;--seg:#eef2f7;--input:#cbd5e1;--dashed:#94a3b8;--orange:#ff8032;--orange-ink:#c2410c;
-  --danger:#c62828;--danger-ink:#b91c1c;--danger-bg:#fdecec;--error-bg:#fef2f2;--success-bg:#eaf7ef;--success-ink:#1b7a3e;
+  --danger:#c62828;--danger-ink:#b91c1c;--danger-bg:#fdecec;--danger-bg-hover:#fbdcdc;--error-bg:#fef2f2;--success-bg:#eaf7ef;--success-ink:#1b7a3e;
   --dot-green:#1fa855;--dot-red:#d92d20;--out-ink:#a61f1f;--warn-bg:#fff3e8;--warn-ink:#9a4a0c;
   --bill:#2a3fb0;--bill-soft:#dce3fb;
   --footer-shadow:0 -6px 24px rgba(10,29,79,.08);--seg-shadow:0 1px 3px rgba(15,23,42,.12);
@@ -654,7 +654,7 @@ dialog .notice.warning{margin:12px 0 0}
 .enter :is(.product-row,.product-tile,.reservation-card,.history-row,.order-row,.settings-card,.swatch-tile,.start-step):nth-child(4){animation-delay:90ms}
 .enter :is(.product-row,.product-tile,.reservation-card,.history-row,.order-row,.settings-card,.swatch-tile,.start-step):nth-child(5){animation-delay:120ms}
 .enter :is(.product-row,.product-tile,.reservation-card,.history-row,.order-row,.settings-card,.swatch-tile,.start-step):nth-child(6){animation-delay:150ms}
-.enter :is(.product-row,.product-tile,.reservation-card,.history-row,.order-row,.settings-card,.swatch-tile,.start-step):nth-child(n+7){animation-delay:180ms}
+.enter :is(.product-row,.product-tile,.reservation-card,.history-row,.order-row,.settings-card,.swatch-tile,.start-step):nth-child(n+7){animation:none}
 @keyframes row-in{from{opacity:0;transform:translateY(10px)}}
 
 /* Focal moment: a freshly issued bill feeds out like printer paper, and the check draws itself */
@@ -704,7 +704,7 @@ dialog[data-kind=alert][open]::backdrop{background:rgba(10,29,79,.5)}
 /* Quantity changed: the tile's count and the order total acknowledge it */
 .product-tile.bump .count{animation:pop 360ms var(--ease-out)}
 .footer .primary.bump b{display:inline-block;animation:pop 360ms var(--ease-out)}
-@keyframes pop{0%{transform:scale(.6)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
+@keyframes pop{from{transform:scale(.9)}to{transform:scale(1)}}
 
 /* A field that blocks saving nudges once */
 :is(input.invalid,.upload.invalid,.affix-input.invalid,.qty-input.invalid){animation:nudge 300ms var(--ease-out)}
@@ -759,12 +759,12 @@ dialog[data-kind=alert][open]::backdrop{background:rgba(10,29,79,.5)}
 /* Category list: one tap opens the sheet that renames, moves and deletes */
 .header-text-button{min-width:64px;height:44px;padding:0 14px;border-radius:22px;border:1px solid var(--line);background:#fff;color:var(--blue);font-size:16px;font-weight:600}
 .category-tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
-.category-tools .secondary{display:flex;align-items:center;justify-content:center;gap:8px;height:48px;border-radius:14px;font-size:16px;font-weight:500}
+.category-tools .secondary{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;border-radius:14px;font-size:16px;font-weight:500}
 .category-tools .secondary:disabled{background:var(--canvas);color:var(--muted-2)}
 .category-tools svg,.category-delete svg{width:18px;height:18px;flex-shrink:0}
 .category-delete{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:48px;margin-top:8px;border-radius:14px;background:var(--danger-bg);color:var(--danger-ink);font-size:16px;font-weight:500;transition:background-color var(--routine) ease,color var(--routine) ease}
 .category-delete:active{background:var(--danger);color:#fff}
-@media (hover:hover){.category-delete:hover{background:#fbdcdc}}
+@media (hover:hover){.category-delete:hover{background:var(--danger-bg-hover)}}
 
 /* Bill: pick size, then colour, then quantity */
 .pick-label{display:flex;align-items:center;gap:8px;margin:16px 0 10px;font-size:16px;font-weight:600}
