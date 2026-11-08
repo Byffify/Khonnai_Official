@@ -226,7 +226,7 @@ export function Hero() {
             kind="screen"
             title="บิลเงินสด"
             sub={<>ตามแบบฟอร์มร้าน<span className="hidden xl:inline"> ตัดสต็อกให้เอง</span></>}
-            lead={<BillPrint src={paper} alt={SCREENS.bill.alt} crop={0} stampTop={68} />}
+            lead={<BillPrint src={paper} alt={SCREENS.bill.alt} crop={0} stampTop={74} />}
             className="order-2"
             style={place(LEAD)}
           />

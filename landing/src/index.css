@@ -62,17 +62,18 @@
 }
 
 /* Light washes, an agreed exception for three sections only. Each patch is a circle with a fixed radius, so it
-   stays round on any screen; the strongest point is 20% (hex 33). */
+   stays round on any screen; the strongest point is 20% (hex 33). The lower patches sit no lower than one radius
+   above the section's bottom edge, so they fade out before the edge and never end in a visible step. */
 .wash-hero {
   background:
     radial-gradient(circle min(520px, 70vw) at 36% 36%, #1650d733, #1650d700),
-    radial-gradient(circle calc(min(520px, 70vw) * 0.85) at 66% 58%, #ff803233, #ff803200),
+    radial-gradient(circle calc(min(520px, 70vw) * 0.85) at 66% min(58%, calc(100% - min(520px, 70vw) * 0.85)), #ff803233, #ff803200),
     #fff;
 }
 .wash-pricing {
   background:
     radial-gradient(circle min(440px, 70vw) at 0% 50%, #1650d733, #1650d700),
-    radial-gradient(circle min(440px, 70vw) at 100% 70%, #ff803233, #ff803200),
+    radial-gradient(circle min(440px, 70vw) at 100% min(70%, calc(100% - min(440px, 70vw))), #ff803233, #ff803200),
     linear-gradient(180deg, #ffffff, #f1f5fe, #fff4ea, #ffffff);
 }
 .wash-shops {
@@ -133,20 +134,32 @@
   border-radius: 8px;
   clip-path: inset(0 0 0 0 round 8px);
 }
+/* The stamp is centred on the three empty rows (74% of the picture's height) and shrinks with the bill, because the
+   rows are a fixed share of a bill that gets smaller on narrow screens. --stamp-h is its own height, so the
+   centre stays put whatever the size. The stamp text stays on the type scale (14 or 16px). */
+.bill-print { container-type: inline-size; }
 .bill-print .bill-stamp {
+  --stamp-h: 36px;
+  --stamp-tilt: -8deg;
   position: absolute;
   right: 12px;
-  top: var(--stamp-top);
+  top: calc(var(--stamp-top) - var(--stamp-h) / 2);
   padding: 4px 12px;
   border: 2px solid #c2410c;
   border-radius: 8px;
   background: rgb(255 255 255 / 0.85);
   color: #c2410c;
-  font-size: 20px;
-  line-height: 28px;
+  font-size: 16px;
+  line-height: 24px;
   font-weight: 600;
   white-space: nowrap;
-  transform: rotate(-8deg);
+  transform: rotate(var(--stamp-tilt));
+}
+@container (max-width: 279px) {
+  .bill-print .bill-stamp { --stamp-h: 28px; padding: 2px 12px; font-size: 14px; line-height: 20px; }
+}
+@container (max-width: 219px) {
+  .bill-print .bill-stamp { --stamp-h: 24px; --stamp-tilt: -6deg; right: 8px; padding: 0 8px; }
 }
 .bill-print.is-armed img {
   clip-path: inset(0 0 100% 0 round 8px);
@@ -154,7 +167,7 @@
 }
 .bill-print.is-armed .bill-stamp {
   opacity: 0;
-  transform: rotate(-8deg) scale(1.15);
+  transform: rotate(var(--stamp-tilt)) scale(1.15);
 }
 .bill-print.is-armed.is-printed img {
   clip-path: inset(0 0 0 0 round 8px);
@@ -165,7 +178,7 @@
 }
 .bill-print.is-armed.is-printed .bill-stamp {
   opacity: 1;
-  transform: rotate(-8deg) scale(1);
+  transform: rotate(var(--stamp-tilt)) scale(1);
   transition:
     opacity 160ms linear 760ms,
     transform 220ms cubic-bezier(0.22, 1, 0.36, 1) 760ms;
@@ -180,7 +193,7 @@
   }
   .bill-print .bill-stamp,
   .bill-print.is-armed .bill-stamp {
-    transform: rotate(-8deg);
+    transform: rotate(var(--stamp-tilt));
   }
 }
 

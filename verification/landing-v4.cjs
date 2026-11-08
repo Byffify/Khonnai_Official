@@ -383,11 +383,78 @@ groups.closing = () => {
   });
 };
 
+// Width of a lossy, lossless or extended WebP, read from the header.
+function webpWidth(file) {
+  const d = fs.readFileSync(file);
+  assert.equal(d.toString('ascii', 0, 4), 'RIFF'); assert.equal(d.toString('ascii', 8, 12), 'WEBP');
+  const kind = d.toString('ascii', 12, 16);
+  if (kind === 'VP8 ') return d.readUInt16LE(26) & 0x3fff;
+  if (kind === 'VP8L') return (d.readUInt32LE(21) & 0x3fff) + 1;
+  if (kind === 'VP8X') return d.readUIntLE(24, 3) + 1;
+  throw new Error('unknown webp kind ' + kind);
+}
+// Unix time of the last commit that touched a path (file mtimes change on every checkout, commits do not).
+function commitTime(rel) {
+  const r = spawnSync('git', ['log', '-1', '--format=%ct', '--', rel], { cwd: ROOT, encoding: 'utf8' });
+  const t = Number(String(r.stdout).trim());
+  assert.ok(t > 0, 'no commit found for ' + rel);
+  return t;
+}
+
 groups.screens = () => {
-  check('every screen is present and current', () => {
-    for (const n of ['home', 'stock', 'addmodel', 'bill', 'reserve', 'bill-select', 'bill-confirm', 'card-stock', 'card-reserve', 'tile-stock-wide', 'paper']) {
-      const f = path.join(ROOT, `landing/src/assets/screens/${n}.webp`); assert.ok(fs.existsSync(f), n);
-      assert.ok(fs.statSync(f).mtimeMs > fs.statSync(path.join(ROOT, 'nav.js')).mtimeMs, `${n} is older than the app change`);
+  const full = ['home', 'stock', 'addmodel', 'bill', 'reserve', 'bill-select', 'bill-confirm'];
+  const all = [...full, 'card-stock', 'card-reserve', 'tile-stock-wide', 'paper'];
+  check('every screen is present and committed at or after the app change', () => {
+    const app = commitTime('nav.js');
+    for (const n of all) {
+      const rel = `landing/src/assets/screens/${n}.webp`;
+      assert.ok(fs.existsSync(path.join(ROOT, rel)), n);
+      assert.ok(commitTime(rel) >= app, `${n} was last committed before the app change (nav.js)`);
+    }
+  });
+  check('full-screen pictures are 786px wide', () => {
+    for (const n of full) assert.equal(webpWidth(path.join(ROOT, `landing/src/assets/screens/${n}.webp`)), 786, n);
+  });
+};
+
+groups.final = () => {
+  check('no overflow, no console errors', async () => {
+    for (const width of [320, 375, 768, 1024, 1280, 1440, 1680]) {
+      await open(page, width);
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), String(width));
+    }
+    assert.deepEqual(errors, []);
+  });
+  check('reduced motion leaves nothing moving', async () => {
+    await open(page, 1440, { reducedMotion: true }); await page.waitForTimeout(500);
+    assert.equal(await page.evaluate(() => document.getAnimations().filter(a => a.playState === 'running').length), 0);
+  });
+  check('app link works after build', async () => {
+    const r = await page.request.get(BASE + 'app/index.html'); assert.equal(r.status(), 200);
+    // vite preview answers 200 with index.html for paths that do not exist, so judge by content, not status
+    const d = await page.request.get(BASE + 'app/docs/superpowers/plans/2026-11-07-landing-v4.md');
+    assert.ok(!(await d.text()).includes('# Landing v4 Implementation Plan'), 'plan file is served');
+  });
+  check('no legal draft text or link in the build', async () => {
+    const walk = d => fs.readdirSync(d, { withFileTypes: true }).flatMap(x => x.isDirectory() ? walk(path.join(d, x.name)) : [path.join(d, x.name)]);
+    const text = walk(path.join(ROOT, 'landing/dist')).filter(f => /.(html|js|css|txt|xml|json|md)$/.test(f)).map(f => fs.readFileSync(f, 'utf8')).join(' ');
+    // headings and bracket placeholders from the unapproved privacy and terms drafts
+    for (const gone of ['นโยบายความเป็นส่วนตัว', 'ข้อกำหนดการใช้งาน', 'การลบและสำรองข้อมูล', 'สิทธิ์ของคุณและการติดต่อ', 'ร่างเพื่อตรวจ', 'รอยืนยัน', 'ผู้ให้บริการโฮสติ้ง']) assert.ok(!text.includes(gone), gone);
+    assert.ok(!/[[^]]{0,60}(รอ|ยืนยัน)[^]]{0,60}]/.test(text), 'bracket placeholder');
+    await open(page, 1440);
+    const links = await page.$$eval('a[href]', a => a.map(e => e.getAttribute('href')));
+    assert.deepEqual(links.filter(h => /privacy|terms|policy|legal|นโยบาย/i.test(h)), []);
+  });
+  check('the stamp sits on the empty rows at every width', async () => {
+    for (const width of [375, 768, 1024, 1280, 1440, 1680]) {
+      await open(page, width, { reducedMotion: true });
+      const m = await page.$eval('[data-bill-print]', e => {
+        const f = e.getBoundingClientRect(), i = e.querySelector('img').getBoundingClientRect(), s = e.querySelector('[data-stamp]').getBoundingClientRect();
+        // the three empty rows run from 65.8% to 82.3% of the picture; the total row starts at 82.3%
+        return { top: s.top - i.top, bottom: s.bottom - i.top, zoneTop: .658 * i.height, zoneBottom: .823 * i.height, frame: f.height };
+      });
+      assert.ok(m.top >= m.zoneTop && m.bottom <= m.zoneBottom, `${width}: stamp ${m.top.toFixed(1)}-${m.bottom.toFixed(1)} outside rows ${m.zoneTop.toFixed(1)}-${m.zoneBottom.toFixed(1)}`);
+      assert.ok(m.bottom <= m.frame - 4, `${width}: stamp reaches the frame's bottom edge`);
     }
   });
 };

@@ -13,14 +13,14 @@ export function BillPrint({
   alt,
   className = "",
   crop = 0,
-  stampTop = 67,
+  stampTop = 74,
 }: {
   src: string;
   alt: string;
   className?: string;
   /** Share of the picture's height scrolled past, for a crop of a taller screen (0 for a bill-only picture). */
   crop?: number;
-  /** Where the stamp sits, in % of the picture's height. Keep it on empty rows, never on a figure. */
+  /** Where the stamp is centred, in % of the picture's height: the middle of the three empty rows, never on a figure. */
   stampTop?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
