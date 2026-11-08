@@ -396,8 +396,9 @@ function webpWidth(file) {
 // Unix time of the last commit that touched a path (file mtimes change on every checkout, commits do not).
 function commitTime(rel) {
   const r = spawnSync('git', ['log', '-1', '--format=%ct', '--', rel], { cwd: ROOT, encoding: 'utf8' });
+  assert.ok(!r.error && r.status === 0, 'git log failed (is git installed and is this a checkout?): ' + (r.error ? r.error.message : String(r.stderr).trim()));
   const t = Number(String(r.stdout).trim());
-  assert.ok(t > 0, 'no commit found for ' + rel);
+  assert.ok(t > 0, rel + ' has no commit yet. Commit the recaptured screens (and nav.js) first.');
   return t;
 }
 
@@ -437,16 +438,19 @@ groups.final = () => {
   });
   check('no legal draft text or link in the build', async () => {
     const walk = d => fs.readdirSync(d, { withFileTypes: true }).flatMap(x => x.isDirectory() ? walk(path.join(d, x.name)) : [path.join(d, x.name)]);
-    const text = walk(path.join(ROOT, 'landing/dist')).filter(f => /.(html|js|css|txt|xml|json|md)$/.test(f)).map(f => fs.readFileSync(f, 'utf8')).join(' ');
+    const text = walk(path.join(ROOT, 'landing/dist')).filter(f => /\.(html|js|css|txt|xml|json|md)$/.test(f)).map(f => fs.readFileSync(f, 'utf8')).join(' ');
     // headings and bracket placeholders from the unapproved privacy and terms drafts
     for (const gone of ['นโยบายความเป็นส่วนตัว', 'ข้อกำหนดการใช้งาน', 'การลบและสำรองข้อมูล', 'สิทธิ์ของคุณและการติดต่อ', 'ร่างเพื่อตรวจ', 'รอยืนยัน', 'ผู้ให้บริการโฮสติ้ง']) assert.ok(!text.includes(gone), gone);
-    assert.ok(!/[[^]]{0,60}(รอ|ยืนยัน)[^]]{0,60}]/.test(text), 'bracket placeholder');
+    // quotes and backticks are excluded so a JS array of Thai strings in the bundle is not mistaken for a placeholder
+    const bracket = /\[[^\]'"`]{0,60}(รอ|ยืนยัน)[^\]'"`]{0,60}\]/;
+    assert.ok(bracket.test('[รอยืนยัน ข้อความ]'), 'placeholder pattern no longer matches its sample');
+    assert.ok(!bracket.test(text), 'bracket placeholder');
     await open(page, 1440);
     const links = await page.$$eval('a[href]', a => a.map(e => e.getAttribute('href')));
     assert.deepEqual(links.filter(h => /privacy|terms|policy|legal|นโยบาย/i.test(h)), []);
   });
   check('the stamp sits on the empty rows at every width', async () => {
-    for (const width of [375, 768, 1024, 1280, 1440, 1680]) {
+    for (const width of [320, 375, 768, 1024, 1280, 1440, 1680]) {
       await open(page, width, { reducedMotion: true });
       const m = await page.$eval('[data-bill-print]', e => {
         const f = e.getBoundingClientRect(), i = e.querySelector('img').getBoundingClientRect(), s = e.querySelector('[data-stamp]').getBoundingClientRect();
