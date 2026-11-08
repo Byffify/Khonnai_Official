@@ -1,6 +1,6 @@
 # Khonnai Home MVP
 
-HTML, CSS และ JavaScript ล้วน สร้างจาก `../design/revisions/audit-fixes-v1/khonnai-home-v1.figcraft` โดยแยกจากไฟล์ออกแบบและสไลด์เดิมทั้งหมด ไม่มีขั้นตอน build และไม่มี animation
+HTML, CSS และ JavaScript ล้วน สร้างจาก `../design/revisions/audit-fixes-v1/khonnai-home-v1.figcraft` โดยแยกจากไฟล์ออกแบบและสไลด์เดิมทั้งหมด ไม่มีขั้นตอน build และมีการเคลื่อนไหวเฉพาะที่อธิบายสถานะ (สี ความโปร่งใส transform ไม่มีการเด้ง)
 
 ## เปิดใช้งาน
 
@@ -12,7 +12,7 @@ python -m http.server 4173 --bind 127.0.0.1
 
 แล้วเปิด http://127.0.0.1:4173
 
-ข้อมูลเก็บด้วย localStorage แยกตามเบราว์เซอร์และ origin ดังนั้นการเปิดด้วย file URL กับ localhost จะใช้ข้อมูลคนละชุด เมนูบนหน้าโฮมมีปุ่มส่งออก JSON สำรองและเริ่มข้อมูลตัวอย่างใหม่ การส่งออกยังไม่มี flow นำเข้ากลับ
+ข้อมูลเก็บด้วย localStorage แยกตามเบราว์เซอร์และ origin ดังนั้นการเปิดด้วย file URL กับ localhost จะใช้ข้อมูลคนละชุด ส่งออก นำเข้า และล้างข้อมูลอยู่ที่ ตั้งค่า → ข้อมูลในเครื่อง
 
 ## Flow ที่ทำแล้ว
 
@@ -43,32 +43,33 @@ python -m http.server 4173 --bind 127.0.0.1
 ## ไฟล์
 
 - `index.html`: จุดเปิดแอป
-- `app.css`: stylesheet เดียว ค่าทั้งหมดถอดจาก node ต้นฉบับ mobile-first ไม่มีกรอบมือถือ พร้อม Google Sans แบบ local
+- `app.css`: สไตล์หลัก mobile-first ไม่มีกรอบมือถือ ใช้ Google Sans แบบ local ฟอนต์เดียว
+- `layout.css`: เลย์เอาต์แท็บเล็ตและเดสก์ท็อป (แถบข้าง ตาราง การแบ่งหน้า)
+- `nav.js`: เมนู แถบล่างบนมือถือ แถบข้างบนแท็บเล็ตและเดสก์ท็อป
+- `tour.js`: หน้าต่างต้อนรับและคำแนะนำครั้งแรก 3 ขั้น
 - `app.js`: views, state, localStorage และ flow ธุรกรรม
 - `settings.js`: หน้าตั้งค่าและหน้าย่อย, PromptPay QR (EMVCo + CRC16)
 - `assets/vendor/qrcode.js`: qrcode-generator 1.4.4 (MIT, Kazuhiko Arase) เก็บในโปรเจกต์ ไม่โหลดจากเน็ต
 - `assets/design-*.png`: โลโก้ที่แยกจาก archive ต้นแบบ
 - `assets/revenue-waves.svg`: ลายการ์ดจาก control points ของเวกเตอร์ต้นฉบับ
 - `assets/fonts/`: Google Sans และ SIL Open Font License
-- `verification/`: browser checks และภาพหน้าจอ
+- `verification/app-fixes.cjs`: ชุดตรวจปัจจุบัน ส่วนสคริปต์และภาพอื่นในโฟลเดอร์นี้ (`verify.cjs`, `fidelity.cjs`, ภาพหน้าจอ) เป็นของเก่า ไม่ตรงกับเลย์เอาต์ปัจจุบัน
 
 ## การตรวจ
 
-รันแล้ว:
-
 ```powershell
-node --check khonnai-home-mvp/app.js
-node khonnai-home-mvp/verification/verify.cjs
+$env:PLAYWRIGHT_PATH='D:/Slide_Cybersecurity/node_modules/playwright'
+node verification/app-fixes.cjs all
+node --check app.js settings.js tour.js nav.js
 ```
 
-คำสั่งด้านบนรันจากโฟลเดอร์แม่ สคริปต์ตรวจใช้ Playwright ที่มีอยู่ในเครื่องและ Chrome แบบ headless หากย้ายเครื่อง ให้ติดตั้ง Playwright แยกและตั้ง `PLAYWRIGHT_PATH` เป็นตำแหน่งโมดูลนั้น แอปจริงไม่ต้องใช้ Playwright
+รันจากโฟลเดอร์นี้ Playwright ติดตั้งแยก (แอปจริงไม่ต้องใช้) ชุดตรวจครอบคลุมเมนู การย่อแถบ หน้าโฮม flow ขาย รายการ คำแนะนำครั้งแรก เลย์เอาต์กว้าง การเคลื่อนไหว และ flow ธุรกรรม (ขายตัดสต็อกครั้งเดียว จองกันสต็อก ออกบิลจากใบจองไม่ตัดซ้ำ ยกเลิกคืนสต็อก เลิกทำอัปเดตสต็อก) สคริปต์เก่า `verify.cjs` และ `fidelity.cjs` ไม่ตรงกับเลย์เอาต์ปัจจุบัน ไม่ต้องรัน ยังไม่ได้ลองบนเครื่องจริงและเครื่องพิมพ์จริง
 
-ผลทดสอบครอบคลุมยอดบิล การตัด/คืนสต็อก การแก้การจอง การรับของไม่ตัดซ้ำ การ reload การค้นหา การลบ/ยกเลิกการลบ validation การเพิ่ม 45 แพ็ก การขายแยกไซซ์/สี การแก้สินค้าไม่คืนจำนวนที่ขายแล้ว และ overflow ที่ 320/393/1440 px ดู `verification/results.json`
 "# Khonnai_Official" 
 
 ## อัปเดตความตรงกับต้นแบบ (รอบ 2)
 
-- เอากรอบ iPhone ออก แอปเต็มจอมือถือ (mobile-first) จอกว้างตั้งแต่ 600px แสดงเป็นคอลัมน์กลาง 480px
+- เอากรอบ iPhone ออก แอปเต็มจอมือถือ (mobile-first) (บันทึกรอบ 2 เลย์เอาต์จอกว้างถูกแทนที่แล้ว ดู DESIGN.md)
 - ใช้ Google Sans ทั้งแอป ขนาดตัวอักษร สี ระยะ มุมโค้ง และเงาถอดจาก `khonnai-home-v1.figcraft` ทุกหน้า (27 frames)
 - ข้อมูลตัวอย่างตรงกับต้นแบบ: รายได้วันนี้ ฿12,450 / 18 บิล (ผูกกับวันที่ปัจจุบันเสมอ บวกบิลที่ออกจริง), ของขาด 25 แพ็ก 3 ตัวเลือก (คิดรายไซซ์/สี), รายการจอง 3 ออเดอร์ 16 แพ็ก ฿4,240 พร้อมเวลา "วันนี้ / เมื่อวาน"
 - แผงต้องเติมของคิดจากจำนวนรายไซซ์/สี: สินค้าที่เพิ่มใหม่ใช้จำนวนจริงในตาราง สินค้าเดิมใช้ข้อมูลตัวอย่างรายตัวเลือกของ A-215 และ A-102 สินค้าที่เก็บเป็นยอดรวมอย่างเดียว (เช่น P-310) ไม่แสดงในแผงนี้ และยอดรายตัวเลือกตัวอย่างไม่ลดตามการขาย

@@ -1,14 +1,13 @@
 // Copy and data for the landing page. Layout: design/khonnai-landing.figcraft (Landing v2); copy from
 // design/build_landing_v2.py, plus the kinds of information Wongnai POS gives (shop types, "when" tags,
 // running-cost reassurance, who answers).
-// Facts come from the pitch deck; anything still waiting on the team is marked TODO and shown as a placeholder.
+// Facts come from the pitch deck; anything still waiting on the team is marked TODO and kept out of the page.
 
 export const APP_URL = "./app/index.html"; // the khonnai prototype, copied in by scripts/sync-app.mjs
 export const LINE_URL = "https://lin.ee/8PHy1Z1"; // LINE OA add-friend link, decoded from the official QR (src/assets/line-qr.png)
 
 export const PRIMARY = "เริ่มใช้ฟรี";
 export const LINE_CTA = "คุยกับทีมทาง LINE";
-export const LOGIN = "เข้าสู่ระบบ";
 
 export const NAV = [
   { label: "ฟีเจอร์", href: "#features", menu: "features" },
@@ -90,14 +89,14 @@ export const POINTS: { icon: string; title: string; desc: string; when: string; 
   {
     icon: "bookmark",
     title: "ใบจองที่กันสต็อกไว้ให้",
-    desc: "จองจากหน้าร้านหรือ LINE ใช้สต็อกชุดเดียวกัน กด “ลูกค้ารับของแล้ว” จึงออกบิลโดยไม่ตัดซ้ำ",
+    desc: "จองจากหน้าร้านหรือ LINE ใช้สต็อกชุดเดียวกัน กด “ลูกค้ารับของแล้ว · ออกบิล” โดยไม่ตัดสต็อกซ้ำ",
     when: "ใช้ตอนรับออเดอร์ทาง LINE",
     screens: ["reserve"],
   },
   {
     icon: "house",
     title: "หน้าโฮมสรุปร้านในจอเดียว",
-    desc: "รายได้วันนี้ ออเดอร์รอรับของ และของที่ต้องเติม พร้อมปุ่มลัดออกบิล ดูสต็อก เพิ่มรุ่น และจอง",
+    desc: "รายได้วันนี้ ออเดอร์รอรับของ และของที่ต้องเติม พร้อมปุ่มลัดเพิ่มสต็อก และแถบล่างไปขาย สต็อก รายงาน",
     when: "ใช้ตอนเปิดร้าน / ปิดยอดสิ้นวัน",
     screens: ["home"],
   },
@@ -112,14 +111,14 @@ export const POINTS: { icon: string; title: string; desc: string; when: string; 
 
 // Slide 8 of the pitch: prices still being tested with pilot shops. Daily bills = monthly limit / 30.
 export const PLANS = [
-  { name: "Free", price: "0", audience: "ให้ร้านลองใช้ก่อนจ่าย", skus: "20", bills: "50", perDay: "ออกบิลได้ราววันละ 1–2 ใบ", cta: PRIMARY, featured: false },
-  { name: "Basic", price: "299", audience: "ร้านค้าส่งทั่วไป", skus: "200", bills: "500", perDay: "ออกบิลได้ราววันละ 15 ใบ", cta: "เลือก Basic", featured: true },
-  { name: "Pro", price: "699", audience: "ร้านที่มียอดขายสูง", skus: "1,000", bills: "2,000", perDay: "ออกบิลได้ราววันละ 65 ใบ", cta: "เลือก Pro", featured: false },
+  { name: "Free", price: "0", audience: "ให้ร้านลองใช้ก่อนจ่าย", skus: "20", bills: "50", perDay: "ออกบิลได้ราววันละ 1–2 ใบ", cta: PRIMARY, href: APP_URL, featured: false },
+  { name: "Basic", price: "299", audience: "ร้านค้าส่งทั่วไป", skus: "200", bills: "500", perDay: "ออกบิลได้ราววันละ 15 ใบ", cta: "เริ่ม Basic ทาง LINE", href: LINE_URL, featured: true },
+  { name: "Pro", price: "699", audience: "ร้านที่มียอดขายสูง", skus: "1,000", bills: "2,000", perDay: "ออกบิลได้ราววันละ 65 ใบ", cta: "คุยเรื่อง Pro ทาง LINE", href: LINE_URL, featured: false },
 ];
 
 export const INCLUDED = ["สต็อกแยกรุ่น สี และไซซ์", "ใบจองที่กันสต็อก", "ออกบิลเงินสดและบันทึก PDF"];
 
-// The design's five questions. Answers 1–3 follow from the pitch; 4–5 wait for the team (TODO).
+// The design's five questions. Answers 1–3 follow from the pitch; 4–5 wait for the team (TODO) and stay hidden (visibleFaq).
 // Q2 carries Wongnai's "what does it take to run" reassurance: nothing to install, no hardware to buy.
 export const FAQ: { q: string; a: string | null }[] = [
   {
@@ -135,8 +134,11 @@ export const FAQ: { q: string; a: string | null }[] = [
   { q: "ข้อมูลร้านเก็บไว้ที่ไหน ปลอดภัยไหม?", a: null },
 ];
 
+// Two questions still wait for the team, so only answered ones are shown.
+export const visibleFaq = FAQ.filter((f) => f.a);
+
 export const FOOTER = [
   { head: "ผลิตภัณฑ์", links: [["ฟีเจอร์", "#features"], ["ราคา", "#pricing"], ["บริการ", "#services"]] },
   { head: "ทีม", links: [["ทีม khonnai", "#contact"], ["ติดต่อ", "#contact"]] },
-  { head: "ช่วยเหลือ", links: [["คำถามที่พบบ่อย", "#faq"], ["นโยบายความเป็นส่วนตัว", "#"]] },
+  { head: "ช่วยเหลือ", links: [["คำถามที่พบบ่อย", "#faq"]] },
 ] as const;

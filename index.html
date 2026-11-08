@@ -8,14 +8,17 @@
   <title>Khonnai</title>
   <link rel="icon" href="assets/design-2.png">
   <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="layout.css">
   <script src="assets/vendor/qrcode.js" defer></script>
   <script src="app.js" defer></script>
   <script src="settings.js" defer></script>
+  <script src="nav.js" defer></script>
   <script src="tour.js" defer></script>
 </head>
 <body>
   <div class="app-shell">
     <main id="app"></main><div id="action-bar"></div>
+    <nav id="tabbar" aria-label="เมนูหลัก"></nav>
   </div>
   <dialog id="dialog" aria-labelledby="dialog-title"></dialog>
   <div id="toast" role="status" aria-live="polite"></div>

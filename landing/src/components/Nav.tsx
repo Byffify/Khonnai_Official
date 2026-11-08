@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowRight, Check, ChevronDown, ChevronRight, Globe, Menu, X } from "lucide-react";
-import { APP_URL, LINE_CTA, LINE_URL, LOGIN, MODULES, NAV, PRIMARY, SERVICES } from "../content";
+import { APP_URL, LINE_CTA, LINE_URL, MODULES, NAV, PRIMARY, SERVICES } from "../content";
 import { dropdown, EASE } from "../motion";
 import { Button, ICONS, Logo } from "../ui";
 import stockWide from "../assets/screens/tile-stock-wide.webp";
@@ -63,7 +63,7 @@ function FeaturesPanel({ close }: { close: () => void }) {
                 <a
                   href={m.href}
                   onClick={close}
-                  className={`flex min-h-11 items-center gap-3 rounded-full px-3 py-2.5 transition-colors ${i === 0 ? "bg-white font-bold shadow-float" : "hover:bg-white/70"}`}
+                  className={`flex min-h-11 items-center gap-3 rounded-full px-3 py-2.5 transition-colors ${i === 0 ? "bg-white font-semibold shadow-float" : "hover:bg-white/70"}`}
                 >
                   <span className={`grid size-7 place-items-center rounded-full ${i === 0 ? "bg-brand-tint text-brand" : "text-muted"}`}>
                     <Icon aria-hidden className="size-[18px]" />
@@ -74,7 +74,7 @@ function FeaturesPanel({ close }: { close: () => void }) {
             );
           })}
         </ul>
-        <a href={APP_URL} className="group flex min-h-11 items-center gap-3 px-3 text-[15px] font-bold text-brand">
+        <a href={APP_URL} className="group flex min-h-11 items-center gap-3 px-3 text-base font-semibold text-brand">
           <ArrowRight aria-hidden className="size-[18px] transition-transform duration-300 group-hover:translate-x-1" />
           {PRIMARY}
         </a>
@@ -89,8 +89,8 @@ function FeaturesPanel({ close }: { close: () => void }) {
             />
           </div>
           <div className="space-y-1.5 px-4 pt-3 pb-4">
-            <p className="text-[17px] font-bold">สต็อกแยกรุ่น สี ไซซ์</p>
-            <p className="text-[15px] text-muted">เห็นของพร้อมขายทุกช่องในจอเดียว</p>
+            <p className="text-base font-semibold">สต็อกแยกรุ่น สี ไซซ์</p>
+            <p className="text-base text-muted">เห็นของพร้อมขายทุกช่องในจอเดียว</p>
           </div>
         </div>
       </a>
@@ -114,7 +114,7 @@ function ServicesPanel({ close }: { close: () => void }) {
                 <Icon aria-hidden className="size-5" />
               </span>
               <span>
-                <span className="block font-bold">{s.title}</span>
+                <span className="block font-semibold">{s.title}</span>
                 <span className="block text-sm text-muted">{s.sub}</span>
               </span>
             </a>
@@ -129,7 +129,7 @@ function LangPanel({ close }: { close: () => void }) {
   return (
     <ul className="w-[240px] space-y-1 rounded-[20px] border border-white bg-linear-to-b from-white/95 to-brand-tint/95 p-2 shadow-float backdrop-blur">
       <li>
-        <button onClick={close} className="flex min-h-11 w-full items-center gap-3 rounded-xl bg-white px-3 text-left font-bold">
+        <button onClick={close} className="flex min-h-11 w-full items-center gap-3 rounded-xl bg-white px-3 text-left font-semibold">
           <span className="grid h-[26px] w-9 place-items-center rounded-md bg-brand-tint text-sm text-brand">TH</span>
           <span className="flex-1">ภาษาไทย</span>
           <Check aria-hidden className="size-5 text-brand" />
@@ -153,7 +153,7 @@ function LangButton({ open, onClick, outline = false }: { open?: boolean; onClic
       aria-haspopup="menu"
       aria-expanded={open}
       aria-label="เปลี่ยนภาษา"
-      className={`inline-flex h-11 items-center gap-1.5 rounded-full px-3 text-[15px] font-medium transition-colors ${outline ? "bg-white ring-1 ring-inset ring-line-strong hover:bg-hover" : "border border-line bg-white hover:bg-hover"}`}
+      className={`inline-flex h-11 items-center gap-1.5 rounded-full px-3 text-base font-medium transition-colors ${outline ? "bg-white ring-1 ring-inset ring-line-strong hover:bg-hover" : "border border-line bg-white hover:bg-hover"}`}
     >
       <Globe aria-hidden className="size-5" strokeWidth={1.75} />
       TH
@@ -196,7 +196,7 @@ function MobileSheet({ onClose }: { onClose: () => void }) {
           <button
             onClick={() => setFeaturesOpen((v) => !v)}
             aria-expanded={featuresOpen}
-            className="flex min-h-13 w-full items-center justify-between px-3.5 text-lg font-bold text-brand"
+            className="flex min-h-13 w-full items-center justify-between px-3.5 text-lg font-semibold text-brand"
           >
             ฟีเจอร์ <Chevron open={featuresOpen} />
           </button>
@@ -233,14 +233,13 @@ function MobileSheet({ onClose }: { onClose: () => void }) {
           </a>
         ))}
         <div className="flex gap-1 rounded-full bg-hover p-1">
-          <span className="flex h-11 flex-1 items-center justify-center rounded-full bg-white font-bold">ภาษาไทย</span>
+          <span className="flex h-11 flex-1 items-center justify-center rounded-full bg-white font-semibold">ภาษาไทย</span>
           <span aria-disabled className="flex h-11 flex-1 items-center justify-center text-muted">English (เร็ว ๆ นี้)</span>
         </div>
       </nav>
       <div className="space-y-2.5">
         <Button href={APP_URL} size="lg" arrow wide>{PRIMARY}</Button>
         <Button href={LINE_URL} onClick={onClose} kind="outline" size="lg" icon={ICONS.message} wide>{LINE_CTA}</Button>
-        <a href={APP_URL} className="flex min-h-11 items-center justify-center font-bold text-brand">{LOGIN}</a>
       </div>
     </motion.div>
   );
@@ -278,7 +277,7 @@ export function Nav() {
                     onClick={() => toggle(n.menu)}
                     aria-haspopup="true"
                     aria-expanded={open === n.menu}
-                    className={`flex min-h-11 items-center gap-1 rounded-full px-3 transition-colors ${open === n.menu ? "bg-hover font-bold text-brand" : "hover:bg-hover"}`}
+                    className={`flex min-h-11 items-center gap-1 rounded-full px-3 transition-colors ${open === n.menu ? "bg-hover font-semibold text-brand" : "hover:bg-hover"}`}
                   >
                     {n.label}
                     <Chevron open={open === n.menu} />
@@ -312,14 +311,13 @@ export function Nav() {
           </div>
           {/* wrapped: Button's own inline-flex would override a `hidden` on it */}
           <div className="hidden items-center gap-2 lg:flex">
-            <Button href={APP_URL} kind="outline" size="sm">{LOGIN}</Button>
-            <Button href={APP_URL} size="sm" arrow>{PRIMARY}</Button>
+            <Button href={APP_URL} size="sm" arrow className="rounded-full">{PRIMARY}</Button>
           </div>
           <button
             type="button"
             onClick={() => setSheet(true)}
             aria-label="เปิดเมนู"
-            className="grid size-11 place-items-center rounded-full bg-brand text-white lg:hidden"
+            className="grid size-11 place-items-center rounded-full border border-line bg-white text-ink transition-colors hover:bg-hover lg:hidden"
           >
             <Menu aria-hidden className="size-6" />
           </button>

@@ -71,8 +71,8 @@ const KIND: Record<Kind, string> = {
 };
 
 /**
- * Pill link. The trailing arrow follows FeedSpring's "CTA Button Hover" (a-114/115):
- * it waits 4px back and slides home on hover in 500ms "ease".
+ * Button link, 12px corners. The navbar passes `rounded-full` to keep its capsule. The trailing arrow waits
+ * 4px back and slides home on hover.
  */
 export function Button({
   kind = "primary",
@@ -91,10 +91,11 @@ export function Button({
   wide?: boolean;
   children: ReactNode;
 }) {
-  const h = { sm: "h-11 px-5 text-[15px]", md: "h-12 px-6 text-base", lg: "h-13 px-6 text-base" }[size];
+  const h = { sm: "h-11 px-5 text-base", md: "h-12 px-6 text-base", lg: "h-13 px-6 text-base" }[size];
+  const radius = /(^|\s)rounded-/.test(className) ? "" : "rounded-xl";
   return (
     <a
-      className={`group inline-flex items-center justify-center gap-2 rounded-full font-bold whitespace-nowrap transition-[background-color,color,box-shadow] duration-200 ease-out ${h} ${KIND[kind]} ${wide ? "w-full" : ""} ${className}`}
+      className={`group inline-flex items-center justify-center gap-2 font-semibold whitespace-nowrap transition-[background-color,color,box-shadow] duration-200 ease-[cubic-bezier(.22,1,.36,1)] ${radius} ${h} ${KIND[kind]} ${wide ? "w-full" : ""} ${className}`}
       {...rest}
     >
       {Icon && <Icon aria-hidden className="size-5 shrink-0" strokeWidth={2} />}
@@ -102,7 +103,7 @@ export function Button({
       {arrow && (
         <ArrowRight
           aria-hidden
-          className="size-[18px] shrink-0 -translate-x-1 transition-transform duration-500 ease-[cubic-bezier(.25,.1,.25,1)] group-hover:translate-x-0.5"
+          className="size-[18px] shrink-0 -translate-x-1 transition-transform duration-300 ease-[cubic-bezier(.22,1,.36,1)] group-hover:translate-x-0.5"
         />
       )}
     </a>
@@ -124,8 +125,4 @@ export function Phone({ screen, height, className = "" }: { screen: ScreenKey; h
       <img src={src} alt={alt} className="size-full object-cover" style={{ borderRadius: radius }} loading="lazy" />
     </div>
   );
-}
-
-export function Placeholder({ children }: { children: ReactNode }) {
-  return <span className="text-sm text-orange-text">{children}</span>;
 }
