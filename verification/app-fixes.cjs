@@ -951,6 +951,25 @@ groups.wide = () => {
     assert.equal(await page.evaluate(() => page), 'receipt');
     assert.equal(await page.evaluate(i => product(i).stock, id), stockBefore - 1);
   });
+  check('while a sale is being issued the order panel and tiles ignore input', async () => {
+    await open(page, { seed: true, width: 1440, height: 900 }); await go(page, 'catalog');
+    const id = await page.evaluate(() => state.products.find(p => p.stock > 2 && p.values).id);
+    await page.evaluate(i => {
+      const p = product(i), a = p.values.map(r => r.map(() => 0));
+      outer: for (let c = 0; c < a.length; c++) for (let s = 0; s < a[c].length; s++) if (p.values[c][s] > 0) { a[c][s] = 1; break outer; }
+      state.cart = { [i]: 1 }; state.cartVariants = { [i]: a }; render();
+    }, id);
+    const other = await page.evaluate(i => state.products.find(p => p.id !== i && p.stock > 0).id, id);
+    await page.click('.order-panel [data-action="confirm-sale"]');
+    assert.equal(await page.evaluate(() => document.querySelector('.order-panel').inert && document.querySelector('.product-grid').inert), true, 'both are inert while busy');
+    const cart = () => page.evaluate(() => JSON.stringify(state.cart));
+    const before = await cart();
+    await page.locator('.product-tile[data-action="quantity:' + other + '"]').click({ force: true, timeout: 500 }).catch(() => {});
+    assert.equal(await cart(), before, 'a tile tap during busy changes nothing');
+    assert.equal(await page.evaluate(() => dialog.open), false, 'no quantity sheet opened');
+    await wait(1100);
+    assert.equal(await page.evaluate(() => page), 'receipt');
+  });
   check('bill sits beside its actions on desktop and prints alone', async () => {
     await page.setViewportSize({ width: 1440, height: 900 }); await page.waitForTimeout(120);
     assert.equal(await page.$eval('.receipt', e => e.getBoundingClientRect().width), 620);
@@ -1172,6 +1191,21 @@ groups.flows = () => {
     assert.equal(await stockOf(SIM), before);
     await page.reload(); await wait(300);
     assert.equal(await stockOf(SIM), before, 'undo was saved');
+  });
+  check('a phone sale through the real taps cuts stock once', async () => {
+    await open(page, { seed: true, width: 393, height: 852 }); await go(page, 'catalog');
+    const id = await page.evaluate(() => state.products.find(p => p.stock > 3 && !p.values).id);
+    const before = await stockOf(id);
+    await page.locator('.product-tile[data-action="quantity:' + id + '"]').click(); await wait(500);
+    await page.locator('#qty').fill('2');
+    await page.click('#qty-save'); await wait(500);
+    assert.equal(await page.evaluate(i => state.cart[i], id), 2);
+    await page.click('[data-action="go:checkout"]'); await wait(500);
+    await page.click('#action-bar [data-action="confirm-sale"]'); await wait(1100);
+    assert.equal(await page.evaluate(() => page), 'receipt');
+    assert.equal(await stockOf(id), before - 2, 'stock dropped once');
+    await page.reload(); await wait(300);
+    assert.equal(await stockOf(id), before - 2, 'and not again after a reload');
   });
   check('a brand new shop shows the welcome on first load', async () => {
     const ctx = await page.context().browser().newContext({ viewport: { width: 393, height: 852 } });

@@ -436,6 +436,11 @@ groups.final = () => {
     const d = await page.request.get(BASE + 'app/docs/superpowers/plans/2026-11-07-landing-v4.md');
     assert.ok(!(await d.text()).includes('# Landing v4 Implementation Plan'), 'plan file is served');
   });
+  check('the built app folder carries no dot folders, docs or tooling', async () => {
+    const names = fs.readdirSync(path.join(ROOT, 'landing/dist/app'));
+    assert.deepEqual(names.filter(n => n.startsWith('.')), []);
+    for (const gone of ['docs', 'verification', 'skills-lock.json', 'README.md', 'DESIGN.md', 'vercel.json']) assert.ok(!names.includes(gone), gone + ' is in dist/app');
+  });
   check('no legal draft text or link in the build', async () => {
     const walk = d => fs.readdirSync(d, { withFileTypes: true }).flatMap(x => x.isDirectory() ? walk(path.join(d, x.name)) : [path.join(d, x.name)]);
     const text = walk(path.join(ROOT, 'landing/dist')).filter(f => /\.(html|js|css|txt|xml|json|md)$/.test(f)).map(f => fs.readFileSync(f, 'utf8')).join(' ');

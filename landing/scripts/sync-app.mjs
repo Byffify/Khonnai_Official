@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const source = resolve(root, "..");
 const target = resolve(root, "public/app");
-// the landing source itself, git data, tooling, docs and test captures are not part of the app
+// every dot folder is skipped too (.impeccable holds a local path and session id); the landing source itself, git data, tooling, docs and test captures are not part of the app
 const skip = new Set(["landing", ".git", ".github", ".claude", "verification", "docs", "skills-lock.json", ".agents", ".superpowers", "node_modules", "README.md", "DESIGN.md", "vercel.json"]);
 
 if (!existsSync(resolve(source, "index.html"))) {
@@ -17,6 +17,6 @@ if (!existsSync(resolve(source, "index.html"))) {
 rmSync(target, { recursive: true, force: true });
 mkdirSync(target, { recursive: true });
 for (const name of readdirSync(source)) {
-  if (!skip.has(name)) cpSync(resolve(source, name), resolve(target, name), { recursive: true });
+  if (!name.startsWith(".") && !skip.has(name)) cpSync(resolve(source, name), resolve(target, name), { recursive: true });
 }
 console.log("sync-app: copied the app → public/app");
