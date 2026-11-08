@@ -220,16 +220,6 @@
   }
 }
 
-/* Tab progress bar: fills over the cycle (FeedSpring tab-bar-load, 5000ms) */
-@keyframes tab-load {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

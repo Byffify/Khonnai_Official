@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Check, ChevronDown, Store } from "lucide-react";
 import {
@@ -59,39 +59,36 @@ function Screens({ screens }: { screens: ScreenKey[] }) {
 
 /* ---------------------------------------------------------------- features: the design's list layout, every feature in one place */
 
-const CYCLE_MS = 5000; // FeedSpring's tab-bar-load runs 5000ms per tab
-
-/** True while the element shows at least `amount` of itself; true from the start where IntersectionObserver is missing. */
-function useSeen(ref: RefObject<Element | null>, amount: number): boolean {
-  const [seen, setSeen] = useState(typeof IntersectionObserver === "undefined");
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || typeof IntersectionObserver === "undefined") return;
-    const io = new IntersectionObserver(([e]) => setSeen(e.isIntersecting), { threshold: amount });
-    io.observe(el);
-    return () => io.disconnect();
-  }, [ref, amount]);
-  return seen;
-}
-
 /**
- * The bento cards and the "ขั้นตอนสั้น ตัวใหญ่" list said the same things twice; they are one list now,
- * in the list layout from the design. It cycles every 5s (paused on hover, focus, off-screen or reduced
- * motion) and the panel shows that feature's real app screen; billing shows its three steps side by side.
+ * One list, in the list layout from the design. The visitor chooses: nothing rotates by itself.
+ * Tabs follow the WAI-ARIA pattern (roving tabindex, Left/Right/Home/End), the open feature's text
+ * unfolds with grid-template-rows 0fr to 1fr, and the panel shows that feature's real app screen;
+ * billing shows its three steps side by side.
  */
 export function Features() {
   const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useSeen(ref, 0.4);
+  const tabs = useRef<(HTMLButtonElement | null)[]>([]);
   const reduce = useReducedMotion();
-  const running = inView && !paused && !reduce;
 
-  useEffect(() => {
-    if (!running) return;
-    const id = window.setTimeout(() => setActive((a) => (a + 1) % POINTS.length), CYCLE_MS);
-    return () => window.clearTimeout(id);
-  }, [active, running]);
+  const select = (i: number, focus = false) => {
+    const next = (i + POINTS.length) % POINTS.length;
+    setActive(next);
+    if (focus) tabs.current[next]?.focus();
+  };
+  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    const move: Record<string, number | undefined> = {
+      ArrowRight: active + 1,
+      ArrowDown: active + 1,
+      ArrowLeft: active - 1,
+      ArrowUp: active - 1,
+      Home: 0,
+      End: POINTS.length - 1,
+    };
+    const to = move[e.key];
+    if (to === undefined) return;
+    e.preventDefault();
+    select(to, true);
+  };
 
   const point = POINTS[active];
   return (
@@ -102,81 +99,64 @@ export function Features() {
           title={<>ทุกงานหลักของร้าน<br /><span className="whitespace-nowrap">ในข้อมูลชุดเดียว</span></>}
           body="ขั้นตอนสั้น ตัวใหญ่ อ่านง่าย ใช้เองได้ทุกวัน"
         />
-        <div
-          ref={ref}
-          className="mt-10 grid gap-6 md:mt-12 md:grid-cols-[440px_1fr] md:gap-10 lg:grid-cols-[500px_1fr]"
-          onPointerEnter={() => setPaused(true)}
-          onPointerLeave={() => setPaused(false)}
-          onFocusCapture={() => setPaused(true)}
-          onBlurCapture={() => setPaused(false)}
-        >
+        <div className="mt-10 grid gap-6 md:mt-12 xl:grid-cols-[440px_1fr] xl:gap-10 min-[1360px]:grid-cols-[500px_1fr]">
           <Reveal>
-            <div role="tablist" aria-label="ฟีเจอร์ของ khonnai" className="space-y-1.5">
+            <div role="tablist" aria-label="ฟีเจอร์ของ khonnai" className="space-y-1.5" onKeyDown={onKeyDown}>
               {POINTS.map((p, i) => {
                 const Icon = ICONS[p.icon];
                 const on = i === active;
                 return (
                   <button
                     key={p.title}
+                    ref={(el) => {
+                      tabs.current[i] = el;
+                    }}
+                    type="button"
                     role="tab"
+                    id={`feature-tab-${i}`}
                     aria-selected={on}
                     aria-controls="feature-panel"
-                    onClick={() => setActive(i)}
-                    className={`relative flex w-full items-start gap-3.5 overflow-hidden rounded-2xl p-4 text-left transition-colors duration-300 md:px-[18px] ${on ? "bg-hover" : "hover:bg-subtle"}`}
+                    aria-labelledby={`feature-title-${i}`}
+                    tabIndex={on ? 0 : -1}
+                    onClick={() => select(i)}
+                    className={`group flex w-full items-start gap-3.5 rounded-2xl p-4 text-left transition-colors duration-300 md:px-[18px] ${on ? "bg-hover" : "hover:bg-subtle"}`}
                   >
-                    <span className={`grid size-9 shrink-0 place-items-center rounded-[10px] transition-colors duration-300 ${on ? "bg-brand-tint text-brand" : "text-muted"}`}>
+                    <span className={`grid size-9 shrink-0 place-items-center rounded-[10px] transition-colors duration-300 ${on ? "bg-brand-tint text-brand" : "text-muted group-hover:text-ink"}`}>
                       <Icon aria-hidden className="size-6" />
                     </span>
-                    <span className="pt-1">
-                      <span className={`block text-base font-semibold transition-colors ${on ? "text-ink" : "text-muted"}`}>{p.title}</span>
-                      <AnimatePresence initial={false}>
-                        {on && (
-                          <motion.span
-                            className="block overflow-hidden"
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.5, ease: EASE }}
-                          >
-                            <span className="block pt-1.5 text-base leading-relaxed text-muted">{p.desc}</span>
-                            <span className="block pt-1.5 text-sm font-semibold text-orange-text">{p.when}</span>
-                          </motion.span>
-                        )}
-                      </AnimatePresence>
-                    </span>
-                    {on && (
+                    <span className="min-w-0 flex-1 pt-1">
+                      <span id={`feature-title-${i}`} className={`block text-base font-semibold transition-colors duration-300 ${on ? "text-ink" : "text-muted group-hover:text-ink"}`}>{p.title}</span>
                       <span
-                        key={`${active}-${running}`}
-                        aria-hidden
-                        className="absolute bottom-0 left-0 h-[3px] w-full origin-left bg-brand"
-                        style={{
-                          animation: running ? `tab-load ${CYCLE_MS}ms linear forwards` : "none",
-                          transform: running ? undefined : "scaleX(1)",
-                          opacity: running ? 1 : 0.35,
-                        }}
-                      />
-                    )}
+                        data-detail
+                        aria-hidden={!on}
+                        className={`grid transition-[grid-template-rows,opacity] duration-500 ease-[cubic-bezier(.22,1,.36,1)] motion-reduce:transition-none ${on ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+                      >
+                        <span className="block min-h-0 overflow-hidden">
+                          <span className="block pt-1.5 text-base leading-relaxed text-muted">{p.desc}</span>
+                          <span className="block pt-1.5 text-sm font-semibold text-orange-text">{p.when}</span>
+                        </span>
+                      </span>
+                    </span>
                   </button>
                 );
               })}
             </div>
           </Reveal>
-          <Reveal delay={0.1} className="md:sticky md:top-28 md:self-start">
+          <Reveal delay={0.1} className="xl:sticky xl:top-28 xl:self-start">
             <div
               id="feature-panel"
               role="tabpanel"
-              aria-label={point.title}
-              className="relative h-[400px] overflow-hidden rounded-3xl bg-linear-135 from-brand-tint via-[#f4ecfa] to-orange-tint md:h-[520px]"
+              aria-labelledby={`feature-tab-${active}`}
+              className="relative h-[400px] overflow-hidden rounded-3xl bg-hover md:h-[520px]"
             >
-              <div aria-hidden className="absolute top-14 left-1/2 size-[260px] -translate-x-1/2 rounded-full bg-white/60 md:size-[360px]" />
               <AnimatePresence mode="popLayout" initial={false}>
                 <motion.div
                   key={point.screens.join("+")}
                   className="absolute inset-0"
-                  initial={{ opacity: 0, y: 40 }}
+                  initial={{ opacity: 0, y: reduce ? 0 : 40 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -24 }}
-                  transition={{ duration: 0.6, ease: OUT_QUINT }}
+                  exit={{ opacity: 0, y: reduce ? 0 : -24 }}
+                  transition={{ duration: reduce ? 0 : 0.6, ease: OUT_QUINT }}
                 >
                   <Screens screens={point.screens} />
                 </motion.div>

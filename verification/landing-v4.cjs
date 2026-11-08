@@ -223,6 +223,88 @@ groups.shops = () => {
   });
 };
 
+groups.features = () => {
+  check('does not change by itself', async () => {
+    await open(page, 1440); await page.locator('#features').scrollIntoViewIfNeeded();
+    const title = await page.textContent('[role=tab][aria-selected=true]');
+    await page.waitForTimeout(5600);
+    assert.equal(await page.textContent('[role=tab][aria-selected=true]'), title);
+    assert.equal(await page.locator('[style*="tab-load"]').count(), 0);
+  });
+  check('click selects, keyboard works', async () => {
+    await page.locator('[role=tab]').nth(1).click();
+    assert.match(await page.textContent('[role=tab][aria-selected=true]'), /ออกบิลใน 3 ขั้น/);
+    assert.equal(await page.locator('#feature-panel img').count() >= 3, true);
+    // roving tabindex: only the selected tab is in the tab order, and each tab points at the panel
+    assert.deepEqual(await page.$$eval('[role=tab]', a => a.map(e => e.tabIndex)), [-1, 0, -1, -1, -1]);
+    assert.equal(await page.getAttribute('[role=tab][aria-selected=true]', 'aria-controls'), 'feature-panel');
+    assert.equal(await page.getAttribute('#feature-panel', 'role'), 'tabpanel');
+    await page.keyboard.press('ArrowRight');
+    assert.match(await page.textContent('[role=tab][aria-selected=true]'), /ใบจอง/);
+    assert.equal(await page.evaluate(() => document.activeElement.getAttribute('role')), 'tab');
+    await page.keyboard.press('End');
+    assert.match(await page.textContent('[role=tab][aria-selected=true]'), /เพิ่มรุ่นใหม่/);
+    await page.keyboard.press('ArrowRight');
+    assert.match(await page.textContent('[role=tab][aria-selected=true]'), /สต็อกแยกรุ่น/);
+    await page.keyboard.press('ArrowLeft');
+    assert.match(await page.textContent('[role=tab][aria-selected=true]'), /เพิ่มรุ่นใหม่/);
+    await page.keyboard.press('Home');
+    assert.match(await page.textContent('[role=tab][aria-selected=true]'), /สต็อกแยกรุ่น/);
+  });
+  check('flat panel', async () => {
+    assert.equal(await page.$eval('#feature-panel', e => getComputedStyle(e).backgroundImage), 'none');
+    assert.equal(await page.$eval('#feature-panel', e => getComputedStyle(e).backgroundColor), 'rgb(241, 245, 249)');
+  });
+  check('detail opens by grid rows, not height, and only the open one is visible', async () => {
+    const rows = await page.$$eval('[role=tab]', a => a.map(e => {
+      const d = e.querySelector('[data-detail]');
+      return d ? [getComputedStyle(d).gridTemplateRows, getComputedStyle(d).transitionProperty, d.getAttribute('aria-hidden') || ''] : null;
+    }));
+    assert.ok(rows.every(Boolean));
+    assert.equal(rows[0][0].split(' ').length, 1);
+    assert.doesNotMatch(rows.map(r => r[1]).join(), /height/);
+    assert.equal(await page.locator('[role=tab] [data-detail]:visible').count() >= 1, true);
+    assert.equal(await page.locator('[role=tab][aria-selected=false] [data-detail]').evaluateAll(a => a.every(e => e.getBoundingClientRect().height === 0)), true);
+  });
+  check('visible hover and focus', async () => {
+    await page.locator('[role=tab]').nth(3).hover();
+    await wait(400);
+    assert.notEqual(await page.locator('[role=tab]').nth(3).evaluate(e => getComputedStyle(e).backgroundColor), 'rgba(0, 0, 0, 0)');
+    await page.locator('[role=tab]').nth(0).focus();
+    await page.keyboard.press('Tab'); await page.keyboard.press('Shift+Tab');
+    assert.notEqual(await page.evaluate(() => getComputedStyle(document.activeElement).outlineStyle), 'none');
+  });
+  check('375: tabs and step chips fit, chips are 14px, no sideways scroll', async () => {
+    await open(page, 375);
+    await page.locator('[role=tab]').nth(1).click();
+    await wait(700);
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+    const r = await page.$$eval('#feature-panel ol li > span', a => a.map(e => { const b = e.getBoundingClientRect(); return { l: b.left, r: b.right, fs: getComputedStyle(e).fontSize }; }));
+    assert.equal(r.length, 3);
+    assert.ok(r.every(x => x.fs === '14px' && x.l >= 0 && x.r <= 375));
+    assert.ok(r[0].r <= r[1].l && r[1].r <= r[2].l);
+    const t = await page.$$eval('[role=tab]', a => a.map(e => e.getBoundingClientRect().right));
+    assert.ok(t.every(x => x <= 375));
+  });
+  check('768 and 1280: the three billing steps fit inside the panel', async () => {
+    for (const w of [768, 1280]) {
+      await open(page, w);
+      await page.locator('[role=tab]').nth(1).click();
+      await wait(800);
+      const fit = await page.evaluate(() => {
+        const p = document.querySelector('#feature-panel').getBoundingClientRect();
+        return [...document.querySelectorAll('#feature-panel ol li')].map(e => { const b = e.getBoundingClientRect(); return b.left >= p.left && b.right <= p.right; });
+      });
+      assert.deepEqual(fit, [true, true, true], 'width ' + w);
+    }
+  });
+  check('reduced motion: selecting still works', async () => {
+    await open(page, 768, { reducedMotion: true });
+    await page.locator('[role=tab]').nth(2).click();
+    assert.match(await page.textContent('[role=tab][aria-selected=true]'), /ใบจอง/);
+  });
+};
+
 // ---- runner --------------------------------------------------------------
 (async () => {
   const wanted = process.argv.slice(2);
