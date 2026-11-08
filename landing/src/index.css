@@ -154,6 +154,63 @@
   animation: appear 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* The lead bill prints in once and gets stamped (BillPrint.tsx). The finished bill is the default; "is-armed"
+   hides the paper only after mount, "is-printed" plays it. Only clip-path, transform and opacity move. */
+.bill-print img {
+  border-radius: 8px;
+  clip-path: inset(0 0 0 0 round 8px);
+}
+.bill-print .bill-stamp {
+  position: absolute;
+  right: 12px;
+  top: var(--stamp-top);
+  padding: 4px 12px;
+  border: 2px solid #c2410c;
+  border-radius: 8px;
+  background: rgb(255 255 255 / 0.85);
+  color: #c2410c;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+  white-space: nowrap;
+  transform: rotate(-8deg);
+}
+.bill-print.is-armed img {
+  clip-path: inset(0 0 100% 0 round 8px);
+  transform: translateY(-18px);
+}
+.bill-print.is-armed .bill-stamp {
+  opacity: 0;
+  transform: rotate(-8deg) scale(1.15);
+}
+.bill-print.is-armed.is-printed img {
+  clip-path: inset(0 0 0 0 round 8px);
+  transform: none;
+  transition:
+    clip-path 720ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 720ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.bill-print.is-armed.is-printed .bill-stamp {
+  opacity: 1;
+  transform: rotate(-8deg) scale(1);
+  transition:
+    opacity 160ms linear 760ms,
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1) 760ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bill-print.is-armed img,
+  .bill-print.is-armed .bill-stamp {
+    clip-path: none;
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .bill-print .bill-stamp,
+  .bill-print.is-armed .bill-stamp {
+    transform: rotate(-8deg);
+  }
+}
+
 /* Tab progress bar: fills over the cycle (FeedSpring tab-bar-load, 5000ms) */
 @keyframes tab-load {
   from {

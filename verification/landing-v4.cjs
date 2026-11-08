@@ -156,6 +156,46 @@ groups.hero = () => {
   });
 };
 
+groups.bill = () => {
+  check('prints once, stamp after the paper', async () => {
+    await open(page, 1440);
+    const el = page.locator('[data-bill-print]'); await el.scrollIntoViewIfNeeded();
+    await page.waitForFunction(() => document.querySelector('[data-bill-print]').classList.contains('is-printed'));
+    await page.waitForTimeout(1100);
+    const end = await el.evaluate(e => [getComputedStyle(e.querySelector('img')).clipPath, getComputedStyle(e.querySelector('[data-stamp]')).opacity]);
+    assert.match(end[0], /inset\(0px/); assert.equal(end[1], '1');
+    await page.evaluate(() => scrollTo(0, 2000)); await page.waitForTimeout(200); await el.scrollIntoViewIfNeeded(); await page.waitForTimeout(100);
+    assert.equal(await page.evaluate(() => document.getAnimations().filter(a => a.effect.target?.closest?.('[data-bill-print]')).length), 0, 'once');
+  });
+  check('stamp never covers a figure', async () => {
+    const r = await page.$eval('[data-stamp]', e => { const s = e.getBoundingClientRect(), p = e.closest('[data-bill-print]').getBoundingClientRect(); return (s.top - p.top) / p.height; });
+    assert.ok(r > .6 && r < .8, String(r));
+  });
+  check('space is reserved and only allowed properties animate', async () => {
+    await open(page, 1440);
+    const h = await page.$eval('[data-bill-print]', e => e.getBoundingClientRect().height); assert.ok(h > 200);
+    const p = await page.$eval('[data-bill-print] img', e => getComputedStyle(e).transitionProperty);
+    assert.doesNotMatch(p, /height|width|top/);
+  });
+  check('reduced motion shows the finished bill at once', async () => {
+    await open(page, 1440, { reducedMotion: true });
+    const end = await page.$eval('[data-bill-print]', e => [getComputedStyle(e.querySelector('img')).clipPath, getComputedStyle(e.querySelector('[data-stamp]')).opacity]);
+    assert.equal(end[1], '1'); assert.ok(end[0] === 'none' || /inset\(0px/.test(end[0]));
+  });
+  check('without IntersectionObserver the bill is complete', async () => {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const p = await ctx.newPage();
+    await p.addInitScript(() => { delete window.IntersectionObserver; });
+    await p.goto(BASE); await p.waitForSelector('[data-bill-print].is-printed');
+    await ctx.close();
+  });
+  check('jumping to #pricing and back still shows the bill', async () => {
+    await page.goto(BASE + '#pricing'); await page.waitForTimeout(300);
+    await page.locator('[data-bill-print]').scrollIntoViewIfNeeded(); await page.waitForTimeout(1100);
+    assert.equal(await page.$eval('[data-stamp]', e => getComputedStyle(e).opacity), '1');
+  });
+};
+
 // ---- runner --------------------------------------------------------------
 (async () => {
   const wanted = process.argv.slice(2);

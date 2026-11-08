@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
-import { AnimatePresence, motion, useInView, useReducedMotion } from "motion/react";
+import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Check, ChevronDown, Store } from "lucide-react";
 import {
   APP_URL,
@@ -61,6 +61,19 @@ function Screens({ screens }: { screens: ScreenKey[] }) {
 
 const CYCLE_MS = 5000; // FeedSpring's tab-bar-load runs 5000ms per tab
 
+/** True while the element shows at least `amount` of itself; true from the start where IntersectionObserver is missing. */
+function useSeen(ref: RefObject<Element | null>, amount: number): boolean {
+  const [seen, setSeen] = useState(typeof IntersectionObserver === "undefined");
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([e]) => setSeen(e.isIntersecting), { threshold: amount });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [ref, amount]);
+  return seen;
+}
+
 /**
  * The bento cards and the "ขั้นตอนสั้น ตัวใหญ่" list said the same things twice; they are one list now,
  * in the list layout from the design. It cycles every 5s (paused on hover, focus, off-screen or reduced
@@ -70,7 +83,7 @@ export function Features() {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { amount: 0.4 });
+  const inView = useSeen(ref, 0.4);
   const reduce = useReducedMotion();
   const running = inView && !paused && !reduce;
 
@@ -376,7 +389,7 @@ export function StickyBar() {
   const [show, setShow] = useState(false);
   useEffect(() => {
     const hero = document.getElementById("top");
-    if (!hero) return;
+    if (!hero || typeof IntersectionObserver === "undefined") return;
     const io = new IntersectionObserver(([e]) => setShow(!e.isIntersecting), { threshold: 0 });
     io.observe(hero);
     return () => io.disconnect();

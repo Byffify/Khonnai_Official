@@ -3,6 +3,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { APP_URL, LINE_CTA, LINE_URL, PRIMARY } from "../content";
 import { Button, ICONS, SCREENS } from "../ui";
 import { ILLUSTRATION, photo, type PhotoSlot } from "../photos";
+import { BillPrint } from "./BillPrint";
 
 /**
  * Hero after fastwork.com, kept calm: twelve straight cards ring the headline on wide screens, three sit under
@@ -70,7 +71,7 @@ function ScreenCrop({ src, top, eager = true }: { src: string; top: number; eage
 
 /**
  * One frame for every card: picture on top, caption below. `lead` makes it the one card with depth and dark
- * text, and replaces the picture (Task 3 passes the printing bill here).
+ * text, and replaces the picture (the printing bill, BillPrint).
  */
 export function HeroCard({
   kind,
@@ -148,11 +149,11 @@ const SPOTS: Spot[] = [
   { id: "confirm", kind: "screen", src: SCREENS["bill-confirm"].src, top: 0.36, title: "ยืนยันออเดอร์", sub: "ตัดสต็อกให้เอง", x: 1064, y: 650, w: 204, h: 170 },
   { id: "counter", kind: "photo", src: pic("closing"), title: "เคาน์เตอร์หน้าร้าน", sub: ILLUS, x: 1288, y: -10, w: 216, h: 130 },
   { id: "low", kind: "screen", src: SCREENS.home.src, top: 0.45, title: "ของใกล้หมด", sub: "รู้ก่อนลูกค้าถาม", x: 1396, y: 230, w: 216, h: 230 },
-  { id: "count", kind: "photo", src: pic("type-new"), title: "นับของเข้าร้าน", sub: ILLUS, x: 1288, y: 650, w: 216, h: 170 },
+  { id: "count", kind: "photo", src: pic("hero"), title: "เช็กสต็อกด้วยมือถือ", sub: ILLUS, x: 1288, y: 650, w: 216, h: 170 },
 ];
 
 // HERO_LEAD: the cash bill, the one bright card
-const LEAD = { x: 1064, y: 212, w: 316, h: 340, row: { w: 207, h: 216, wMd: 300, hMd: 260 } };
+const LEAD = { x: 1064, y: 212, w: 316, h: 340, row: { w: 207, h: 216, wMd: 300, hMd: 288 } };
 
 /** CSS variables that place a card (see .hero-card in index.css). */
 function place(s: { x: number; y: number; w: number; h: number; row?: { w: number; h: number; wMd: number; hMd: number } }): CSSProperties {
@@ -166,11 +167,6 @@ function place(s: { x: number; y: number; w: number; h: number; row?: { w: numbe
     "--rw-md": `${s.row?.wMd ?? s.w}px`,
     "--rh-md": `${s.row?.hMd ?? s.h}px`,
   } as CSSProperties;
-}
-
-/** The bill as it stands until Task 3 prints it: the paper part of the issued-bill screen. */
-function StaticBill() {
-  return <ScreenCrop src={SCREENS.bill.src} top={0.225} />;
 }
 
 export function Hero() {
@@ -229,7 +225,7 @@ export function Hero() {
             kind="screen"
             title="บิลเงินสด"
             sub={<>ตามแบบฟอร์มร้าน<span className="hidden xl:inline"> ตัดสต็อกให้เอง</span></>}
-            lead={<StaticBill />}
+            lead={<BillPrint src={SCREENS.bill.src} alt={SCREENS.bill.alt} crop={0.225} stampTop={57} />}
             className="order-2"
             style={place(LEAD)}
           />

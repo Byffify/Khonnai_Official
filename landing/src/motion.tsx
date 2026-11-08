@@ -10,6 +10,8 @@ export const OUT_QUINT = [0.22, 1, 0.36, 1] as const; // tab indicator
  * once in view. FeedSpring uses a 200ms (a-140) or 400ms (a-141) delay; `delay` stacks on top for staggers.
  */
 export function Reveal({ delay = 0, ...props }: HTMLMotionProps<"div"> & { delay?: number }) {
+  // Without IntersectionObserver nothing could ever reveal it, so show it as it is
+  if (typeof IntersectionObserver === "undefined") return <motion.div {...props} />;
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
