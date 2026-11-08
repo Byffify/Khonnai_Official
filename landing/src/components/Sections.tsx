@@ -284,23 +284,35 @@ export function Faq() {
 
 /* ---------------------------------------------------------------- closing CTA (design layout: three phones) */
 
+/* Same three layers as the app's revenue card: a pale wave, the brand-blue wave, an 8px orange line along its top.
+   The box is the lower 58% of the card (38% below 700px), so the highest point on the right edge sits at 42% (62%)
+   and the text above never touches it. The stroke keeps 8px however the box stretches. */
+function WaveArt() {
+  return (
+    <svg data-wave aria-hidden viewBox="0 0 353 222" preserveAspectRatio="none" fill="none" className="pointer-events-none absolute inset-x-0 bottom-0 h-[58%] w-full overflow-visible max-[699px]:h-[38%]">
+      <path fill="#3D6EF5" fillOpacity=".4" d="M80 222C210 208 310 140 353 22V222Z" />
+      <path fill="#1650D7" fillOpacity=".7" d="M150 222C265 208 325 118 353 0V222Z" />
+      <path stroke="#FF8032" strokeWidth="8" vectorEffect="non-scaling-stroke" d="M210 222C300 196 338 112 353 -2" />
+    </svg>
+  );
+}
+
 export function Closing() {
   return (
     <section className="px-5 pb-16 md:pb-24">
-      <Reveal className="on-blue bg-brand-closing relative mx-auto h-[640px] max-w-[1280px] overflow-hidden rounded-[28px] px-6 pt-12 text-center md:rounded-[32px] md:pt-[72px]">
-        <h2 className="text-[34px] leading-[1.3] font-semibold text-white md:text-[52px] md:leading-[1.25]">
+      <Reveal data-closing className="on-blue relative bg-[linear-gradient(135deg,#0A1A47,#13307E)] mx-auto h-[640px] max-w-[1280px] overflow-hidden rounded-[28px] px-6 pt-12 text-center md:rounded-[32px] md:pt-[72px]">
+        <WaveArt />
+        <h2 className="relative text-[34px] leading-[1.3] font-semibold text-white md:text-[52px] md:leading-[1.25]">
           ให้คนในจำสต็อก
           <br />
           แทนเจ้าของร้าน
         </h2>
-        <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <span className="glow-ring w-full sm:w-auto">
-            <Button href={APP_URL} kind="white" size="lg" arrow wide>{PRIMARY}</Button>
-          </span>
+        <div className="relative mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <Button href={APP_URL} kind="white" size="lg" arrow className="w-full sm:w-auto">{PRIMARY}</Button>
           <Button href={LINE_URL} kind="outline-light" size="lg" icon={ICONS.message} className="w-full sm:w-auto">{LINE_CTA}</Button>
         </div>
         {/* Wongnai closes on who looks after the shop. TODO: real reply hours. */}
-        <p className="mt-5 text-base text-white">ทีมช่วยตั้งค่าร้านให้ และตอบทาง LINE</p>
+        <p className="relative mt-5 text-base text-white">ทีมช่วยตั้งค่าร้านให้ และตอบทาง LINE</p>
         <div className="absolute inset-x-0 top-[390px] flex items-start justify-center gap-6 md:top-[350px]">
           <Phone screen="stock" height={640} className="mt-14 hidden md:block" />
           <Phone screen="home" height={760} />

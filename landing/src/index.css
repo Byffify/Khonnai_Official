@@ -61,42 +61,6 @@
   }
 }
 
-/* Closing CTA background from the design: brand blue → cream → orange; the copy sits on the blue part */
-.bg-brand-closing {
-  background: linear-gradient(180deg, #1650d7 0%, #1e57da 20%, #2a5edc 40%, #a9bef3 60%, #ffe6d2 80%, #ff9f5e 100%);
-}
-
-/* FeedSpring "glowing-wrapper" around the closing CTA (removed in Task 7). It no longer turns. */
-.glow-ring {
-  position: relative;
-  isolation: isolate;
-  padding: 2px;
-  border-radius: 999px;
-  overflow: hidden;
-}
-.glow-ring::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 200%;
-  aspect-ratio: 1;
-  background: conic-gradient(#fff 0deg, rgb(255 255 255 / 0) 60deg, rgb(255 255 255 / 0) 300deg, #fff 360deg);
-  transform: translate(-50%, -50%);
-  z-index: -1;
-}
-
-/* Brand blue → orange across a phrase (StoreTypes, removed in Task 4). It no longer loops: nothing on the page moves on its own. */
-.text-gradient-brand {
-  background: linear-gradient(90deg, #1650d7 0%, #6b55c9 50%, #e2640f 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  padding-block: 0.12em;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
-}
-
 /* Light washes, an agreed exception for three sections only. Each patch is a circle with a fixed radius, so it
    stays round on any screen; the strongest point is 20% (hex 33). */
 .wash-hero {

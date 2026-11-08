@@ -328,6 +328,61 @@ groups.pricing = () => {
   });
 };
 
+groups.closing = () => {
+  check('navy with wave, no ring, wave clear of the text', async () => {
+    for (const width of [375, 768, 1024, 1280, 1440]) {
+      await open(page, width);
+      const c = page.locator('[data-closing]'); await c.scrollIntoViewIfNeeded();
+      assert.match(await c.evaluate(e => getComputedStyle(e).backgroundImage), /rgb\(10, 26, 71\)/);
+      assert.equal(await page.locator('.glow-ring').count(), 0);
+      assert.equal(await c.locator('svg[data-wave]').count(), 1);
+      assert.match(await c.innerText(), /ให้คนในจำสต็อก/);
+      assert.match(await c.innerText(), /ทีมช่วยตั้งค่าร้านให้ และตอบทาง LINE/);
+      // the wave's top edge (orange line included) must stay clear of every text and button box; the band is 8px orange
+      const m = await c.evaluate(e => {
+        const card = e.getBoundingClientRect();
+        const svg = e.querySelector('svg[data-wave]'); const wave = svg.getBoundingClientRect();
+        const ink = x => { const r = document.createRange(); r.selectNodeContents(x); return r.getBoundingClientRect(); };
+        const boxes = [ink(e.querySelector('h2')), ink([...e.querySelectorAll('p')].pop()), ...[...e.querySelectorAll('a')].slice(0, 2).map(a => a.getBoundingClientRect())];
+        const sx = wave.width / 353, sy = wave.height / 222;
+        let worst = 1e9;
+        for (const path of svg.querySelectorAll('path')) {
+          const L = path.getTotalLength();
+          for (let i = 0; i <= 200; i++) {
+            const pt = path.getPointAtLength(L * i / 200);
+            const x = wave.left + pt.x * sx, y = wave.top + pt.y * sy;
+            for (const b of boxes) if (x >= b.left - 8 && x <= b.right + 8) worst = Math.min(worst, b.bottom <= y ? y - b.bottom : (y >= b.top - 8 ? -1 : 1e9));
+          }
+        }
+        const line = svg.querySelector('path[stroke]');
+        return { top: (wave.top - card.top) / card.height, worst, sw: getComputedStyle(line).strokeWidth, vec: line.getAttribute('vector-effect') };
+      });
+      assert.ok(Math.abs(m.top - (width < 700 ? 0.62 : 0.42)) < 0.01, width + ' wave top ' + m.top);
+      assert.ok(m.worst >= 8, width + ' wave comes within ' + m.worst + 'px of the text');
+      assert.equal(m.sw, '8px'); assert.equal(m.vec, 'non-scaling-stroke');
+    }
+  });
+  check('white button: 12px corners, visible hover and focus on navy', async () => {
+    await open(page, 1440);
+    const b = page.locator('[data-closing] a').first();
+    await b.scrollIntoViewIfNeeded();
+    assert.equal(await b.evaluate(e => getComputedStyle(e).borderRadius), '12px');
+    const rest = await b.evaluate(e => getComputedStyle(e).backgroundColor);
+    await b.hover(); await wait(400);
+    assert.notEqual(await b.evaluate(e => getComputedStyle(e).backgroundColor), rest);
+    await b.focus(); await page.keyboard.press('Shift+Tab'); await page.keyboard.press('Tab'); await wait(300);
+    const o = await b.evaluate(e => { const s = getComputedStyle(e); return [s.outlineColor, s.outlineWidth, s.borderRadius]; });
+    assert.equal(o[0], 'rgb(255, 255, 255)'); assert.equal(o[1], '2px'); assert.equal(o[2], '12px');
+  });
+  check('old effects are gone', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'landing/src/index.css'), 'utf8');
+    for (const gone of ['text-gradient-brand', 'glow-ring', 'hero-float', 'bg-brand-closing', 'tab-load', 'gradient-run', '--font-hand']) assert.ok(!css.includes(gone), gone);
+    const walk = d => fs.readdirSync(d, { withFileTypes: true }).flatMap(x => x.isDirectory() ? walk(path.join(d, x.name)) : [path.join(d, x.name)]);
+    const src = walk(path.join(ROOT, 'landing/src')).filter(f => /\.(tsx?|css)$/.test(f)).map(f => fs.readFileSync(f, 'utf8')).join(' ');
+    for (const gone of ['text-gradient-brand', 'glow-ring', 'hero-float', 'bg-brand-closing', 'tab-load', 'gradient-run', 'font-hand']) assert.ok(!src.includes(gone), 'src ' + gone);
+  });
+};
+
 // ---- runner --------------------------------------------------------------
 (async () => {
   const wanted = process.argv.slice(2);
