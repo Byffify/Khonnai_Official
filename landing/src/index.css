@@ -115,6 +115,15 @@
   background: linear-gradient(180deg, #ffffff, #fff8f1, #ffffff);
 }
 
+/* Glass caption on a photo (the agreed exception: navbar and photos only): white 75%, blur 20px, 12px corners.
+   The ink text on it is 9.9:1 even over pure black. */
+.glass-caption {
+  background: rgb(255 255 255 / 0.75);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border-radius: 12px;
+}
+
 /* Hero cards. Below 1280px three of them sit in a row under the copy (--rw / --rh, then --rw-md / --rh-md);
    from 1280px all twelve ring the copy at their place on the 1440px design (--x is the card's centre from the
    middle, --y its top from the middle). The stage's --ps spreads the ring and --cs sizes the cards. */

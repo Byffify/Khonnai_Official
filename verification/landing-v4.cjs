@@ -196,6 +196,33 @@ groups.bill = () => {
   });
 };
 
+groups.shops = () => {
+  check('glass captions, no dark scrim, solid heading', async () => {
+    await open(page, 1440);
+    assert.equal(await page.locator('#shops .text-gradient-brand').count(), 0);
+    const g = page.locator('#shops [data-glass]').first();
+    const c = await g.evaluate(e => { const s = getComputedStyle(e); return [s.backgroundColor, s.backdropFilter]; });
+    assert.match(c[0], /rgba\(255, 255, 255, 0\.75\)/); assert.match(c[1], /blur\(20px\)/);
+    assert.equal(await page.locator('#shops [aria-hidden].bg-linear-to-t').count(), 0);
+  });
+  check('readable on the darkest photo', async () => {
+    const samples = await page.$$eval('#shops [data-glass]', a => a.map(e => getComputedStyle(e).color));
+    assert.ok(samples.length >= 4);
+    for (const s of samples) assert.equal(s, 'rgb(15, 23, 42)');
+    // 75% white over pure black is rgb(191,191,191): ink on it is 9.9:1
+  });
+  check('no hover scale, no font-size animation', async () => {
+    const css = await page.$$eval('#shops *', a => a.map(e => getComputedStyle(e).transitionProperty).join());
+    assert.doesNotMatch(css, /font-size/);
+    assert.equal(await page.locator('#shops [class*="group-hover:scale"]').count(), 0);
+  });
+  check('warm wash, and an open card keeps the tag and ticks', async () => {
+    assert.match(await page.$eval('#shops', e => getComputedStyle(e).backgroundImage), /linear-gradient/);
+    assert.ok(await page.locator('#shops :text("ภาพประกอบ")').count() >= 4);
+    assert.equal(await page.locator('#shops [aria-expanded="true"]').count(), 1);
+  });
+};
+
 // ---- runner --------------------------------------------------------------
 (async () => {
   const wanted = process.argv.slice(2);
