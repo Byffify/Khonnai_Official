@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowRight, Check, ChevronDown, ChevronRight, Globe, Menu, X } from "lucide-react";
-import { APP_URL, LINE_CTA, LINE_URL, LOGIN, MODULES, NAV, PRIMARY, SERVICES } from "../content";
+import { APP_URL, LINE_CTA, LINE_URL, MODULES, NAV, PRIMARY, SERVICES } from "../content";
 import { dropdown, EASE } from "../motion";
 import { Button, ICONS, Logo } from "../ui";
 import stockWide from "../assets/screens/tile-stock-wide.webp";
@@ -240,7 +240,6 @@ function MobileSheet({ onClose }: { onClose: () => void }) {
       <div className="space-y-2.5">
         <Button href={APP_URL} size="lg" arrow wide>{PRIMARY}</Button>
         <Button href={LINE_URL} onClick={onClose} kind="outline" size="lg" icon={ICONS.message} wide>{LINE_CTA}</Button>
-        <a href={APP_URL} className="flex min-h-11 items-center justify-center font-bold text-brand">{LOGIN}</a>
       </div>
     </motion.div>
   );
@@ -312,14 +311,13 @@ export function Nav() {
           </div>
           {/* wrapped: Button's own inline-flex would override a `hidden` on it */}
           <div className="hidden items-center gap-2 lg:flex">
-            <Button href={APP_URL} kind="outline" size="sm">{LOGIN}</Button>
             <Button href={APP_URL} size="sm" arrow>{PRIMARY}</Button>
           </div>
           <button
             type="button"
             onClick={() => setSheet(true)}
             aria-label="เปิดเมนู"
-            className="grid size-11 place-items-center rounded-full bg-brand text-white lg:hidden"
+            className="grid size-11 place-items-center rounded-full border border-line bg-white text-ink transition-colors hover:bg-hover lg:hidden"
           >
             <Menu aria-hidden className="size-6" />
           </button>

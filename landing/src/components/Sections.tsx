@@ -3,7 +3,6 @@ import { AnimatePresence, motion, useInView, useReducedMotion } from "motion/rea
 import { Check, ChevronDown, Store } from "lucide-react";
 import {
   APP_URL,
-  FAQ,
   FOOTER,
   INCLUDED,
   LINE_CTA,
@@ -12,9 +11,10 @@ import {
   POINTS,
   PRIMARY,
   type ScreenKey,
+  visibleFaq,
 } from "../content";
 import { EASE, OUT_QUINT, Reveal } from "../motion";
-import { Button, ICONS, Logo, Phone, Placeholder } from "../ui";
+import { Button, ICONS, Logo, Phone } from "../ui";
 import { LangButton } from "./Nav";
 import lineQr from "../assets/line-qr.png";
 
@@ -87,7 +87,7 @@ export function Features() {
         <Heading
           align="left"
           title={<>ทุกงานหลักของร้าน<br /><span className="whitespace-nowrap">ในข้อมูลชุดเดียว</span></>}
-          body="ขั้นตอนสั้น ตัวใหญ่ อ่านง่าย เจ้าของร้านวัย 40+ ใช้เองได้ทุกวัน"
+          body="ขั้นตอนสั้น ตัวใหญ่ อ่านง่าย ใช้เองได้ทุกวัน"
         />
         <div
           ref={ref}
@@ -216,7 +216,7 @@ export function Pricing() {
                   <p className="flex items-center gap-2.5 text-[15px] font-bold">
                     <Store aria-hidden className={`size-5 ${p.featured ? "text-accent" : "text-brand"}`} /> {p.perDay}
                   </p>
-                  <Button href={APP_URL} kind={p.featured ? "white" : "outline"} wide>{p.cta}</Button>
+                  <Button href={p.href} kind={p.featured ? "white" : "outline"} wide>{p.cta}</Button>
                 </div>
               </article>
             </Reveal>
@@ -250,7 +250,7 @@ export function Faq() {
       <div className="mx-auto max-w-[720px]">
         <Heading title="คำถามที่พบบ่อย" />
         <Reveal className="mt-8 space-y-3 md:mt-12">
-          {FAQ.map((f, i) => {
+          {visibleFaq.map((f, i) => {
             const on = open === i;
             const id = `faq-${i}`;
             return (
@@ -277,7 +277,7 @@ export function Faq() {
                       className="overflow-hidden"
                     >
                       <p className="px-[18px] pb-5 text-[15px] leading-relaxed text-muted md:px-6">
-                        {f.a ?? <Placeholder>คำตอบรอทีมยืนยัน</Placeholder>}
+                        {f.a}
                       </p>
                     </motion.div>
                   )}
@@ -312,7 +312,7 @@ export function Closing() {
           <Button href={LINE_URL} kind="outline-light" size="lg" icon={ICONS.message} className="w-full sm:w-auto">{LINE_CTA}</Button>
         </div>
         {/* Wongnai closes on who looks after the shop. TODO: real reply hours. */}
-        <p className="mt-5 text-[15px] text-white">ทีมช่วยตั้งค่าร้านให้ และตอบทาง LINE · เวลาทำการ (รอข้อมูลจริง)</p>
+        <p className="mt-5 text-[15px] text-white">ทีมช่วยตั้งค่าร้านให้ และตอบทาง LINE</p>
         <div className="absolute inset-x-0 top-[390px] flex items-start justify-center gap-6 md:top-[350px]">
           <Phone screen="stock" height={640} className="mt-14 hidden md:block" />
           <Phone screen="home" height={760} />
@@ -363,7 +363,6 @@ export function Footer() {
         <div className="mt-10 flex flex-col-reverse items-start gap-3 border-t border-line pt-6 md:flex-row md:items-center md:justify-between">
           <p className="text-sm text-muted">© 2569 khonnai</p>
           <div className="flex w-full items-center justify-between gap-5 md:w-auto">
-            <a href="#" className="flex min-h-11 items-center text-sm text-muted hover:text-ink">ข้อกำหนดการใช้งาน</a>
             <LangButton outline />
           </div>
         </div>

@@ -125,7 +125,3 @@ export function Phone({ screen, height, className = "" }: { screen: ScreenKey; h
     </div>
   );
 }
-
-export function Placeholder({ children }: { children: ReactNode }) {
-  return <span className="text-sm text-orange-text">{children}</span>;
-}
