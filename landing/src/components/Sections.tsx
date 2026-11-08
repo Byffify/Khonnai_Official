@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { Check, ChevronDown, Store } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import {
   APP_URL,
   FOOTER,
@@ -173,27 +173,24 @@ export function Features() {
 
 export function Pricing() {
   return (
-    <section id="pricing" className="relative overflow-hidden bg-linear-to-b from-white via-[#f1f5fe] to-[#fff4ea] px-5 py-16 md:py-24">
-      <div aria-hidden className="absolute top-[360px] left-[-200px] size-[520px] rounded-full bg-[#bfd0f7]/60 blur-[140px]" />
-      <div aria-hidden className="absolute top-[420px] right-[-200px] size-[520px] rounded-full bg-accent/70 blur-[140px]" />
-      <div className="relative mx-auto max-w-[1188px]">
+    <section id="pricing" className="wash-pricing px-5 py-16 md:py-24">
+      <div className="mx-auto max-w-[1188px]">
         <Heading title="เลือกแพ็กเกจตามขนาดร้าน" body="เริ่มฟรี แล้วค่อยอัปเกรดเมื่อสินค้าหรือบิลเกินลิมิต ทุกแพ็กเกจใช้ฟีเจอร์หลักได้ครบ" />
         <div className="mt-10 grid items-center gap-4 md:mt-12 md:grid-cols-3 md:gap-6">
           {PLANS.map((p, i) => (
             <Reveal key={p.name} delay={i * 0.1}>
               <article
-                className={`relative overflow-hidden rounded-[28px] p-6 shadow-float transition-transform duration-500 ease-[cubic-bezier(.25,.1,.25,1)] hover:-translate-y-1.5 md:p-8 ${p.featured ? "on-blue bg-linear-135 from-brand to-brand-dark text-white md:pt-9" : "bg-white ring-1 ring-line"}`}
+                className={`rounded-[28px] p-6 tabular-nums lg:p-8 ${p.featured ? "on-blue bg-brand py-11 text-white md:py-11 lg:py-11" : "bg-white shadow-float ring-1 ring-line"}`}
               >
-                {p.featured && <div aria-hidden className="absolute -top-28 right-[-60px] size-60 rounded-full bg-orange/60 blur-[80px]" />}
-                <div className="relative space-y-6">
+                <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <h3 className="text-xl font-semibold">{p.name}</h3>
-                    {p.featured && <span className="rounded-full bg-orange px-3 py-1 text-sm font-semibold text-ink">แนะนำ</span>}
+                    {p.featured && <span className="text-sm text-[#dbe5fb]">แนะนำ</span>}
                   </div>
-                  <p className={`-mt-3 text-base ${p.featured ? "text-white/80" : "text-muted"}`}>{p.audience}</p>
+                  <p className={`-mt-3 text-base ${p.featured ? "text-[#dbe5fb]" : "text-muted"}`}>{p.audience}</p>
                   <p className="flex items-baseline gap-2">
-                    <span className="text-[44px] leading-none font-semibold md:text-[52px]">{p.price}</span>
-                    <span className={p.featured ? "text-white/80" : "text-muted"}>บาท / เดือน</span>
+                    <span className="text-[44px] leading-none font-semibold lg:text-[52px]">{p.price}</span>
+                    <span className={`whitespace-nowrap ${p.featured ? "text-[#dbe5fb]" : "text-muted"}`}>บาท / เดือน</span>
                   </p>
                   <dl className={`grid grid-cols-2 gap-4 border-y py-4 ${p.featured ? "border-white/20" : "border-line"}`}>
                     {[
@@ -201,14 +198,12 @@ export function Pricing() {
                       [p.bills, "บิลต่อเดือน"],
                     ].map(([v, u]) => (
                       <div key={u}>
-                        <dt className="text-2xl font-semibold md:text-[28px]">{v}</dt>
-                        <dd className={`text-sm ${p.featured ? "text-white/80" : "text-muted"}`}>{u}</dd>
+                        <dt className="text-2xl font-semibold lg:text-[28px]">{v}</dt>
+                        <dd className={`text-sm ${p.featured ? "text-[#dbe5fb]" : "text-muted"}`}>{u}</dd>
                       </div>
                     ))}
                   </dl>
-                  <p className="flex items-center gap-2.5 text-base font-semibold">
-                    <Store aria-hidden className={`size-5 ${p.featured ? "text-accent" : "text-brand"}`} /> {p.perDay}
-                  </p>
+                  <p className="text-base font-semibold">{p.perDay}</p>
                   <Button href={p.href} kind={p.featured ? "white" : "outline"} wide>{p.cta}</Button>
                 </div>
               </article>
@@ -253,7 +248,7 @@ export function Faq() {
                     aria-expanded={on}
                     aria-controls={id}
                     onClick={() => setOpen(on ? -1 : i)}
-                    className={`flex min-h-14 w-full items-center justify-between gap-3 px-[18px] py-4 text-left text-base font-semibold transition-colors md:px-6 md:text-base ${on ? "text-brand" : ""}`}
+                    className={`flex min-h-14 w-full items-center justify-between gap-3 rounded-2xl px-5 py-4 text-left text-base font-semibold transition-colors duration-200 hover:bg-hover focus-visible:outline-offset-[-2px] md:px-6 ${on ? "text-brand" : ""}`}
                   >
                     {f.q}
                     <ChevronDown aria-hidden className={`size-4 shrink-0 transition-transform duration-300 ${on ? "rotate-180" : ""}`} />
@@ -269,7 +264,7 @@ export function Faq() {
                       transition={{ duration: 0.3, ease: EASE }}
                       className="overflow-hidden"
                     >
-                      <p className="px-[18px] pb-5 text-base leading-relaxed text-muted md:px-6">
+                      <p className="px-5 pb-5 text-base leading-relaxed text-muted md:px-6">
                         {f.a}
                       </p>
                     </motion.div>

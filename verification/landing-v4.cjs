@@ -305,6 +305,29 @@ groups.features = () => {
   });
 };
 
+groups.pricing = () => {
+  check('featured plan is solid and taller, tag is quiet', async () => {
+    await open(page, 1440);
+    const cards = await page.$$eval('#pricing article', a => a.map(e => { const s = getComputedStyle(e); return [e.getBoundingClientRect().height, s.backgroundImage, s.backgroundColor]; }));
+    assert.ok(cards[1][0] > cards[0][0] + 16); assert.equal(cards[1][1], 'none'); assert.equal(cards[1][2], 'rgb(22, 80, 215)');
+    const tag = page.locator('#pricing article').nth(1).getByText('แนะนำ');
+    assert.equal(await tag.evaluate(e => getComputedStyle(e).backgroundColor), 'rgba(0, 0, 0, 0)');
+  });
+  check('soft wash with no hard edge, no hover lift', async () => {
+    assert.match(await page.$eval('#pricing', e => getComputedStyle(e).backgroundImage), /radial-gradient/);
+    assert.equal(await page.locator('#pricing [class*="blur-["]').count(), 0);
+    assert.equal(await page.locator('#pricing [class*="hover:-translate"]').count(), 0);
+  });
+  check('plans in a row from tablet, stacked on phone', async () => {
+    await open(page, 768);
+    const t = await page.$$eval('#pricing article', a => a.map(e => e.getBoundingClientRect().top));
+    assert.ok(Math.abs(t[0] - t[2]) < 40);
+    await open(page, 375);
+    const m = await page.$$eval('#pricing article', a => a.map(e => e.getBoundingClientRect().top));
+    assert.ok(m[1] > m[0] + 200);
+  });
+};
+
 // ---- runner --------------------------------------------------------------
 (async () => {
   const wanted = process.argv.slice(2);
