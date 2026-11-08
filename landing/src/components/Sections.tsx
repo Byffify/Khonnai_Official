@@ -101,7 +101,7 @@ export function Features() {
         />
         <div className="mt-10 grid gap-6 md:mt-12 xl:grid-cols-[440px_1fr] xl:gap-10 min-[1360px]:grid-cols-[500px_1fr]">
           <Reveal>
-            <div role="tablist" aria-label="ฟีเจอร์ของ khonnai" className="space-y-1.5" onKeyDown={onKeyDown}>
+            <div role="tablist" aria-label="ฟีเจอร์ของ khonnai" className="space-y-2" onKeyDown={onKeyDown}>
               {POINTS.map((p, i) => {
                 const Icon = ICONS[p.icon];
                 const on = i === active;
@@ -119,7 +119,7 @@ export function Features() {
                     aria-labelledby={`feature-title-${i}`}
                     tabIndex={on ? 0 : -1}
                     onClick={() => select(i)}
-                    className={`group flex w-full items-start gap-3.5 rounded-2xl p-4 text-left transition-colors duration-300 md:px-[18px] ${on ? "bg-hover" : "hover:bg-subtle"}`}
+                    className={`group flex w-full items-start gap-4 rounded-2xl p-4 text-left transition-colors duration-300 md:px-5 ${on ? "bg-hover" : "hover:bg-subtle"}`}
                   >
                     <span className={`grid size-9 shrink-0 place-items-center rounded-[10px] transition-colors duration-300 ${on ? "bg-brand-tint text-brand" : "text-muted group-hover:text-ink"}`}>
                       <Icon aria-hidden className="size-6" />
@@ -132,8 +132,8 @@ export function Features() {
                         className={`grid transition-[grid-template-rows,opacity] duration-500 ease-[cubic-bezier(.22,1,.36,1)] motion-reduce:transition-none ${on ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
                       >
                         <span className="block min-h-0 overflow-hidden">
-                          <span className="block pt-1.5 text-base leading-relaxed text-muted">{p.desc}</span>
-                          <span className="block pt-1.5 text-sm font-semibold text-orange-text">{p.when}</span>
+                          <span className="block pt-1 text-base leading-relaxed text-muted">{p.desc}</span>
+                          <span className="block pt-1 text-sm font-semibold text-orange-text">{p.when}</span>
                         </span>
                       </span>
                     </span>
