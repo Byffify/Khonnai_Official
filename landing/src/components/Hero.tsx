@@ -4,6 +4,7 @@ import { APP_URL, LINE_CTA, LINE_URL, PRIMARY } from "../content";
 import { Button, ICONS, SCREENS } from "../ui";
 import { ILLUSTRATION, photo, type PhotoSlot } from "../photos";
 import { BillPrint } from "./BillPrint";
+import paper from "../assets/screens/paper.webp";
 
 /**
  * Hero after fastwork.com, kept calm: twelve straight cards ring the headline on wide screens, three sit under
@@ -225,7 +226,7 @@ export function Hero() {
             kind="screen"
             title="บิลเงินสด"
             sub={<>ตามแบบฟอร์มร้าน<span className="hidden xl:inline"> ตัดสต็อกให้เอง</span></>}
-            lead={<BillPrint src={SCREENS.bill.src} alt={SCREENS.bill.alt} crop={0.225} stampTop={57} />}
+            lead={<BillPrint src={paper} alt={SCREENS.bill.alt} crop={0} stampTop={68} />}
             className="order-2"
             style={place(LEAD)}
           />

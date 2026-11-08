@@ -383,6 +383,15 @@ groups.closing = () => {
   });
 };
 
+groups.screens = () => {
+  check('every screen is present and current', () => {
+    for (const n of ['home', 'stock', 'addmodel', 'bill', 'reserve', 'bill-select', 'bill-confirm', 'card-stock', 'card-reserve', 'tile-stock-wide', 'paper']) {
+      const f = path.join(ROOT, `landing/src/assets/screens/${n}.webp`); assert.ok(fs.existsSync(f), n);
+      assert.ok(fs.statSync(f).mtimeMs > fs.statSync(path.join(ROOT, 'nav.js')).mtimeMs, `${n} is older than the app change`);
+    }
+  });
+};
+
 // ---- runner --------------------------------------------------------------
 (async () => {
   const wanted = process.argv.slice(2);
