@@ -40,7 +40,7 @@ export function StoreTypes() {
     <section id="shops" className="px-5 pt-12 pb-4 md:pt-20">
       <div className="mx-auto max-w-[1280px]">
         <Reveal className="max-w-[720px]">
-          <h2 className="text-[28px] leading-[1.35] font-bold md:text-5xl md:leading-[1.3]">
+          <h2 className="text-[28px] leading-[1.35] font-semibold md:text-[44px] md:leading-[1.3]">
             ร้านแบบไหน ก็เริ่มได้
             <br />
             จาก<span className="text-gradient-brand">มือถือเครื่องเดียว</span>
@@ -69,14 +69,14 @@ export function StoreTypes() {
                   aria-label={t.title}
                 />
                 <div className="relative z-20 flex h-full flex-col justify-end p-6 md:p-7 pointer-events-none">
-                  <h3 className={`leading-snug font-bold transition-[font-size] duration-500 ${open ? "text-2xl md:text-[28px]" : "text-lg"}`}>{t.title}</h3>
+                  <h3 className={`leading-snug font-semibold transition-[font-size] duration-500 ${open ? "text-2xl md:text-[28px]" : "text-lg"}`}>{t.title}</h3>
                   {/* one card's points visible at a time, on phones too (Wongnai shows only the open card's bullets) */}
                   <div className={`grid transition-[grid-template-rows,opacity] duration-500 ${open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
                     <div className="overflow-hidden">
                       <p className="mt-2 text-lg text-white/90">{t.lead}</p>
                       <ul className="mt-4 space-y-2">
                         {t.bullets.map((b) => (
-                          <li key={b} className="flex items-center gap-2.5 text-[15px] md:text-base">
+                          <li key={b} className="flex items-center gap-2.5 text-base md:text-base">
                             <Check aria-hidden className="size-5 shrink-0 text-accent" /> {b}
                           </li>
                         ))}
@@ -85,7 +85,7 @@ export function StoreTypes() {
                   </div>
                 </div>
                 {ILLUSTRATION && photo(t.slot) && (
-                  <span className="absolute top-4 right-4 z-20 rounded-full bg-black/35 px-2.5 py-1 text-xs text-white/90">ภาพประกอบ</span>
+                  <span className="absolute top-4 right-4 z-20 rounded-full bg-black/35 px-2.5 py-1 text-sm text-white/90">ภาพประกอบ</span>
                 )}
               </motion.div>
             );

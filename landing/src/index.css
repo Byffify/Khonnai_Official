@@ -1,25 +1,16 @@
 @import "tailwindcss";
-/* Mali (OFL): the handwritten word in the hero headline only */
-@import "@fontsource/mali/600.css";
 
-/* Latin: Google Sans (subset); Thai falls through to Noto Sans Thai. Both OFL, self-hosted. */
+/* Google Sans, one variable file shared with the app: Thai and Latin, weights 400-700 (OFL, self-hosted) */
 @font-face {
   font-family: "Google Sans";
-  src: url("./assets/fonts/GoogleSans-Latin.woff2") format("woff2");
-  font-weight: 400 700;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Noto Sans Thai";
-  src: url("./assets/fonts/NotoSansThai.woff2") format("woff2");
+  src: url("./assets/fonts/GoogleSans.woff2") format("woff2");
   font-weight: 400 700;
   font-display: swap;
 }
 
 /* Tokens mirror the "khonnai" variables in design/khonnai-landing.figcraft */
 @theme {
-  --font-sans: "Google Sans", "Noto Sans Thai", system-ui, sans-serif;
-  --font-hand: "Mali", "Noto Sans Thai", cursive;
+  --font-sans: "Google Sans", system-ui, sans-serif;
   --color-brand: #1650d7;
   --color-brand-hover: #1243b8;
   --color-brand-pressed: #0f3a9e;
@@ -75,12 +66,7 @@
   background: linear-gradient(180deg, #1650d7 0%, #1e57da 20%, #2a5edc 40%, #a9bef3 60%, #ffe6d2 80%, #ff9f5e 100%);
 }
 
-/* FeedSpring "glowing-wrapper": a conic highlight orbiting the closing CTA, 2.5s linear */
-@keyframes border-turn {
-  to {
-    transform: translate(-50%, -50%) rotate(360deg);
-  }
-}
+/* FeedSpring "glowing-wrapper" around the closing CTA (removed in Task 7). It no longer turns. */
 .glow-ring {
   position: relative;
   isolation: isolate;
@@ -97,17 +83,12 @@
   aspect-ratio: 1;
   background: conic-gradient(#fff 0deg, rgb(255 255 255 / 0) 60deg, rgb(255 255 255 / 0) 300deg, #fff 360deg);
   transform: translate(-50%, -50%);
-  animation: border-turn 2.5s linear infinite;
   z-index: -1;
 }
 
-/* Brand blue → orange across a phrase. The orange end is darkened to #e2640f (3.5:1 on white) so large
-   headings stay readable; the vertical padding keeps Thai marks above and below inside the painted area. */
+/* Brand blue → orange across a phrase (StoreTypes, removed in Task 4). It no longer loops: nothing on the page moves on its own. */
 .text-gradient-brand {
-  /* blue → violet → orange → violet → blue over twice the width, so sliding it 200% loops without a seam */
-  background: linear-gradient(90deg, #1650d7 0%, #6b55c9 25%, #e2640f 50%, #6b55c9 75%, #1650d7 100%);
-  background-size: 200% 100%;
-  animation: gradient-run 6s linear infinite;
+  background: linear-gradient(90deg, #1650d7 0%, #6b55c9 50%, #e2640f 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -116,28 +97,61 @@
   box-decoration-break: clone;
 }
 
-/* The colours flow left → right through the phrase, slowly enough to read as a sheen, not a flash */
-@keyframes gradient-run {
-  from {
-    background-position: 200% 50%;
+/* Light washes, an agreed exception for three sections only. Each patch is a circle with a fixed radius, so it
+   stays round on any screen; the strongest point is 20% (hex 33). */
+.wash-hero {
+  background:
+    radial-gradient(circle min(520px, 70vw) at 36% 36%, #1650d733, #1650d700),
+    radial-gradient(circle calc(min(520px, 70vw) * 0.85) at 66% 58%, #ff803233, #ff803200),
+    #fff;
+}
+.wash-pricing {
+  background:
+    radial-gradient(circle min(440px, 70vw) at 0% 50%, #1650d733, #1650d700),
+    radial-gradient(circle min(440px, 70vw) at 100% 70%, #ff803233, #ff803200),
+    linear-gradient(180deg, #ffffff, #f1f5fe, #fff4ea, #ffffff);
+}
+.wash-shops {
+  background: linear-gradient(180deg, #ffffff, #fff8f1, #ffffff);
+}
+
+/* Hero cards. Below 1280px three of them sit in a row under the copy (--rw / --rh, then --rw-md / --rh-md);
+   from 1280px all twelve ring the copy at their place on the 1440px design (--x is the card's centre from the
+   middle, --y its top from the middle). The stage's --ps spreads the ring and --cs sizes the cards. */
+.hero-card {
+  width: var(--rw);
+}
+.hero-card [data-hero-img] {
+  height: var(--rh);
+}
+@media (min-width: 768px) {
+  .hero-card {
+    width: var(--rw-md);
   }
-  to {
-    background-position: 0% 50%;
+  .hero-card [data-hero-img] {
+    height: var(--rh-md);
+  }
+}
+@media (min-width: 1280px) {
+  .hero-card {
+    position: absolute;
+    width: calc(var(--xw) * var(--cs));
+    left: calc(50% + var(--x) * var(--ps) - var(--xw) * var(--cs) / 2);
+    top: calc(50% + var(--y) * var(--ps));
+  }
+  .hero-card [data-hero-img] {
+    height: calc(var(--xh) * var(--cs));
   }
 }
 
-/* Hero cards bob gently once they have orbited in (±6px over 6s, each out of step) */
-@keyframes hero-float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-6px);
+/* One short fade when the page first appears; opacity only, so nothing shifts */
+@keyframes appear {
+  from {
+    opacity: 0;
   }
 }
-.hero-float {
-  animation: hero-float 6s ease-in-out infinite;
+.appear {
+  animation: appear 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* Tab progress bar: fills over the cycle (FeedSpring tab-bar-load, 5000ms) */
@@ -154,9 +168,7 @@
   html {
     scroll-behavior: auto;
   }
-  .glow-ring::before,
-  .hero-float,
-  .text-gradient-brand {
+  .appear {
     animation: none;
   }
 }

@@ -11,7 +11,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@fontsource/mali": "^5.3.0",
     "lucide-react": "^1.66.0",
     "motion": "^14.9.0",
     "react": "^19.3.1",

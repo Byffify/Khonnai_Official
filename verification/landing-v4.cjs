@@ -107,6 +107,55 @@ groups.content = () => {
   });
 };
 
+groups.hero = () => {
+  check('calm: nothing loops and cards are straight', async () => {
+    await open(page, 1440);
+    const loops = await page.evaluate(() => document.getAnimations().filter(a => a.effect.getComputedTiming().iterations === Infinity).length);
+    assert.equal(loops, 0);
+    const rotated = await page.$$eval('[data-hero-card]', a => a.filter(e => { const t = getComputedStyle(e); return t.rotate !== 'none' || (t.transform !== 'none' && !/^matrix\(1, 0, 0, 1,/.test(t.transform)); }).length);
+    assert.equal(rotated, 0);
+  });
+  check('twelve cards, one lead', async () => {
+    assert.equal(await page.locator('[data-hero-card]').count(), 12);
+    assert.equal(await page.locator('[data-hero-card][data-lead]').count(), 1);
+    assert.match(await page.locator('[data-hero-card][data-lead]').textContent(), /บิลเงินสด/);
+    assert.equal(await page.locator('[data-hero-card]:not([data-lead])').first().evaluate(e => getComputedStyle(e).boxShadow), 'none');
+  });
+  check('rotating word: weight, colour, wave, no layout shift', async () => {
+    const w = page.locator('[data-rotating-word]');
+    assert.equal(await w.evaluate(e => getComputedStyle(e).fontWeight), '600');
+    assert.equal(await w.evaluate(e => getComputedStyle(e).color), 'rgb(226, 100, 15)');
+    assert.equal(await page.locator('[data-word-wave]').count(), 1);
+    const head = () => page.$eval('h1', e => { const r = e.getBoundingClientRect(); return [r.top, r.height]; });
+    const a = await head(); await page.waitForTimeout(3600); assert.deepEqual(await head(), a);
+  });
+  check('no overlap between cards and copy', async () => {
+    for (const width of [1280, 1399, 1440, 1680]) {
+      await open(page, width); await page.waitForTimeout(400);
+      const bad = await page.evaluate(() => { const c = document.querySelector('[data-hero-copy]').getBoundingClientRect(); return [...document.querySelectorAll('[data-hero-card]')].map(e => e.getBoundingClientRect()).filter(r => r.left < c.right && r.right > c.left && r.top < c.bottom && r.bottom > c.top).length; });
+      assert.equal(bad, 0, String(width));
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+    }
+  });
+  check('below 1280: three cards visible without waiting; word stays on line one', async () => {
+    for (const width of [320, 375, 768, 1279]) {
+      await open(page, width);
+      assert.equal(await page.locator('[data-hero-card]:visible').count(), 3, String(width));
+      const [line, word] = await page.evaluate(() => [document.querySelector('[data-line-one]').getBoundingClientRect().height, document.querySelector('[data-rotating-word]').getBoundingClientRect().height]);
+      assert.ok(line <= word * 1.4, `one line at ${width}`);
+    }
+  });
+  check('font and type scale', async () => {
+    await open(page, 1440);
+    const bad = await page.evaluate(() => { const allowed = new Set([14, 16, 18, 20, 24, 28, 34, 44, 52]); return [...document.querySelectorAll('body *')].filter(e => e.childElementCount === 0 && e.textContent.trim() && e.offsetParent).map(e => getComputedStyle(e)).filter(c => !allowed.has(parseFloat(c.fontSize)) || Number(c.fontWeight) > 600 || !c.fontFamily.startsWith('"Google Sans"')).length; });
+    assert.equal(bad, 0);
+    assert.ok(await page.evaluate(() => document.fonts.check('16px "Google Sans"', 'ขาย')));
+  });
+  check('buttons 12px except in the navbar', async () => {
+    assert.equal(await page.$eval('#top [data-hero-copy] a', e => getComputedStyle(e).borderTopLeftRadius), '12px');
+  });
+};
+
 // ---- runner --------------------------------------------------------------
 (async () => {
   const wanted = process.argv.slice(2);

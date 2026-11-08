@@ -21,7 +21,7 @@ import lineQr from "../assets/line-qr.png";
 function Heading({ title, body, align = "center" }: { title: ReactNode; body?: ReactNode; align?: "center" | "left" }) {
   return (
     <Reveal className={align === "center" ? "mx-auto max-w-[760px] text-center" : "max-w-[640px]"}>
-      <h2 className="text-[28px] leading-[1.35] font-bold md:text-5xl md:leading-[1.3]">{title}</h2>
+      <h2 className="text-[28px] leading-[1.35] font-semibold md:text-[44px] md:leading-[1.3]">{title}</h2>
       {body && <p className="mt-4 text-base leading-relaxed text-muted md:text-lg">{body}</p>}
     </Reveal>
   );
@@ -45,7 +45,7 @@ function Screens({ screens }: { screens: ScreenKey[] }) {
     <ol className="absolute inset-x-0 top-16 flex items-start justify-center gap-1 md:top-8 md:gap-5">
       {screens.map((screen, i) => (
         <li key={screen} className="flex flex-col items-center gap-2.5 md:gap-3">
-          <span className={`flex items-center gap-1 rounded-full py-1 pr-2 pl-1 text-[11px] font-bold whitespace-nowrap shadow-float md:gap-2 md:pl-1 md:pr-3.5 md:text-sm ${i === screens.length - 1 ? "bg-brand text-white" : "bg-white"}`}>
+          <span className={`flex items-center gap-1 rounded-full py-1 pr-2 pl-1 text-sm font-semibold whitespace-nowrap shadow-float md:gap-2 md:pl-1 md:pr-3.5 md:text-sm ${i === screens.length - 1 ? "bg-brand text-white" : "bg-white"}`}>
             <span className={`grid size-[18px] place-items-center rounded-full md:size-6 ${i === screens.length - 1 ? "bg-white text-brand" : "bg-brand-tint text-brand"}`}>{i + 1}</span>
             {STEP_LABELS[i]}
           </span>
@@ -115,7 +115,7 @@ export function Features() {
                       <Icon aria-hidden className="size-6" />
                     </span>
                     <span className="pt-1">
-                      <span className={`block text-[17px] font-bold transition-colors ${on ? "text-ink" : "text-muted"}`}>{p.title}</span>
+                      <span className={`block text-base font-semibold transition-colors ${on ? "text-ink" : "text-muted"}`}>{p.title}</span>
                       <AnimatePresence initial={false}>
                         {on && (
                           <motion.span
@@ -125,8 +125,8 @@ export function Features() {
                             exit={{ height: 0, opacity: 0 }}
                             transition={{ duration: 0.5, ease: EASE }}
                           >
-                            <span className="block pt-1.5 text-[15px] leading-relaxed text-muted">{p.desc}</span>
-                            <span className="block pt-1.5 text-sm font-bold text-orange-text">{p.when}</span>
+                            <span className="block pt-1.5 text-base leading-relaxed text-muted">{p.desc}</span>
+                            <span className="block pt-1.5 text-sm font-semibold text-orange-text">{p.when}</span>
                           </motion.span>
                         )}
                       </AnimatePresence>
@@ -194,12 +194,12 @@ export function Pricing() {
                 {p.featured && <div aria-hidden className="absolute -top-28 right-[-60px] size-60 rounded-full bg-orange/60 blur-[80px]" />}
                 <div className="relative space-y-6">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-[22px] font-bold">{p.name}</h3>
-                    {p.featured && <span className="rounded-full bg-orange px-3 py-1 text-sm font-bold text-ink">แนะนำ</span>}
+                    <h3 className="text-xl font-semibold">{p.name}</h3>
+                    {p.featured && <span className="rounded-full bg-orange px-3 py-1 text-sm font-semibold text-ink">แนะนำ</span>}
                   </div>
-                  <p className={`-mt-3 text-[15px] ${p.featured ? "text-white/80" : "text-muted"}`}>{p.audience}</p>
+                  <p className={`-mt-3 text-base ${p.featured ? "text-white/80" : "text-muted"}`}>{p.audience}</p>
                   <p className="flex items-baseline gap-2">
-                    <span className="text-[44px] leading-none font-bold md:text-[56px]">{p.price}</span>
+                    <span className="text-[44px] leading-none font-semibold md:text-[52px]">{p.price}</span>
                     <span className={p.featured ? "text-white/80" : "text-muted"}>บาท / เดือน</span>
                   </p>
                   <dl className={`grid grid-cols-2 gap-4 border-y py-4 ${p.featured ? "border-white/20" : "border-line"}`}>
@@ -208,12 +208,12 @@ export function Pricing() {
                       [p.bills, "บิลต่อเดือน"],
                     ].map(([v, u]) => (
                       <div key={u}>
-                        <dt className="text-2xl font-bold md:text-[28px]">{v}</dt>
+                        <dt className="text-2xl font-semibold md:text-[28px]">{v}</dt>
                         <dd className={`text-sm ${p.featured ? "text-white/80" : "text-muted"}`}>{u}</dd>
                       </div>
                     ))}
                   </dl>
-                  <p className="flex items-center gap-2.5 text-[15px] font-bold">
+                  <p className="flex items-center gap-2.5 text-base font-semibold">
                     <Store aria-hidden className={`size-5 ${p.featured ? "text-accent" : "text-brand"}`} /> {p.perDay}
                   </p>
                   <Button href={p.href} kind={p.featured ? "white" : "outline"} wide>{p.cta}</Button>
@@ -224,9 +224,9 @@ export function Pricing() {
         </div>
         <Reveal className="mt-10 flex justify-center">
           <ul className="flex flex-col gap-3 rounded-[20px] bg-white px-6 py-4 ring-1 ring-line md:flex-row md:items-center md:gap-6 md:rounded-full">
-            <li className="font-bold">ทุกแพ็กเกจมี</li>
+            <li className="font-semibold">ทุกแพ็กเกจมี</li>
             {INCLUDED.map((x) => (
-              <li key={x} className="flex items-center gap-2 text-[15px]">
+              <li key={x} className="flex items-center gap-2 text-base">
                 <Check aria-hidden className="size-5 text-brand" /> {x}
               </li>
             ))}
@@ -260,7 +260,7 @@ export function Faq() {
                     aria-expanded={on}
                     aria-controls={id}
                     onClick={() => setOpen(on ? -1 : i)}
-                    className={`flex min-h-14 w-full items-center justify-between gap-3 px-[18px] py-4 text-left text-base font-bold transition-colors md:px-6 md:text-[17px] ${on ? "text-brand" : ""}`}
+                    className={`flex min-h-14 w-full items-center justify-between gap-3 px-[18px] py-4 text-left text-base font-semibold transition-colors md:px-6 md:text-base ${on ? "text-brand" : ""}`}
                   >
                     {f.q}
                     <ChevronDown aria-hidden className={`size-4 shrink-0 transition-transform duration-300 ${on ? "rotate-180" : ""}`} />
@@ -276,7 +276,7 @@ export function Faq() {
                       transition={{ duration: 0.3, ease: EASE }}
                       className="overflow-hidden"
                     >
-                      <p className="px-[18px] pb-5 text-[15px] leading-relaxed text-muted md:px-6">
+                      <p className="px-[18px] pb-5 text-base leading-relaxed text-muted md:px-6">
                         {f.a}
                       </p>
                     </motion.div>
@@ -300,7 +300,7 @@ export function Closing() {
   return (
     <section className="px-5 pb-16 md:pb-24">
       <Reveal className="on-blue bg-brand-closing relative mx-auto h-[640px] max-w-[1280px] overflow-hidden rounded-[28px] px-6 pt-12 text-center md:rounded-[32px] md:pt-[72px]">
-        <h2 className="text-[32px] leading-[1.3] font-bold text-white md:text-[56px] md:leading-[1.25]">
+        <h2 className="text-[34px] leading-[1.3] font-semibold text-white md:text-[52px] md:leading-[1.25]">
           ให้คนในจำสต็อก
           <br />
           แทนเจ้าของร้าน
@@ -312,7 +312,7 @@ export function Closing() {
           <Button href={LINE_URL} kind="outline-light" size="lg" icon={ICONS.message} className="w-full sm:w-auto">{LINE_CTA}</Button>
         </div>
         {/* Wongnai closes on who looks after the shop. TODO: real reply hours. */}
-        <p className="mt-5 text-[15px] text-white">ทีมช่วยตั้งค่าร้านให้ และตอบทาง LINE</p>
+        <p className="mt-5 text-base text-white">ทีมช่วยตั้งค่าร้านให้ และตอบทาง LINE</p>
         <div className="absolute inset-x-0 top-[390px] flex items-start justify-center gap-6 md:top-[350px]">
           <Phone screen="stock" height={640} className="mt-14 hidden md:block" />
           <Phone screen="home" height={760} />
@@ -332,16 +332,16 @@ export function Footer() {
         <div className="grid gap-8 md:grid-cols-2 md:gap-10 lg:grid-cols-[300px_1fr_340px]">
           <div className="space-y-4">
             <Logo />
-            <p className="text-[15px] leading-relaxed text-muted">คนใน · ระบบบริหารสต็อก การจองสินค้า<br />และการออกบิลบนมือถือ</p>
+            <p className="text-base leading-relaxed text-muted">คนใน · ระบบบริหารสต็อก การจองสินค้า<br />และการออกบิลบนมือถือ</p>
           </div>
           <nav aria-label="ลิงก์ท้ายหน้า" className="grid grid-cols-3 gap-4">
             {FOOTER.map((col) => (
               <div key={col.head}>
-                <p className="text-[15px] font-bold">{col.head}</p>
+                <p className="text-base font-semibold">{col.head}</p>
                 <ul>
                   {col.links.map(([label, href]) => (
                     <li key={label}>
-                      <a href={href} className="flex min-h-11 items-center text-[15px] text-muted transition-colors hover:text-ink">{label}</a>
+                      <a href={href} className="flex min-h-11 items-center text-base text-muted transition-colors hover:text-ink">{label}</a>
                     </li>
                   ))}
                 </ul>
@@ -354,8 +354,8 @@ export function Footer() {
               <img src={lineQr} alt="QR เพิ่มเพื่อน LINE ของ khonnai" width={360} height={360} className="size-full" loading="lazy" />
             </a>
             <div className="flex-1 space-y-2">
-              <p className="text-lg font-bold">{LINE_CTA}</p>
-              <p className="text-[15px] leading-relaxed text-muted">ถามก่อนเริ่มใช้ หรือให้ทีมช่วยตั้งค่าร้าน</p>
+              <p className="text-lg font-semibold">{LINE_CTA}</p>
+              <p className="text-base leading-relaxed text-muted">ถามก่อนเริ่มใช้ หรือให้ทีมช่วยตั้งค่าร้าน</p>
               <Button href={LINE_URL} kind="dark" size="sm" icon={ICONS.message} wide>เพิ่มเพื่อน LINE</Button>
             </div>
           </div>
