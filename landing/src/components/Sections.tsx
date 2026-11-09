@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
+import { AnimatePresence, motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from "motion/react";
 import { Check, ChevronDown } from "lucide-react";
 import {
   APP_URL,
@@ -13,7 +13,7 @@ import {
   type ScreenKey,
   visibleFaq,
 } from "../content";
-import { EASE, OUT_QUINT, Reveal } from "../motion";
+import { CountUp, OUT_EXPO, Reveal, SOFT_SPRING, SPRING } from "../motion";
 import { Button, ICONS, Logo, Phone } from "../ui";
 import { LangButton } from "./Nav";
 import lineQr from "../assets/line-qr.png";
@@ -36,22 +36,34 @@ function Screens({ screens }: { screens: ScreenKey[] }) {
   if (screens.length === 1) {
     return (
       <div className="absolute top-8 left-1/2 -translate-x-1/2 md:top-10">
-        <Phone screen={screens[0]} height={760} className="hidden md:block" />
-        <Phone screen={screens[0]} height={680} className="md:hidden" />
+        <motion.div initial={{ y: 80, rotate: -2 }} animate={{ y: 0, rotate: 0 }} transition={SOFT_SPRING}>
+          <Phone screen={screens[0]} height={760} className="hidden md:block" />
+          <Phone screen={screens[0]} height={680} className="md:hidden" />
+        </motion.div>
       </div>
     );
   }
   return (
     <ol className="absolute inset-x-0 top-16 flex items-start justify-center gap-1 md:top-8 md:gap-5">
       {screens.map((screen, i) => (
-        <li key={screen} className="flex flex-col items-center gap-2.5 md:gap-3">
+        <motion.li
+          key={screen}
+          className="flex flex-col items-center gap-2.5 md:gap-3"
+          initial={{ opacity: 0, y: 60, filter: "blur(6px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{
+            y: { ...SOFT_SPRING, delay: 0.1 + i * 0.12 },
+            opacity: { duration: 0.6, delay: 0.1 + i * 0.12 },
+            filter: { duration: 0.6, delay: 0.1 + i * 0.12 },
+          }}
+        >
           <span className={`flex items-center gap-1 rounded-full py-1 pr-2 pl-1 text-sm font-semibold whitespace-nowrap shadow-float md:gap-2 md:pl-1 md:pr-3.5 md:text-sm ${i === screens.length - 1 ? "bg-brand text-white" : "bg-white"}`}>
             <span className={`grid size-[18px] place-items-center rounded-full md:size-6 ${i === screens.length - 1 ? "bg-white text-brand" : "bg-brand-tint text-brand"}`}>{i + 1}</span>
             {STEP_LABELS[i]}
           </span>
           <Phone screen={screen} height={460} className="hidden md:block" />
           <Phone screen={screen} height={220} className="md:hidden" />
-        </li>
+        </motion.li>
       ))}
     </ol>
   );
@@ -88,6 +100,20 @@ export function Features() {
     if (to === undefined) return;
     e.preventDefault();
     select(to, true);
+  };
+
+  // the phones inside the panel lean toward the pointer (mouse only), springing back when it leaves
+  const tiltX = useSpring(useMotionValue(0), SOFT_SPRING);
+  const tiltY = useSpring(useMotionValue(0), SOFT_SPRING);
+  const onTilt = (e: PointerEvent<HTMLDivElement>) => {
+    if (reduce || e.pointerType !== "mouse") return;
+    const r = e.currentTarget.getBoundingClientRect();
+    tiltY.set(((e.clientX - r.left) / r.width - 0.5) * 8);
+    tiltX.set(-((e.clientY - r.top) / r.height - 0.5) * 6);
+  };
+  const untilt = () => {
+    tiltX.set(0);
+    tiltY.set(0);
   };
 
   const point = POINTS[active];
@@ -147,20 +173,24 @@ export function Features() {
               id="feature-panel"
               role="tabpanel"
               aria-labelledby={`feature-tab-${active}`}
-              className="relative h-[400px] overflow-hidden rounded-3xl bg-hover md:h-[520px]"
+              className="relative h-[400px] overflow-hidden rounded-3xl bg-hover [perspective:1200px] md:h-[520px]"
+              onPointerMove={onTilt}
+              onPointerLeave={untilt}
             >
-              <AnimatePresence mode="popLayout" initial={false}>
-                <motion.div
-                  key={point.screens.join("+")}
-                  className="absolute inset-0"
-                  initial={{ opacity: 0, y: reduce ? 0 : 40 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: reduce ? 0 : -24 }}
-                  transition={{ duration: reduce ? 0 : 0.6, ease: OUT_QUINT }}
-                >
-                  <Screens screens={point.screens} />
-                </motion.div>
-              </AnimatePresence>
+              <motion.div className="absolute inset-0" style={{ rotateX: tiltX, rotateY: tiltY }}>
+                <AnimatePresence mode="popLayout" initial={false}>
+                  <motion.div
+                    key={point.screens.join("+")}
+                    className="absolute inset-0"
+                    initial={{ opacity: 0, y: reduce ? 0 : 40, scale: reduce ? 1 : 0.97, filter: reduce ? "none" : "blur(10px)" }}
+                    animate={{ opacity: 1, y: 0, scale: 1, filter: reduce ? "none" : "blur(0px)" }}
+                    exit={{ opacity: 0, y: reduce ? 0 : -24, scale: reduce ? 1 : 0.98, filter: reduce ? "none" : "blur(8px)" }}
+                    transition={{ duration: reduce ? 0 : 0.8, ease: OUT_EXPO }}
+                  >
+                    <Screens screens={point.screens} />
+                  </motion.div>
+                </AnimatePresence>
+              </motion.div>
             </div>
           </Reveal>
         </div>
@@ -180,7 +210,7 @@ export function Pricing() {
           {PLANS.map((p, i) => (
             <Reveal key={p.name} delay={i * 0.1}>
               <article
-                className={`rounded-[28px] p-6 tabular-nums lg:p-8 ${p.featured ? "on-blue bg-brand py-11 text-white md:py-11 lg:py-11" : "bg-white shadow-float ring-1 ring-line"}`}
+                className={`plan-card rounded-[28px] p-6 tabular-nums lg:p-8 ${p.featured ? "on-blue bg-brand py-11 text-white md:py-11 lg:py-11" : "bg-white shadow-float ring-1 ring-line"}`}
               >
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
@@ -189,7 +219,7 @@ export function Pricing() {
                   </div>
                   <p className={`-mt-3 text-base ${p.featured ? "text-[#dbe5fb]" : "text-muted"}`}>{p.audience}</p>
                   <p className="flex items-baseline gap-2">
-                    <span className="text-[44px] leading-none font-semibold lg:text-[52px]">{p.price}</span>
+                    <span className="text-[44px] leading-none font-semibold lg:text-[52px]"><CountUp value={p.price} /></span>
                     <span className={`whitespace-nowrap ${p.featured ? "text-[#dbe5fb]" : "text-muted"}`}>บาท / เดือน</span>
                   </p>
                   <dl className={`grid grid-cols-2 gap-4 border-y py-4 ${p.featured ? "border-white/20" : "border-line"}`}>
@@ -251,17 +281,17 @@ export function Faq() {
                     className={`flex min-h-14 w-full items-center justify-between gap-3 rounded-2xl px-5 py-4 text-left text-base font-semibold transition-colors duration-200 hover:bg-hover focus-visible:outline-offset-[-2px] md:px-6 ${on ? "text-brand" : ""}`}
                   >
                     {f.q}
-                    <ChevronDown aria-hidden className={`size-4 shrink-0 transition-transform duration-300 ${on ? "rotate-180" : ""}`} />
+                    <ChevronDown aria-hidden className={`size-4 shrink-0 transition-transform duration-500 ease-[cubic-bezier(.34,1.4,.64,1)] ${on ? "rotate-180" : ""}`} />
                   </button>
                 </h3>
                 <AnimatePresence initial={false}>
                   {on && (
                     <motion.div
                       id={id}
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3, ease: EASE }}
+                      initial={{ height: 0, opacity: 0, filter: "blur(4px)" }}
+                      animate={{ height: "auto", opacity: 1, filter: "blur(0px)" }}
+                      exit={{ height: 0, opacity: 0, filter: "blur(4px)" }}
+                      transition={{ duration: 0.55, ease: OUT_EXPO }}
                       className="overflow-hidden"
                     >
                       <p className="px-5 pb-5 text-base leading-relaxed text-muted md:px-6">
@@ -297,6 +327,42 @@ function WaveArt() {
   );
 }
 
+/** The three phones rise in one after another, then drift with the scroll: the middle one faster than its sides. */
+function ClosingPhones() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const middle = useTransform(scrollYProgress, [0, 1], [70, -50]);
+  const sides = useTransform(scrollYProgress, [0, 1], [30, -20]);
+  const rise = (i: number) => ({
+    initial: { opacity: 0, y: 140 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, amount: 0.1 },
+    transition: {
+      y: { type: "spring" as const, stiffness: 70, damping: 16, delay: 0.15 + i * 0.12 },
+      opacity: { duration: 0.6, delay: 0.15 + i * 0.12 },
+    },
+  });
+  return (
+    <div ref={ref} className="absolute inset-x-0 top-[390px] flex items-start justify-center gap-6 md:top-[350px]">
+      <motion.div style={{ y: sides }} className="mt-14 hidden md:block">
+        <motion.div {...rise(1)}>
+          <Phone screen="stock" height={640} />
+        </motion.div>
+      </motion.div>
+      <motion.div style={{ y: middle }}>
+        <motion.div {...rise(0)}>
+          <Phone screen="home" height={760} />
+        </motion.div>
+      </motion.div>
+      <motion.div style={{ y: sides }} className="mt-14 hidden md:block">
+        <motion.div {...rise(2)}>
+          <Phone screen="bill" height={640} />
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+}
+
 export function Closing() {
   return (
     <section className="px-5 pb-16 md:pb-24">
@@ -313,11 +379,7 @@ export function Closing() {
         </div>
         {/* Wongnai closes on who looks after the shop. TODO: real reply hours. */}
         <p className="relative mt-5 text-base text-white">ทีมช่วยตั้งค่าร้านให้ และตอบทาง LINE</p>
-        <div className="absolute inset-x-0 top-[390px] flex items-start justify-center gap-6 md:top-[350px]">
-          <Phone screen="stock" height={640} className="mt-14 hidden md:block" />
-          <Phone screen="home" height={760} />
-          <Phone screen="bill" height={640} className="mt-14 hidden md:block" />
-        </div>
+        <ClosingPhones />
       </Reveal>
     </section>
   );
@@ -387,7 +449,7 @@ export function StickyBar() {
         <motion.div
           className="fixed inset-x-0 bottom-0 z-30 flex gap-2.5 bg-white px-4 pt-3 pb-[max(16px,env(safe-area-inset-bottom))] shadow-[0_-6px_20px_rgb(15_23_42/0.12)] md:hidden"
           initial={{ y: 100 }}
-          animate={{ y: 0, transition: { duration: 0.3, ease: [0.33, 1, 0.68, 1] } }}
+          animate={{ y: 0, transition: SPRING }}
           exit={{ y: 100, transition: { duration: 0.3, ease: [0.32, 0, 0.67, 0] } }}
         >
           <Button href={APP_URL} size="lg" arrow className="flex-1">{PRIMARY}</Button>

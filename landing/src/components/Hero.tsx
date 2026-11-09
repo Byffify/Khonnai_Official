@@ -1,5 +1,14 @@
-import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { useEffect, useState, type CSSProperties, type PointerEvent, type ReactNode } from "react";
+import {
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+  useTransform,
+  type MotionValue,
+} from "motion/react";
+import { OUT_EXPO, SPRING } from "../motion";
 import { APP_URL, LINE_CTA, LINE_URL, PRIMARY } from "../content";
 import { Button, ICONS, SCREENS } from "../ui";
 import { ILLUSTRATION, photo, type PhotoSlot } from "../photos";
@@ -9,22 +18,27 @@ import paper from "../assets/screens/paper.webp";
 /**
  * Hero after fastwork.com, kept calm: twelve straight cards ring the headline on wide screens, three sit under
  * it below 1280px. Only the cash bill carries depth, it is the page's one bright element. Nothing moves on its
- * own except the word in the headline.
+ * own except the word in the headline (and the cards it names), which pauses under the pointer or focus and stops
+ * after two loops.
  */
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 const WORDS = ["สต็อก", "ใบจอง", "บิลเงินสด"] as const;
 const HOLD_MS = 3000;
 
-function useWordCycle(): number {
-  const [i, setI] = useState(0);
+// Two full loops, then it rests on the first word (WCAG 2.2.2: moving content stops by itself)
+const MAX_STEPS = WORDS.length * 2;
+
+/** The headline word steps every 3s, holds while `paused` (pointer over or focus inside the hero), and stops after two loops. */
+function useWordCycle(paused: boolean): number {
+  const [step, setStep] = useState(0);
   const reduce = useReducedMotion();
   useEffect(() => {
-    if (reduce) return;
-    const id = window.setTimeout(() => setI((i + 1) % WORDS.length), HOLD_MS);
+    if (reduce || paused || step >= MAX_STEPS) return;
+    const id = window.setTimeout(() => setStep(step + 1), HOLD_MS);
     return () => window.clearTimeout(id);
-  }, [i, reduce]);
-  return reduce ? 0 : i;
+  }, [step, reduce, paused]);
+  return reduce ? 0 : step % WORDS.length;
 }
 
 /**
@@ -41,9 +55,9 @@ function RotatingWord({ index }: { index: number }) {
         <motion.span
           key={index}
           className="col-start-1 row-start-1 text-center whitespace-nowrap"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0, transition: { duration: 0.4, ease: EASE } }}
-          exit={{ opacity: 0, y: -12, transition: { duration: 0.25, ease: EASE } }}
+          initial={{ opacity: 0, y: "0.45em", filter: "blur(6px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.7, ease: OUT_EXPO } }}
+          exit={{ opacity: 0, y: "-0.35em", filter: "blur(6px)", transition: { duration: 0.35, ease: EASE } }}
         >
           {WORDS[index]}
         </motion.span>
@@ -55,7 +69,19 @@ function RotatingWord({ index }: { index: number }) {
         preserveAspectRatio="none"
         className="absolute inset-x-0 top-[1.12em] h-[0.2em] w-full overflow-visible"
       >
-        <path d="M2 11C60 2 136 2 198 7" fill="none" stroke="#ff8032" strokeWidth="4" strokeLinecap="round" vectorEffect="non-scaling-stroke" className="xl:[stroke-width:5]" />
+        {/* the underline draws itself again under each new word */}
+        <motion.path
+          key={index}
+          d="M2 11C60 2 136 2 198 7"
+          fill="none"
+          stroke="#ff8032"
+          strokeWidth="4"
+          strokeLinecap="round"
+          vectorEffect="non-scaling-stroke"
+          className="xl:[stroke-width:5]"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1, transition: { duration: 0.9, ease: OUT_EXPO, delay: 0.1 } }}
+        />
       </svg>
     </span>
   );
@@ -84,6 +110,9 @@ export function HeroCard({
   eager = false,
   className = "",
   style,
+  focus = false,
+  rank = 0,
+  depth,
 }: {
   kind: Kind;
   src?: string;
@@ -94,13 +123,31 @@ export function HeroCard({
   eager?: boolean;
   className?: string;
   style?: CSSProperties;
+  /** lifted forward while the headline names what this card shows */
+  focus?: boolean;
+  /** entrance order, nearest the headline first */
+  rank?: number;
+  /** pointer offset for this card's layer, wide screens only */
+  depth?: { x: MotionValue<number>; y: MotionValue<number> };
 }) {
+  const delay = 0.25 + rank * 0.07;
+  // the entrance waits its turn; later focus changes spring straight away
+  const [entered, setEntered] = useState(false);
   return (
-    <div
+    <motion.div
       data-hero-card
       data-lead={lead ? "" : undefined}
+      data-focus={focus ? "" : undefined}
       className={`hero-card flex shrink-0 flex-col gap-2 rounded-2xl border border-line bg-white p-2 ${lead ? "z-10 shadow-[0_24px_48px_-12px_rgb(15_23_42/0.2)]" : ""} ${className}`}
-      style={style}
+      style={{ ...style, x: depth?.x, y: depth?.y }}
+      initial={{ opacity: 0, scale: 0.86, filter: "blur(10px)" }}
+      animate={{ opacity: 1, scale: focus ? 1.045 : 1, filter: "blur(0px)" }}
+      transition={{
+        opacity: { duration: 0.9, ease: OUT_EXPO, delay },
+        filter: { duration: 0.9, ease: OUT_EXPO, delay },
+        scale: { ...SPRING, delay: entered ? 0 : delay },
+      }}
+      onAnimationComplete={() => setEntered(true)}
     >
       <div data-hero-img className="overflow-hidden rounded-lg bg-subtle">
         {lead ??
@@ -114,7 +161,7 @@ export function HeroCard({
         <span className={`block ${lead ? "text-lg font-semibold text-ink" : "font-medium text-muted"}`}>{title}</span>
         {sub && <span className={`block text-muted ${lead ? "text-base" : ""}`}>{sub}</span>}
       </p>
-    </div>
+    </motion.div>
   );
 }
 
@@ -170,38 +217,109 @@ function place(s: { x: number; y: number; w: number; h: number; row?: { w: numbe
   } as CSSProperties;
 }
 
-export function Hero() {
-  const active = useWordCycle();
+// Which headline word each card belongs to: 0 สต็อก, 1 ใบจอง, 2 บิลเงินสด. The lead bill is 2.
+const TOPIC: Record<string, number> = { stock: 0, low: 0, count: 0, new: 0, variants: 0, reserve: 1, line: 1, front: 1, home: 2, confirm: 2, counter: 2 };
+// Entrance order: the cards nearest the headline come first, then outward
+const centre = (s: Spot) => Math.hypot(s.x + s.w / 2 - 720, s.y + s.h / 2 - 450);
+const RANK = Object.fromEntries([...SPOTS].sort((a, b) => centre(a) - centre(b)).map((s, i) => [s.id, i + 1]));
+// How far each card drifts with the pointer: outer cards are "closer" and move more
+const DEPTH = Object.fromEntries(SPOTS.map((s) => [s.id, 10 + Math.min(1, centre(s) / 760) * 22]));
+
+/** One pointer-driven layer for a card: the spring-smoothed pointer times the card's depth. */
+function useLayer(px: MotionValue<number>, py: MotionValue<number>, depth: number) {
+  const x = useTransform(px, (v) => v * -depth);
+  const y = useTransform(py, (v) => v * -depth);
+  return { x, y };
+}
+
+function LayeredCard({ spot, px, py, focus }: { spot: Spot; px: MotionValue<number>; py: MotionValue<number>; focus: boolean }) {
+  const depth = useLayer(px, py, DEPTH[spot.id]);
   return (
-    <section id="top" className="wash-hero relative overflow-hidden px-5 pt-[104px] pb-12 md:pt-[124px] xl:flex xl:min-h-[max(100svh,800px)] xl:items-center xl:py-24">
+    <HeroCard
+      kind={spot.kind}
+      src={spot.src}
+      top={spot.top}
+      title={spot.title}
+      sub={spot.sub}
+      eager={!!spot.row}
+      className={spot.row ? `mt-8 md:mt-10 xl:mt-0 ${spot.row.order === 1 ? "order-1" : "order-3"}` : "hidden xl:flex"}
+      style={place(spot)}
+      focus={focus}
+      rank={RANK[spot.id]}
+      depth={depth}
+    />
+  );
+}
+
+/** Headline lines rise out of a blur one after another */
+const line = (i: number) => ({
+  initial: { opacity: 0, y: 22, filter: "blur(8px)" },
+  animate: { opacity: 1, y: 0, filter: "blur(0px)" },
+  transition: { duration: 1, ease: OUT_EXPO, delay: 0.05 + i * 0.09 },
+});
+
+export function Hero() {
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const active = useWordCycle(hovered || focused);
+  const reduce = useReducedMotion();
+  // pointer position from the centre, -0.5..0.5, eased by a soft spring
+  const rawX = useMotionValue(0);
+  const rawY = useMotionValue(0);
+  const px = useSpring(rawX, { stiffness: 50, damping: 18, mass: 0.8 });
+  const py = useSpring(rawY, { stiffness: 50, damping: 18, mass: 0.8 });
+  const leadDepth = useLayer(px, py, 6);
+  const onMove = (e: PointerEvent<HTMLElement>) => {
+    if (reduce || e.pointerType !== "mouse" || !window.matchMedia("(min-width: 1280px)").matches) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    rawX.set((e.clientX - r.left) / r.width - 0.5);
+    rawY.set((e.clientY - r.top) / r.height - 0.5);
+  };
+  const onLeave = () => {
+    rawX.set(0);
+    rawY.set(0);
+    setHovered(false);
+  };
+  return (
+    <section
+      id="top"
+      onPointerMove={onMove}
+      onPointerEnter={(e) => e.pointerType === "mouse" && setHovered(true)}
+      onPointerLeave={onLeave}
+      onFocus={() => setFocused(true)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocused(false);
+      }}
+      className="wash-hero relative overflow-hidden px-5 pt-[104px] pb-12 md:pt-[124px] xl:flex xl:min-h-[max(100svh,800px)] xl:items-center xl:py-24"
+    >
       <div className="appear flex w-full flex-col items-center">
         <div data-hero-copy className="relative z-20 flex w-full max-w-[600px] flex-col items-center gap-6 text-center xl:w-[640px] xl:max-w-none">
           <h1 className="text-[34px] leading-[1.25] font-medium text-ink md:text-[44px] xl:text-[52px]">
             <span className="sr-only">จัดการสต็อก ใบจอง และบิลเงินสดของร้าน จบในมือถือเครื่องเดียว</span>
             <span aria-hidden className="block">
-              <span data-line-one className="flex items-baseline justify-center gap-2 leading-[1.36] whitespace-nowrap md:gap-4">
+              <motion.span {...line(0)} data-line-one className="flex items-baseline justify-center gap-2 leading-[1.36] whitespace-nowrap md:gap-4">
                 <span>จัดการ</span>
                 <RotatingWord index={active} />
                 <span className="hidden md:inline">ของร้าน</span>
-              </span>
-              <span className="block md:hidden">ของร้าน</span>
-              <span className="block">จบในมือถือเครื่องเดียว</span>
+              </motion.span>
+              <motion.span {...line(1)} className="block md:hidden">ของร้าน</motion.span>
+              <motion.span {...line(1)} className="block">จบในมือถือเครื่องเดียว</motion.span>
             </span>
           </h1>
-          <p className="text-base leading-[1.6] text-muted md:text-lg">
+          <motion.p {...line(2)} className="text-base leading-[1.6] text-muted md:text-lg">
             {/* nowrap keeps Thai line-breaking from splitting a phrase mid-word */}
             เว็บแอปจัดการร้านบนมือถือ สำหรับร้านค้าส่ง<span className="whitespace-nowrap">ชุดชั้นใน</span>และเสื้อผ้าขนาดเล็ก
             <br className="hidden md:block" />{" "}
             <span className="whitespace-nowrap">เช็กสต็อกแยกรุ่น สี ไซซ์</span> กันของให้ลูกค้าที่จองไว้ พร้อม
             <span className="whitespace-nowrap">ออกบิลเงินสด</span>ที่<span className="whitespace-nowrap">ตัดสต็อกให้เอง</span>
-          </p>
-          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+          </motion.p>
+          <motion.div {...line(3)} className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
             <Button href={APP_URL} size="lg" arrow>{PRIMARY}</Button>
             <Button href={LINE_URL} kind="outline" size="lg" icon={ICONS.message}>{LINE_CTA}</Button>
-          </div>
-          <p className="text-base text-muted tabular-nums">
+          </motion.div>
+          <motion.p {...line(4)} className="text-base text-muted tabular-nums">
             <span className="whitespace-nowrap">เริ่มด้วยแพ็กเกจ Free 0 บาท</span> · <span className="whitespace-nowrap">สินค้า 20 รหัส · 50 บิลต่อเดือน</span>
-          </p>
+          </motion.p>
         </div>
 
         {/* Below 1280px: a row of three under the copy, running past both edges. From 1280px: the ring. */}
@@ -210,17 +328,7 @@ export function Hero() {
           className="pointer-events-none mt-20 flex items-start justify-center gap-2 md:gap-8 xl:absolute xl:inset-0 xl:mt-0 xl:block [--cs:.84] [--ps:1] min-[1400px]:[--cs:1] min-[1680px]:[--cs:1.1] min-[1680px]:[--ps:1.08]"
         >
           {SPOTS.map((s) => (
-            <HeroCard
-              key={s.id}
-              kind={s.kind}
-              src={s.src}
-              top={s.top}
-              title={s.title}
-              sub={s.sub}
-              eager={!!s.row}
-              className={s.row ? `mt-8 md:mt-10 xl:mt-0 ${s.row.order === 1 ? "order-1" : "order-3"}` : "hidden xl:flex"}
-              style={place(s)}
-            />
+            <LayeredCard key={s.id} spot={s} px={px} py={py} focus={!reduce && TOPIC[s.id] === active} />
           ))}
           <HeroCard
             kind="screen"
@@ -229,6 +337,9 @@ export function Hero() {
             lead={<BillPrint src={paper} alt={SCREENS.bill.alt} crop={0} stampTop={74} />}
             className="order-2"
             style={place(LEAD)}
+            focus={!reduce && active === 2}
+            rank={0}
+            depth={leadDepth}
           />
         </div>
       </div>
