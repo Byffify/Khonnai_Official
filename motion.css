@@ -1,0 +1,112 @@
+/* ======================================================================================================
+   Motion layer (branch animation, with motion.js). Loaded after app.css and layout.css, so its timings win.
+   Softer, longer curves, a spring on release, pages that arrive out of a soft blur, the product picture
+   morphing into its page, a sliding tab pill, and a light sweep on the revenue card.
+   Its own reduced-motion block closes the file.
+   ====================================================================================================== */
+:root{--ease-out:cubic-bezier(.16,1,.3,1);--ease-sheet:cubic-bezier(.32,.72,0,1);--spring:cubic-bezier(.34,1.4,.64,1);--quick:140ms;--routine:240ms}
+#tabbar{--nav-ease:var(--ease-sheet)}
+
+/* ---------- pages: a little longer, with a soft focus pull ---------- */
+::view-transition-old(page){animation:160ms var(--ease-in) both page-out}
+::view-transition-new(page){animation:360ms var(--ease-out) both page-in}
+[data-nav=back]::view-transition-old(page){animation-name:page-out-back}
+[data-nav=back]::view-transition-new(page){animation-name:page-in-back}
+[data-nav=fade]::view-transition-old(page){animation:120ms linear both fade-out}
+[data-nav=fade]::view-transition-new(page){animation:300ms var(--ease-out) both fade-in-soft}
+@keyframes page-in{from{opacity:0;transform:translateX(40px) scale(.99);filter:blur(6px)}}
+@keyframes page-out{to{opacity:0;transform:translateX(-20px) scale(.985);filter:blur(4px)}}
+@keyframes page-in-back{from{opacity:0;transform:translateX(-40px) scale(.99);filter:blur(6px)}}
+@keyframes page-out-back{to{opacity:0;transform:translateX(20px) scale(.985);filter:blur(4px)}}
+@keyframes fade-in-soft{from{opacity:0;transform:translateY(10px);filter:blur(4px)}}
+/* taps during a page change reach the new page instead of being swallowed by the snapshot layer */
+::view-transition{pointer-events:none}
+::view-transition-group(footer){animation-duration:320ms;animation-timing-function:var(--ease-sheet)}
+
+/* ---------- the product picture travels between its row and the detail page ---------- */
+::view-transition-group(product-hero){animation-duration:420ms;animation-timing-function:var(--ease-sheet)}
+::view-transition-old(product-hero),::view-transition-new(product-hero){height:100%;width:100%;object-fit:cover;animation-duration:420ms}
+::view-transition-group(tab-pill){animation-duration:420ms;animation-timing-function:var(--spring)}
+::view-transition-group(tab-0),::view-transition-group(tab-1),::view-transition-group(tab-2),::view-transition-group(tab-3),::view-transition-group(tab-sell){animation-duration:280ms}
+
+/* ---------- rows: rise out of a soft blur, ten at most, 40ms apart ---------- */
+.enter :is(.product-row,.product-tile,.reservation-card,.history-row,.order-row,.settings-card,.swatch-tile,.start-step){animation:row-in 400ms var(--ease-out) both}
+.enter :is(.product-row,.product-tile,.reservation-card,.history-row,.order-row,.settings-card,.swatch-tile,.start-step):nth-child(2){animation-delay:30ms}
+.enter :is(.product-row,.product-tile,.reservation-card,.history-row,.order-row,.settings-card,.swatch-tile,.start-step):nth-child(3){animation-delay:60ms}
+.enter :is(.product-row,.product-tile,.reservation-card,.history-row,.order-row,.settings-card,.swatch-tile,.start-step):nth-child(4){animation-delay:90ms}
+.enter :is(.product-row,.product-tile,.reservation-card,.history-row,.order-row,.settings-card,.swatch-tile,.start-step):nth-child(5){animation-delay:120ms}
+.enter :is(.product-row,.product-tile,.reservation-card,.history-row,.order-row,.settings-card,.swatch-tile,.start-step):nth-child(6){animation-delay:150ms}
+.enter :is(.product-row,.product-tile,.reservation-card,.history-row,.order-row,.settings-card,.swatch-tile,.start-step):nth-child(7){animation:row-in 400ms 180ms var(--ease-out) both}
+.enter :is(.product-row,.product-tile,.reservation-card,.history-row,.order-row,.settings-card,.swatch-tile,.start-step):nth-child(8){animation:row-in 400ms 210ms var(--ease-out) both}
+.enter :is(.product-row,.product-tile,.reservation-card,.history-row,.order-row,.settings-card,.swatch-tile,.start-step):nth-child(9){animation:row-in 400ms 240ms var(--ease-out) both}
+.enter :is(.product-row,.product-tile,.reservation-card,.history-row,.order-row,.settings-card,.swatch-tile,.start-step):nth-child(10){animation:row-in 400ms 270ms var(--ease-out) both}
+/* home blocks rise without scaling, so their size is exact from the first frame */
+.enter .home-content>:is(.add-stock-bar,.get-started,.job-card){animation:block-in 400ms 80ms var(--ease-out) both}
+@keyframes block-in{from{opacity:0;transform:translateY(16px);filter:blur(3px)}}
+.enter .home-content>:is(.get-started,.job-card){animation-delay:100ms}
+.enter .home-content>.low-card{animation-delay:140ms}
+@keyframes row-in{from{opacity:0;transform:translateY(16px) scale(.985);filter:blur(3px)}}
+
+/* ---------- home: the revenue card settles in; a light sweeps across it when the day's total changes ---------- */
+.enter .hero{animation:hero-in 480ms var(--ease-out) both}
+@keyframes hero-in{from{opacity:0;transform:translateY(12px) scale(.97);filter:blur(4px)}}
+.hero::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.18) 46%,rgba(255,255,255,.05) 54%,transparent 66%);transform:translateX(-120%)}
+.hero.sheen::after{animation:sheen 1600ms 380ms var(--ease-sheet) both}
+@keyframes sheen{to{transform:translateX(120%)}}
+
+/* ---------- press: quick in, spring back out ---------- */
+:is(.primary,.secondary,.danger,.icon-button,.chip,.start-go,.cancel-button,.logout,.add-color,.add-size,.stepper>button,.big-stepper>button,.tabs button,.channels button,.toast-undo,.outline-button){transition:transform 560ms var(--spring),background-color var(--routine) ease,color var(--routine) ease,border-color var(--routine) ease,box-shadow var(--routine) ease}
+:is(.primary,.secondary,.danger,.icon-button,.chip,.start-go,.cancel-button,.logout,.add-color,.add-size,.stepper>button,.big-stepper>button,.toast-undo,.outline-button):active:not(:disabled){transform:scale(.95);transition-duration:100ms;transition-timing-function:var(--ease-out)}
+:is(.product-row,.history-row,.reservation-card,.low-row,.job-row,.add-stock-bar,.settings-row,.customer-row,.walk-in,.shop-profile){transition:transform 560ms var(--spring),background-color var(--routine) ease,box-shadow var(--routine) ease}
+:is(.product-row,.history-row,.reservation-card,.low-row,.job-row,.add-stock-bar,.settings-row,.customer-row,.walk-in,.shop-profile):active{transform:scale(.985);transition-duration:100ms;transition-timing-function:var(--ease-out)}
+#tabbar .tab svg{transition-timing-function:var(--spring)}
+#tabbar .tab:active svg{transform:scale(.86)}
+#tabbar .sell:active{transform:scale(.92)}
+
+/* ---------- product tiles: tilt toward the pointer on desktop (motion.js sets --rx/--ry), sink on press ---------- */
+.product-tile .visual{transform:perspective(800px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform 700ms var(--ease-out),box-shadow 400ms var(--ease-out)}
+.product-tile:active:not(:disabled) .visual{transform:perspective(800px) scale(.95);transition-duration:100ms}
+@media (hover:hover) and (pointer:fine){.product-tile:hover:not(:disabled) .visual{box-shadow:0 18px 32px -16px rgba(15,23,42,.38)}}
+.product-tile.bump .count,.footer .primary.bump b{animation:pop 520ms var(--spring)}
+@keyframes pop{from{transform:scale(.6)}to{transform:scale(1)}}
+
+/* ---------- tab bar: one pill slides to the current tab ---------- */
+#tabbar .tabbar.has-pill{position:relative}
+#tabbar .tab-pill{position:absolute;left:0;top:0;border-radius:30px;background:rgba(255,255,255,.96);box-shadow:0 4px 12px -4px rgba(15,23,42,.18),inset 0 0 0 1px #fff;pointer-events:none;transition:opacity 160ms linear}
+#tabbar .tab-pill.off{opacity:0}
+#tabbar .pill-css .tab-pill{transition:transform 520ms var(--spring),opacity 160ms linear}
+#tabbar .has-pill .tab{position:relative;z-index:1}
+#tabbar .has-pill .tab[aria-current]{background:transparent}
+#tabbar .has-pill .sell-wrap{z-index:2}
+#tabbar .tab[aria-current] svg{animation:tab-pop 520ms var(--spring)}
+@keyframes tab-pop{from{transform:scale(.7)}}
+
+/* ---------- sheets: the slower sheet curve, alerts spring, the page behind blurs ---------- */
+dialog[open]{transition:transform 580ms var(--ease-sheet),opacity 200ms linear,overlay 580ms allow-discrete,display 580ms allow-discrete}
+dialog[data-kind=alert][open]{transition:transform 460ms var(--spring),opacity 200ms linear,overlay 460ms allow-discrete,display 460ms allow-discrete}
+dialog::backdrop{-webkit-backdrop-filter:blur(0);backdrop-filter:blur(0);transition:background-color 220ms linear,backdrop-filter 220ms linear,-webkit-backdrop-filter 220ms linear,overlay 220ms allow-discrete,display 220ms allow-discrete}
+dialog[open]::backdrop{-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition-duration:420ms}
+@starting-style{dialog[open]::backdrop{-webkit-backdrop-filter:blur(0);backdrop-filter:blur(0)}}
+
+/* ---------- toast: springs up; with Undo, a thin bar shows the time left ---------- */
+#toast.visible{transition:opacity 220ms linear,transform 560ms var(--spring),display 560ms allow-discrete}
+#toast{overflow:hidden}
+#toast .toast-timer{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.45);transform-origin:left center;animation:toast-time 6000ms linear both}
+@keyframes toast-time{to{transform:scaleX(0)}}
+
+/* numbers motion.js rolls need a box to move */
+.product-row .stock,.product-tile .stock,.low-status{display:inline-block}
+
+@media (prefers-reduced-motion:reduce){
+  ::view-transition-new(page),[data-nav=back]::view-transition-new(page),[data-nav=fade]::view-transition-new(page){animation:120ms linear both fade-in}
+  ::view-transition-old(page),[data-nav=back]::view-transition-old(page),[data-nav=fade]::view-transition-old(page){animation:100ms linear both fade-out}
+  ::view-transition-group(footer),::view-transition-group(tab-pill){animation-duration:0s}
+  .enter :is(.product-row,.product-tile,.reservation-card,.history-row,.order-row,.settings-card,.swatch-tile,.start-step),.enter .home-content>:is(.add-stock-bar,.get-started,.job-card),.enter .hero{animation:none}
+  .hero::after{display:none}
+  :is(.primary,.secondary,.danger,.icon-button,.chip,.start-go,.cancel-button,.logout,.add-color,.add-size,.stepper>button,.big-stepper>button,.toast-undo,.outline-button,.product-row,.history-row,.reservation-card,.low-row,.job-row,.add-stock-bar,.settings-row,.customer-row,.walk-in,.shop-profile):active:not(:disabled),#tabbar .tab:active svg,#tabbar .sell:active{transform:none}
+  .product-tile .visual,.product-tile:active:not(:disabled) .visual{transform:none}
+  #tabbar .tab[aria-current] svg,.product-tile.bump .count,.footer .primary.bump b{animation:none}
+  dialog[data-kind=alert][open]{transform:none}
+  dialog::backdrop,dialog[open]::backdrop{-webkit-backdrop-filter:none;backdrop-filter:none}
+  #toast.visible{transform:translate(-50%,0)}
+}

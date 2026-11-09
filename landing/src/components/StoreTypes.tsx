@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Check } from "lucide-react";
 import { STORE_TYPES } from "../content";
-import { Reveal } from "../motion";
+import { motion } from "motion/react";
+import { OUT_EXPO, Reveal } from "../motion";
 import { ILLUSTRATION, PHOTO_ALT, photo } from "../photos";
 import { Phone } from "../ui";
 
@@ -11,7 +12,12 @@ type StoreType = (typeof STORE_TYPES)[number];
 function Face({ type, open }: { type: StoreType; open: boolean }) {
   const src = photo(type.slot);
   return src ? (
-    <img src={src} alt={PHOTO_ALT[type.slot]} className="absolute inset-0 size-full object-cover" loading="lazy" />
+    <img
+      src={src}
+      alt={PHOTO_ALT[type.slot]}
+      className={`absolute inset-0 size-full object-cover transition-transform duration-[1200ms] ease-[cubic-bezier(.16,1,.3,1)] motion-reduce:transition-none ${open ? "scale-100" : "scale-110"}`}
+      loading="lazy"
+    />
   ) : (
     <>
       <div aria-hidden className="absolute inset-0 bg-brand" />
@@ -51,7 +57,7 @@ export function StoreTypes() {
               <div
                 key={t.slot}
                 onPointerEnter={(e) => e.pointerType === "mouse" && setActive(i)}
-                className={`relative overflow-hidden rounded-3xl bg-brand xl:h-auto ${open ? "h-[380px] xl:flex-[3.2]" : "h-[116px] xl:flex-1"}`}
+                className={`shop-card relative overflow-hidden rounded-3xl bg-brand xl:h-auto ${open ? "h-[380px] xl:flex-[3.2]" : "h-[116px] xl:flex-1"}`}
               >
                 <Face type={t} open={open} />
                 <button
@@ -66,7 +72,12 @@ export function StoreTypes() {
                   <h3 className={`leading-snug font-semibold ${open ? "text-2xl xl:text-[28px]" : "text-lg"}`}>{t.title}</h3>
                   {/* one card's points visible at a time, on phones too (Wongnai shows only the open card's bullets) */}
                   {open && (
-                    <>
+                    <motion.div
+                      key={t.slot}
+                      initial={{ opacity: 0, y: 12, filter: "blur(6px)" }}
+                      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                      transition={{ duration: 0.7, ease: OUT_EXPO, delay: 0.15 }}
+                    >
                       <p className="mt-2 text-lg">{t.lead}</p>
                       <ul className="mt-3 space-y-2">
                         {t.bullets.map((b) => (
@@ -75,7 +86,7 @@ export function StoreTypes() {
                           </li>
                         ))}
                       </ul>
-                    </>
+                    </motion.div>
                   )}
                 </div>
                 {ILLUSTRATION && photo(t.slot) && (

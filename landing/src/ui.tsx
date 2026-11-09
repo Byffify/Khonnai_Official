@@ -95,7 +95,7 @@ export function Button({
   const radius = /(^|\s)rounded-/.test(className) ? "" : "rounded-xl";
   return (
     <a
-      className={`group inline-flex items-center justify-center gap-2 font-semibold whitespace-nowrap transition-[background-color,color,box-shadow] duration-200 ease-[cubic-bezier(.22,1,.36,1)] ${radius} ${h} ${KIND[kind]} ${wide ? "w-full" : ""} ${className}`}
+      className={`btn-lux group inline-flex items-center justify-center gap-2 font-semibold whitespace-nowrap ${radius} ${h} ${KIND[kind]} ${wide ? "w-full" : ""} ${className}`}
       {...rest}
     >
       {Icon && <Icon aria-hidden className="size-5 shrink-0" strokeWidth={2} />}
