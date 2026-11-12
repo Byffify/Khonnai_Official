@@ -22,10 +22,12 @@ body[data-page=receipt]{background:#f1f5f9}
 button,input,select,textarea{font:inherit;color:inherit;letter-spacing:inherit}
 button{cursor:pointer;border:0;background:none;padding:0;text-align:inherit;-webkit-tap-highlight-color:transparent}
 button:disabled{cursor:not-allowed;opacity:.45}
+/* not-yet features (invite link, plan upgrade): neutral off state, readable label */
+button.not-yet:disabled{opacity:1;background:var(--seg);color:var(--muted);box-shadow:inset 0 0 0 1px var(--line)}
 :focus-visible{outline:3px solid #f59a55;outline-offset:2px}
 input,select{width:100%;min-width:0;height:48px;border:1.5px solid var(--input);border-radius:14px;padding:0 15px;background:#fff;font-size:18px;font-weight:500;caret-color:var(--blue)}
 input:focus{outline:none;border:2px solid var(--blue);padding:0 14.5px}
-input::placeholder{color:var(--dashed);opacity:1}
+input::placeholder,textarea::placeholder{color:var(--muted-2);opacity:1}
 input[type=number]{appearance:textfield;-moz-appearance:textfield}
 input::-webkit-inner-spin-button,input::-webkit-outer-spin-button{appearance:none;margin:0}
 h1,h2,h3,p{margin:0}
@@ -98,6 +100,33 @@ body[data-page=receipt] .app-bar{background:#f1f5f9}
 .revenue span{display:block;font-size:16px;line-height:20px;color:rgba(255,255,255,.8)}
 .revenue strong{display:block;font-size:32px;line-height:40px;font-weight:600;font-variant-numeric:tabular-nums}
 .hero-foot{position:absolute;left:20px;right:20px;top:180px;display:flex;justify-content:space-between;gap:8px;font-size:16px;line-height:21px;color:rgba(255,255,255,.8)}
+/* Home on phones: today's takings in a navy bifold wallet (Wallet v9, option A). The notes in its cash pocket follow
+   the figure (0–5, set in app.js); the wallet keeps one height at every tier so nothing below it moves. */
+.wallet{position:relative;height:252px;margin-top:-16px;--leather:#13296b;--leather-2:#0f2257;--seam:#6f86c9;--on-leather:#c9d4f5}
+.wallet-back{position:absolute;inset:36px 0 0;border-radius:24px;background:#0a1a47;box-shadow:0 16px 32px -12px rgba(10,26,71,.2)}
+.wallet-notes{position:absolute;inset:0 0 auto;height:56px}
+.note{position:absolute;left:calc(24px + var(--i)*18px);right:calc(76px - var(--i)*12px);top:calc(42px - (var(--k) - 1 - var(--i))*9px);height:96px;
+  background:var(--paper);transform:rotate(calc(var(--tilt,1)*.6deg))}
+.note:nth-child(odd){--tilt:-1}
+.note::before{content:"";position:absolute;left:6px;right:6px;top:6px;border-top:1.5px solid var(--ink-note)}
+.note::after{content:"";position:absolute;right:18px;top:12px;width:22px;height:22px;border:1.5px solid var(--ink-note);border-radius:50%;box-sizing:border-box}
+.note.n1000{--paper:#1650d7;--ink-note:#0f3fae}
+.note.n500{--paper:#93abe8;--ink-note:#6d8bd6}
+.note.n100{--paper:#ff8032;--ink-note:#e0661a}
+.wallet-front{position:absolute;inset:56px 0 0;border-radius:24px;padding:24px 20px 0;color:#fff;
+  background:linear-gradient(180deg,var(--leather),var(--leather-2));box-shadow:inset 0 1px 0 rgba(255,255,255,.12);
+  -webkit-mask:radial-gradient(30px 18px at 50% 0,#0000 97%,#000);mask:radial-gradient(30px 18px at 50% 0,#0000 97%,#000)}
+.wallet-front::before{content:"";position:absolute;inset:26px 8px 8px;border:1.5px dashed var(--seam);border-top:0;border-radius:0 0 16px 16px;pointer-events:none}
+.wallet-snap{position:absolute;right:0;top:24px;width:52px;height:48px;border-radius:24px 0 0 24px;background:#0a1a47;box-shadow:0 2px 4px rgba(10,26,71,.25)}
+.wallet-snap::after{content:"";position:absolute;left:14px;top:12px;width:24px;height:24px;border-radius:50%;background:var(--orange);border:2px solid var(--orange-ink);box-sizing:border-box}
+.wallet .hero-account{position:relative;height:32px;padding-right:56px}
+.wallet .brand{width:32px;height:32px;border-radius:9px;background:#fff;flex-shrink:0}
+.wallet .shop-name{font-size:16px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wallet .revenue{left:20px;top:80px}
+.wallet .revenue span,.wallet .hero-foot{color:var(--on-leather)}
+.wallet .revenue span{font-size:14px}
+.wallet .revenue strong{font-size:44px;line-height:52px}
+.wallet .hero-foot{top:164px;font-size:14px}
 .demo-note{margin-top:20px;text-align:center;font-size:14px;color:var(--muted-2)}
 
 /* Placeholder images */
@@ -148,11 +177,32 @@ input[role=switch]:focus{border:0;padding:0}
 .product-grid>.empty{grid-column:1/-1}
 
 /* Bill: catalog */
-.catalog-layout{display:grid;grid-template-columns:88px minmax(0,1fr);gap:10px;margin-top:8px;padding-right:10px}
-.category-rail{position:sticky;top:calc(60px + env(safe-area-inset-top));align-self:start;display:grid;align-content:start;gap:4px;padding:10px 8px;min-height:min(636px,calc(100dvh - 170px));background:#fff;border-radius:0 20px 20px 0}
-.category-rail button{width:72px;height:72px;display:grid;justify-items:center;align-content:center;gap:6px;border-radius:14px;font-size:16px;font-weight:500;line-height:18px;color:var(--muted)}
-.category-rail svg{width:24px;height:24px;stroke-width:1.8}
-.category-rail .active{background:var(--pale);color:var(--blue);font-weight:600}
+/* Categories sit in one row under the header (Sell v10, option A): the old rail's glyph-over-label tiles, pinned with the
+   header on one white plate. Few categories share the width; many scroll sideways and the edge cuts the next tile. */
+body[data-page=catalog] .app-bar{background:#fff}
+.cat-strip{position:relative;z-index:4;display:flex;gap:4px;padding:8px 16px 12px;overflow-x:auto;
+  scrollbar-width:none;background:#fff;box-shadow:inset 0 -1px 0 var(--line)}
+.cat-strip::-webkit-scrollbar{display:none}
+.cat-strip.pinned{position:sticky;top:calc(52px + env(safe-area-inset-top))}
+.cat-strip.in-flow{margin-top:8px;padding:0 var(--gutter);background:none;box-shadow:none}
+.cat-strip button{flex:1 0 64px;max-width:96px;height:72px;display:grid;justify-items:center;align-content:center;gap:6px;padding:0 4px;
+  border-radius:18px;font-size:14px;font-weight:500;line-height:18px;color:var(--muted);white-space:nowrap}
+.cat-strip svg{width:24px;height:24px;stroke-width:1.8}
+.cat-strip .active{background:var(--pale);color:var(--blue);font-weight:600}
+/* Products a row on phones: 3 by default (owner's call, 2026-11-11), 2 when chosen in ตั้งค่า. At 3 the tiles are
+   ~110 px, so the stock pill and the picked count get smaller and the name may take two lines instead of being cut. */
+.product-grid.catalog-grid{padding:16px var(--gutter) 0;gap:16px 12px}
+.product-grid.catalog-grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 8px}
+.cols-3 .product-tile .visual,.cols-3 .product-tile .visual::after{border-radius:14px}
+.cols-3 .product-tile .stock{top:6px;left:6px;height:22px;padding:0 6px 0 5px;gap:4px;font-size:12px}
+.cols-3 .product-tile .count{top:6px;right:6px;width:24px;height:24px;border-radius:12px;font-size:13px}
+.cols-3 .product-tile .placeholder svg{width:28px;height:28px}
+.cols-3 .product-tile .name{margin-top:6px;font-size:14px;line-height:18px;white-space:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;min-height:36px}
+.cols-3 .product-tile .price{font-size:15px}
+/* ตั้งค่า: the 2 / 3 picker inside its settings row */
+.cols-pick{display:flex;gap:4px;padding:4px;border-radius:14px;background:var(--seg)}
+.cols-pick button{min-width:48px;text-align:center;height:44px;border-radius:10px;font-size:16px;font-weight:500;color:var(--muted)}
+.cols-pick [aria-checked=true]{background:#fff;color:var(--blue);font-weight:600;box-shadow:var(--seg-shadow)}
 .product-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 10px;align-content:start;padding-top:4px}
 .product-tile{position:relative;display:block;text-align:left;min-width:0}
 .product-tile .visual{position:relative;aspect-ratio:1;border-radius:16px;overflow:hidden}
@@ -194,7 +244,7 @@ input[role=switch]:focus{border:0;padding:0}
 .channels button svg{width:18px;height:18px;stroke-width:1.8}
 .channels button.active{background:#fff;color:var(--ink);font-weight:600;box-shadow:var(--seg-shadow)}
 .items-header{display:flex;align-items:flex-end;justify-content:space-between;height:60px}
-.items-header h3{font-size:18px;font-weight:600;padding-bottom:12px}
+.items-header :is(h2,h3){font-size:16px;font-weight:600;padding-bottom:12px}
 .add-link{display:flex;align-items:center;gap:8px;height:44px;padding:0 0 0 8px;color:var(--blue);font-size:16px;font-weight:500}
 .plus-dot{width:20px;height:20px;border-radius:10px;display:grid;place-items:center;background:var(--blue);color:#fff}
 .plus-dot svg{width:12px;height:12px;stroke-width:3}
@@ -202,7 +252,8 @@ input[role=switch]:focus{border:0;padding:0}
 .order-row .thumb{width:72px;height:72px;border-radius:12px}
 .order-row strong{display:block;font-size:18px;line-height:23px;font-weight:600}
 .order-row small{display:block;margin-top:3px;font-size:16px;line-height:20px;color:var(--muted)}
-.order-row .link{min-height:0;height:23px;font-size:16px}
+.order-row .link{position:relative;min-height:0;height:23px;font-size:16px}
+.order-row .link::after{content:"";position:absolute;inset:-11px -8px}
 .order-row>b{font-size:18px;line-height:23px}
 .totals{border-bottom:1px solid var(--line)}
 .total-row{display:flex;align-items:center;justify-content:space-between;font-size:16px}
@@ -317,6 +368,9 @@ input[role=switch]:focus{border:0;padding:0}
 .upload img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .upload input{position:absolute;inset:0;opacity:0;cursor:pointer;height:100%}
 .upload.invalid{background:var(--error-bg);border-color:var(--danger-ink);color:var(--danger-ink)}
+.form-group-title{margin:20px 0 8px;font-size:16px;line-height:20px;font-weight:600;color:var(--muted)}
+.product-form>.copy-model+.form-group-title,.product-form>.form-group-title:first-child{margin-top:12px}
+#app[data-page=add],#app[data-page=edit]{padding-bottom:calc(160px + env(safe-area-inset-bottom))}
 .form-grid{display:grid;grid-template-columns:minmax(0,213fr) minmax(0,128fr);gap:12px}
 .form-grid.pack-price{grid-template-columns:1fr 1fr}
 .field{display:block;margin-top:12px;font-size:16px;font-weight:500;line-height:18px;color:var(--muted)}
@@ -538,7 +592,7 @@ dialog[data-kind=customer]>h2,dialog[data-kind=category]>h2{padding-left:0}
 .settings-row.two-line{min-height:62px}
 .settings-row.two-line b{display:block;font-size:16px;font-weight:500}
 .settings-row.two-line small{display:block;font-size:16px;font-weight:400;color:var(--muted)}
-.placeholder-text{color:var(--muted-2)}
+.placeholder-text{color:var(--muted)}
 .logout{width:100%;min-height:52px;margin-top:18px;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:16px;background:var(--danger-bg);color:var(--danger-ink);font-size:16px;font-weight:600}
 .logout svg{width:20px;height:20px}
 .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
@@ -618,9 +672,8 @@ dialog .notice.warning{margin:12px 0 0}
   :root{--gutter:16px}
   .hero-foot{font-size:14px}
   .hero .shop-name{font-size:14px}
-  .catalog-layout{grid-template-columns:76px minmax(0,1fr);gap:8px}
-  .category-rail{padding:10px 6px}
-  .category-rail button{width:64px;font-size:14px}
+  .cat-strip{padding:8px 12px 12px}
+  .cat-strip button{flex-basis:60px}
   .steps li{font-size:14px;gap:4px;padding:0 10px 0 5px}
   .channels button{padding:0 10px}
   .product-row .thumb{width:52px;height:52px}
@@ -665,6 +718,59 @@ dialog .notice.warning{margin:12px 0 0}
 @keyframes bill-print{from{clip-path:inset(0 0 100% 0 round 6px);transform:translateY(-18px)}to{clip-path:inset(0 0 0 0 round 6px);transform:none}}
 @keyframes notice-in{from{opacity:0;transform:scale(.97)}}
 @keyframes draw{to{stroke-dashoffset:0}}
+
+/* Bill printing, matched to the receipt print in the dailyflutterui clip (7698731244061740296, 12.3–16.1 s), with our
+   own cash bill on the paper. Times are measured from the clip's frames:
+     0 ms      the receipt page slides up over the order, 850 ms ease-out cubic (title, slot and buttons ride with it)
+     720 ms    paper feeds out of the slot, zigzag edge first, at a constant speed for 2400 ms
+     3120 ms   ชำระแล้ว stamp lands: a faint ring at 1.6x shrinks onto the bill and darkens, 420 ms
+     3670 ms   the subtitle crossfades from กำลังพิมพ์บิล… to the issued line, 200 ms
+   Layout from the clip at 375 px: slot 23 px in from the screen edges, paper 35 px in, buttons side by side.
+   Colours are the app's own (owner, 2026-11-11): navy printer, blue stamp, orange status light. */
+/* Page chrome matches the other pages (owner, 2026-11-11): the receipt page's light canvas, the standard header and
+   footer. #app carries the canvas so the slide-up snapshot covers the order page underneath. */
+body:has(.print-page) #app{min-height:100dvh;background:#f1f5f9}
+.print-sub{position:relative;height:20px;margin:-6px 0 0;text-align:center;font-size:14px;line-height:20px;color:var(--muted)}
+.print-sub .s-done{color:var(--success-ink);font-weight:500}
+.print-sub span{position:absolute;inset:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.print-sub .s-print{opacity:0}
+.print-feed{position:relative;max-width:375px;margin:14px auto 0}
+.printer-slot{position:relative;z-index:2;display:block;height:20px;margin:0 3px;border-radius:10px;
+  background:linear-gradient(180deg,#13307e 0,#0a1a47 100%);box-shadow:0 4px 12px rgba(10,26,71,.18)}
+.printer-slot::before{content:"";position:absolute;right:9px;top:7px;width:6px;height:6px;border-radius:50%;background:var(--orange)}
+.printer-slot::after{content:"";position:absolute;left:10px;right:10px;bottom:-4px;height:4px;border-radius:0 0 2px 2px;background:#050d26}
+.feed-paper{position:relative;margin:0 15px;clip-path:inset(0 -40px -80px -40px)}
+.paper{position:relative;padding:0 0 56px;background:#fff;filter:drop-shadow(0 6px 18px rgba(15,23,42,.12));
+  -webkit-mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) bottom/12px 7px repeat-x,linear-gradient(#000 0 0) top/100% calc(100% - 7px) no-repeat;
+  mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) bottom/12px 7px repeat-x,linear-gradient(#000 0 0) top/100% calc(100% - 7px) no-repeat}
+.print-feed .receipt{zoom:.91;box-shadow:none;border-radius:0;max-width:none}
+.paid-stamp{position:absolute;right:28px;bottom:8px;width:72px;height:72px;display:grid;align-content:center;justify-items:center;gap:1px;
+  border:2px solid var(--blue);border-radius:50%;box-shadow:inset 0 0 0 3px #fff,inset 0 0 0 4.5px var(--blue);color:var(--blue);
+  transform:rotate(-12deg);mix-blend-mode:multiply;pointer-events:none}
+.paid-stamp b{font-size:14px;font-weight:600;line-height:16px}
+.paid-stamp small{font-size:11px;line-height:13px}
+.printing .print-feed .paper{animation:paper-feed 2400ms 720ms linear both}
+.printing .paid-stamp{animation:stamp 420ms 3120ms cubic-bezier(.33,1,.68,1) both}
+.printing .print-sub .s-print{animation:sub-out 200ms 3670ms linear both}
+.printing .print-sub .s-done{animation:sub-in 200ms 3670ms linear both}
+.print-page.printing :is(.receipt,.receipt-qr){animation:none}
+@keyframes paper-feed{from{transform:translateY(-100%)}}
+@keyframes stamp{0%{opacity:0;transform:rotate(-12deg) scale(1.6)}15%{opacity:.15}45%{opacity:.45;transform:rotate(-12deg) scale(1.1)}
+  75%{opacity:.7;transform:rotate(-12deg) scale(1)}100%{opacity:1;transform:rotate(-12deg) scale(1)}}
+@keyframes sub-out{0%{opacity:1}100%{opacity:0}}
+@keyframes sub-in{from{opacity:0}}
+/* the page itself: slides up over the order; the old page stays put underneath, as in the clip */
+[data-nav=up]::view-transition-old(page){animation:none}
+[data-nav=up]::view-transition-new(page){animation:850ms cubic-bezier(.33,1,.68,1) both sheet-up}
+[data-nav=up]::view-transition-new(root){animation:none;opacity:0}
+[data-nav=up]::view-transition-group(footer){animation:none}
+[data-nav=up]::view-transition-old(footer){animation:120ms linear both fade-out}
+[data-nav=up]::view-transition-new(footer){animation:850ms cubic-bezier(.33,1,.68,1) both sheet-up}
+@keyframes sheet-up{from{transform:translateY(100vh)}}
+@media (prefers-reduced-motion:reduce){
+  .printing :is(.print-feed .paper,.paid-stamp,.print-sub span){animation:none}
+  [data-nav=up]::view-transition-new(page),[data-nav=up]::view-transition-new(footer){animation:200ms linear both fade-in}
+}
 
 /* Sheets rise from the bottom, alerts settle in; exits are quicker */
 dialog{opacity:0;transform:translateY(100%);transition:transform 200ms var(--ease-in),opacity 200ms linear,overlay 200ms allow-discrete,display 200ms allow-discrete}
@@ -739,6 +845,11 @@ dialog[data-kind=alert][open]::backdrop{background:rgba(10,29,79,.5)}
   .app-shell{max-width:none}
   #app{padding:0;margin:0;max-width:none}
   .app-bar,.steps,.notice,#action-bar,#tabbar,.sidebar,.receipt-actions,#toast,dialog{display:none!important}
+  .printer-slot,.paid-stamp,.print-sub{display:none!important}
+  .feed-paper{clip-path:none!important;margin:0!important}
+  .paper{-webkit-mask:none!important;mask:none!important;box-shadow:none!important;padding:0!important}
+  .print-feed .receipt{zoom:1!important}
+  body:has(.print-page) #app{background:none!important}
   .content{padding:0}
   .receipt{box-shadow:none;max-width:560px;margin:0 auto}
 }
