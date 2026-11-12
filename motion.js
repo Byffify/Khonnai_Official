@@ -120,6 +120,15 @@
     }
   }
 
+  // ---------- bill: the print plays once per issued bill; a redraw on the same page shows it already printed ----------
+  let printedId = null;
+  function printOnce() {
+    const el = app.querySelector('.printing');
+    if (!el) return;
+    if (printedId === justIssued) { el.classList.replace('printing', 'printed'); return; }
+    printedId = justIssued;
+  }
+
   // ---------- wrap render ----------
   const baseRender = render;
   render = function () {
@@ -128,6 +137,7 @@
     placePill();
     rollNumbers();
     sheen();
+    printOnce();
   };
 
   // ---------- toast: a thin bar shows how long Undo stays ----------

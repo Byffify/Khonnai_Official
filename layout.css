@@ -60,11 +60,10 @@
   .search-inline svg{width:20px;height:20px}
   .search-inline input,.search-inline input:focus{min-width:0;font-size:16px}
 
-  .category-tabs{margin-top:8px;padding:0 var(--gutter)}
-  .category-tabs .chip{padding:0 16px;border-radius:12px}
-  .category-tabs .chip svg{display:none}
+  .cat-strip.in-flow{padding:0 var(--gutter)}
+  .cat-strip.in-flow button{flex:0 0 88px;max-width:none}
   .stock-tools{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px;padding:0 var(--gutter)}
-  .stock-tools .category-tabs{min-width:0;margin:0;padding:0}
+  .stock-tools .cat-strip{min-width:0;margin:0;padding:0}
   .stock-tools>.filter-row{flex-shrink:0;gap:24px;margin:0}
   .stock-tools+.content{margin-top:24px}
   .content.history{padding-top:0}
@@ -109,13 +108,15 @@
 
   .product-list .table-head,.product-list .product-row{grid-template-columns:60px minmax(0,1fr) 96px 96px}
   .product-list .product-row{display:grid;align-items:center;min-height:64px;gap:0;padding:0 20px}
+  /* price and stock are both right-aligned numbers; a 24px gutter keeps ฿240 and 8 แพ็ก from reading as one figure */
+  .product-list .table-head,.product-list .product-row{column-gap:24px}
   .product-row .thumb{width:44px;height:44px;border-radius:12px}
   .product-row .product-info{display:block}
   .product-row .product-info .code{display:none}
   .product-row .row-note{display:block;color:var(--muted);font-size:16px;line-height:20px}
   .product-row .product-meta{display:contents}
   .product-row .product-meta b{font-size:16px;line-height:20px;font-weight:500;text-align:right}
-  .product-row .stock{justify-content:flex-end;color:var(--ink);font-size:16px;font-weight:400}
+  .product-row .stock{justify-content:flex-end;justify-self:end;color:var(--ink);font-size:16px;font-weight:400}
   .product-row .stock::before{display:none}
   .product-row .stock.out{color:var(--danger-ink)}
   .product-row:last-child{border-bottom:0;border-radius:0 0 19px 19px}
@@ -187,7 +188,10 @@
   .order-foot{display:grid;gap:8px;padding:16px 24px 24px;border-top:1px solid var(--line)}
   .order-net{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:40px}
   .order-net b{color:var(--blue);font-size:28px;line-height:36px;font-variant-numeric:tabular-nums}
-  .order-foot .primary{min-height:52px;border-radius:12px;font-size:16px}
+  .order-foot .row{display:flex;gap:8px}
+  .order-foot .primary{flex:1;min-height:52px;border-radius:12px;font-size:16px}
+  .order-foot .secondary.reserve{flex:none;width:auto;min-height:52px;padding:0 14px;gap:6px}
+  .order-head .icon-button.clear{width:44px;height:44px;border:0;border-radius:12px;background:var(--danger-bg);color:var(--danger)}
   .order-foot .secondary{min-height:44px;border-radius:12px;font-size:16px}
 
   .report-soon{min-height:calc(100dvh - 140px)}
