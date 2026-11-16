@@ -78,3 +78,17 @@ Same tokens via Tailwind `@theme`. Visual language (from fastwork.com, studied 2
 
 ## Left to the builder
 Exact tablet/desktop masonry breakpoints, placeholder treatment for products without photos, icon set adjustments, order of rollout across screens.
+
+
+## Revision 2026-11-16 (after owner's fastwork app screenshots) — supersedes conflicting lines above
+- **Pure monochrome. No brand/accent colour at all** (coral removed). Ink `#171717`, muted `#6b6b6b`, line `#e8e8e8`, soft fill `#efefef`, surface `#ffffff`. Colour comes only from product photos. Semantic danger/success keep their hues only where meaning requires (errors, destructive confirm); warnings/low-stock use black pill tags with white text + wording, never colour alone.
+- **Home header = fastwork profile pattern**: grey gradient cover, white sheet with 28px top radius overlapping it, 76px round shop avatar with 4px white ring straddling the sheet edge, bold shop name, meta line, then a 4-column stat row with hairline dividers (ยอดวันนี้ / บิล / รอรับ / ต้องเติม — the existing home figures), then two pill buttons (black primary + grey secondary) linking to existing screens, then existing sections. Replaces the grey stat tiles.
+- **Buttons**: pill; primary black, secondary `#efefef` fill without border.
+- **Tabs / category filter / bill steps**: text tabs with 2px ink underline on the active one.
+- **Search**: grey pill field.
+- **Bottom nav**: floating white pill with shadow, same 5 items; active item gets a grey pill background and filled icon; centre sell button black pill.
+- **Stock grid**: 2 columns, square photos radius 14, code (bold) + price · quantity below (not fastwork's 3-col).
+- **List rows** (checkout, reservations): 1px outlined cards, image left (fastwork service card).
+- **Top-of-screen icon buttons**: 40px grey circles.
+- Empty states may use bold monoline black illustrations (builder's call).
+- Reference mockup: screens-v3.html shown 2026-11-16.
