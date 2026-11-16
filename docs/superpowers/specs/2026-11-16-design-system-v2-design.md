@@ -29,18 +29,20 @@ Borrowed ideas from the fastwork post (owner's picks):
 | ink | `#141414` |
 | ink-muted | `#6b6b66` |
 | line | `#e6e6e2` |
-| accent (coral) | `#d93b30` — primary buttons, prices, active tab, centre sell button. White text on it and it as text on white must pass AA 4.5:1 (builder verifies; darken slightly if not) |
+| primary button | ink `#141414` fill, white text, **pill (999px)** — following fastwork. Secondary = white pill with 1.5px ink/line border |
+| accent (coral) | `#d93b30` — prices, low-stock/status tags, active tab/chip indicator only (not primary buttons). White text on it and it as text on white must pass AA 4.5:1 (builder verifies; darken slightly if not) |
 | accent-tint | `#fff0ee` |
 | success / danger / warn | keep semantic hues but desaturate to sit with mono (`#1b7a3e`, `#c62828`, `#9a4a0c`); danger must stay distinct from coral (danger uses icon + label, not colour alone) |
 | radius | sm 10, md 16 (cards, images), lg 24 (sheets), pill 999 |
 | spacing | 4-pt scale: 4 8 12 16 20 24 32 |
 | shadow | one soft elevation for floating elements (FAB, sheets); cards are flat on bg |
-| type | Thai+Latin sans; **builder's call** between keeping self-hosted Google Sans or switching to Anuphan (closer to fashion feel). Must be self-hosted and available to RN via expo-font. Weights 400/600/700; scale 12/14/16/18/22/28; nothing under 11px |
+| type | Keep self-hosted **Google Sans** (same as fastwork; already in repo). Must be self-hosted and available to RN via expo-font. Weights 400/600/700; scale 12/14/16/18/22/28; nothing under 11px |
 | motion | keep current easing (`cubic-bezier(.22,1,.36,1)`); no bounce |
 
 ## Key components (restyle only)
 - **ShopHeader** (home): avatar with coral ring, shop name, meta line; settings button.
-- **Revenue card**: dark ink surface, large figure.
+- **Revenue / stat tiles**: light grey `#f2f2f0` boxes with large numbers (fastwork's counter tiles).
+- **Person card** (reservations): photo/product image with round customer avatar overlapping its bottom edge, name, then "channel · items" meta line (fastwork's profile card).
 - **Photo tile / ProductCard**: photo radius 16, code, price in accent, quantity; low-stock tag overlaid on photo. Products without photos use a neutral placeholder.
 - **MasonryGrid** for stock list: 2 cols phone, 3–4 wider (wide-screen tables for history/bills stay).
 - **Chips**: active = ink fill, white text.
@@ -49,7 +51,7 @@ Borrowed ideas from the fastwork post (owner's picks):
 - Minimum text 14px; body 16–18px; targets ≥44px.
 
 ## Landing page
-Same tokens via Tailwind `@theme`. Visual language: big photo-led hero (masonry collage of product photos), mono background, coral CTA "เริ่มใช้ฟรี". Copy/content in `landing/src/content.ts` unchanged except where nav labels change.
+Same tokens via Tailwind `@theme`. Visual language (from fastwork.com, studied 2026-11-16: Google Sans, near-black ink, no brand colour, pill buttons, white photo cards radius 12–24 with overlapping avatar): hero = large centred headline surrounded by floating, slightly rotated product/shop cards; white sections alternate with dark navy `#131922` sections; black pill CTA "เริ่มใช้ฟรี" + white outline secondary. Copy/content in `landing/src/content.ts` unchanged except where nav labels change.
 
 ## Goals
 - Someone seeing a screenshot can tell it's Khonnai, not a generic AI app.
@@ -63,6 +65,7 @@ Same tokens via Tailwind `@theme`. Visual language: big photo-led hero (masonry 
 
 ## Anti-goals
 - Coral everywhere (it's an accent, not a theme colour).
+- Copying fastwork's assets, copy or exact layout — borrow the patterns, not the page.
 - Decorative motion or gradients that make it look "AI app" again.
 - Changing any flow, step, nav item or behaviour.
 - Breaking `verification/app-fixes.cjs` (must keep passing; selector updates only if markup classes change). `fidelity.cjs` (already stale per README) is retired.
@@ -74,4 +77,4 @@ Same tokens via Tailwind `@theme`. Visual language: big photo-led hero (masonry 
 - All fonts/images local, no runtime external requests (app).
 
 ## Left to the builder
-Font choice (above), exact tablet/desktop masonry breakpoints, placeholder treatment for products without photos, icon set adjustments, order of rollout across screens.
+Exact tablet/desktop masonry breakpoints, placeholder treatment for products without photos, icon set adjustments, order of rollout across screens.
