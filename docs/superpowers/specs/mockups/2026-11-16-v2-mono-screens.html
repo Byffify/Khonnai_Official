@@ -1,0 +1,85 @@
+<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Khonnai v2 Mono</title>
+<style>
+:root{--ink:#171717;--mu:#6b6b6b;--line:#e8e8e8;--soft:#efefef;--bg:#fff}
+body{margin:0;background:#e6e6e3;font-family:"Google Sans",system-ui,sans-serif;padding:24px 16px;color:var(--ink)}
+h1{font-size:22px;margin:0 0 4px}.sub{color:#555;margin:0 0 24px;font-size:14px;max-width:900px}
+.wrap{display:flex;flex-wrap:wrap;gap:28px;justify-content:center}.col{width:320px;max-width:100%}.col h2{font-size:17px;margin:12px 0 4px}.col p{font-size:13px;color:#555;margin:0;line-height:1.5}
+.phone{width:320px;max-width:100%;height:680px;border-radius:32px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.15);position:relative;background:var(--bg);font-size:16px;display:flex;flex-direction:column}
+.cover{height:120px;background:linear-gradient(#cfcfcf,#f4f4f4);position:relative}
+.cbtn{position:absolute;top:16px;width:40px;height:40px;border-radius:50%;background:#ffffffcc;display:grid;place-items:center;font-size:16px}
+.sheet{background:#fff;border-radius:28px 28px 0 0;margin-top:-28px;position:relative;padding:44px 18px 0;flex:1;overflow:hidden}
+.av{position:absolute;top:-38px;left:18px;width:76px;height:76px;border-radius:50%;background:linear-gradient(135deg,#bdb5ae,#5f5752);border:4px solid #fff}
+.name{font-size:24px;font-weight:700}.handle{color:var(--mu);font-size:15px;margin:2px 0 8px}
+.meta{font-size:15px;color:var(--mu);line-height:1.7}
+.stats{display:flex;margin:14px 0}.stats div{flex:1;text-align:center;border-left:1px solid var(--line)}.stats div:first-child{border:0}
+.stats b{display:block;font-size:19px}.stats small{font-size:13px;color:var(--mu)}
+.btns{display:flex;gap:8px}.pill{flex:1;height:46px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:16px}
+.blk{background:var(--ink);color:#fff}.gry{background:var(--soft)}
+.sec{display:flex;justify-content:space-between;margin:18px 0 10px}.sec b{font-size:17px}.sec span{color:var(--mu);font-size:15px}
+.strip{display:flex;gap:8px}.mini{width:96px;flex-shrink:0}.mini div{height:96px;border-radius:14px;position:relative}.mini p{margin:6px 0 0;font-size:14px}
+.tag{position:absolute;left:6px;top:6px;background:var(--ink);color:#fff;font-size:12px;font-weight:600;padding:3px 8px;border-radius:99px}
+.nav{position:absolute;left:12px;right:12px;bottom:14px;background:#fff;border-radius:999px;box-shadow:0 6px 24px #0002;display:flex;justify-content:space-around;align-items:center;padding:6px}
+.nav span{font-size:12px;color:var(--mu);display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;border-radius:999px;min-width:48px}
+.nav span::before{content:"";width:18px;height:18px;border-radius:50%;border:2px solid currentColor}
+.nav .on{background:var(--soft);color:var(--ink);font-weight:700}.nav .on::before{background:currentColor}
+.nav .sell{background:var(--ink);color:#fff;font-weight:700}
+.top{padding:22px 18px 10px;display:flex;justify-content:space-between;align-items:center}.top h2{margin:0;font-size:24px}
+.cir{width:40px;height:40px;border-radius:50%;background:var(--soft);display:grid;place-items:center}
+.body{padding:0 18px}
+.search{height:46px;border-radius:999px;background:var(--soft);display:flex;align-items:center;padding:0 16px;color:var(--mu);margin-bottom:10px}
+.tabs{display:flex;gap:18px;border-bottom:1px solid var(--line);margin-bottom:12px}.tabs span{padding:8px 0;color:var(--mu);font-size:15px}.tabs .on{color:var(--ink);font-weight:600;border-bottom:2px solid var(--ink)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 10px}.card div{aspect-ratio:1;border-radius:14px;position:relative}
+.card p{margin:6px 0 0;font-size:14px;color:var(--mu)}.card p b{display:block;color:var(--ink);font-size:16px}
+.row{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:16px;padding:10px;margin-bottom:8px}
+.row i{width:60px;height:60px;border-radius:12px;flex-shrink:0}.row small{color:var(--mu);font-size:14px;display:block}
+.qty{margin-left:auto;display:flex;align-items:center;gap:8px}.qty span{width:38px;height:38px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font-size:20px}.qty .p{background:var(--ink);color:#fff}
+.foot{padding:12px 18px 22px;border-top:1px solid var(--line)}
+.big{height:54px;border-radius:999px;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-weight:700;font-size:17px}
+</style></head><body>
+<h1>Khonnai v2: ขาวดำล้วนแบบ fastwork (flow เดิม)</h1>
+<p class="sub">ไม่ใช้สีแบรนด์ สีมาจากรูปสินค้าทั้งหมด ป้ายเตือนเป็นพื้นดำตัวขาวเพื่อให้เห็นชัดโดยไม่ต้องอาศัยสี ปุ่มเป็นแคปซูล ปุ่มหลักสีดำ ปุ่มรองสีเทา เมนูล่างเป็นแคปซูลลอย 5 ปุ่มเดิม</p>
+<div class="wrap">
+
+<div class="col"><div class="phone">
+ <div class="cover"><div class="cbtn" style="right:16px">⚙</div></div>
+ <div class="sheet"><div class="av"></div>
+  <div class="name">ร้านมิ้นท์</div><div class="handle">ขายส่งเสื้อผ้า · ประตูน้ำ</div>
+  <div class="stats"><div><b>฿12,450</b><small>ยอดวันนี้</small></div><div><b>18</b><small>บิล</small></div><div><b>3</b><small>รอรับ</small></div><div><b>3</b><small>ต้องเติม</small></div></div>
+  <div class="btns"><div class="pill blk">ออกบิล</div><div class="pill gry">เพิ่มสต็อก</div></div>
+  <div class="sec"><b>ต้องเติมของ</b><span>ดูทั้งหมด</span></div>
+  <div class="strip">
+   <div class="mini"><div style="background:linear-gradient(#ece6df,#b9ab98)"><span class="tag">เหลือ 2</span></div><p>A-302</p></div>
+   <div class="mini"><div style="background:linear-gradient(#e3e7ec,#98a3b0)"><span class="tag">เหลือ 1</span></div><p>B-220</p></div>
+   <div class="mini"><div style="background:linear-gradient(#efe4e1,#c09a92)"><span class="tag">หมด</span></div><p>C-118</p></div>
+  </div>
+ </div>
+ <div class="nav"><span class="on">โฮม</span><span>สต็อก</span><span class="sell">ขาย</span><span>จอง</span><span>ตั้งค่า</span></div>
+</div><h2>โฮม</h2><p>ใช้หัวแบบโปรไฟล์ fastwork ตัวเลขจากโฮมเดิมย้ายมาอยู่ในแถว 4 ช่อง ปุ่มสองปุ่มลัดไปหน้าที่มีอยู่แล้ว ข้อมูลและ flow เหมือนเดิม</p></div>
+
+<div class="col"><div class="phone">
+ <div class="top"><h2>สต็อก</h2><div class="cir">＋</div></div>
+ <div class="body">
+  <div class="search">ค้นหาชื่อหรือรหัส</div>
+  <div class="tabs"><span class="on">ทั้งหมด</span><span>เดรส</span><span>เสื้อ</span><span>กางเกง</span></div>
+  <div class="grid">
+   <div class="card"><div style="background:linear-gradient(#ece6df,#b9ab98)"><span class="tag">เหลือ 2</span></div><p><b>A-302 ลูกไม้</b>฿240 · 2 แพ็ก</p></div>
+   <div class="card"><div style="background:linear-gradient(#e8e8e6,#a9a9a5)"></div><p><b>C-118 ครอป</b>฿180 · 14 แพ็ก</p></div>
+   <div class="card"><div style="background:linear-gradient(#efe4e1,#c09a92)"></div><p><b>D-040 เดรส</b>฿320 · 8 แพ็ก</p></div>
+   <div class="card"><div style="background:linear-gradient(#e3e7ec,#98a3b0)"><span class="tag">เหลือ 1</span></div><p><b>B-220 ยีนส์</b>฿280 · 1 แพ็ก</p></div>
+  </div>
+ </div>
+ <div class="nav"><span>โฮม</span><span class="on">สต็อก</span><span class="sell">ขาย</span><span>จอง</span><span>ตั้งค่า</span></div>
+</div><h2>สต็อก</h2><p>กริดรูป 2 คอลัมน์ มีรหัส ราคา และจำนวนใต้รูป หมวดหมู่เป็นแท็บขีดเส้นใต้ ช่องค้นหาเป็นแคปซูลสีเทา</p></div>
+
+<div class="col"><div class="phone">
+ <div class="top"><h2>ออกบิล</h2><div class="cir">✕</div></div>
+ <div class="body">
+  <div class="tabs"><span class="on">1 เลือกสินค้า</span><span>2 ตรวจ</span><span>3 ยืนยัน</span></div>
+  <div class="row"><i style="background:linear-gradient(#ece6df,#b9ab98)"></i><div><b>A-302</b><small>฿240 · มี 2</small></div><div class="qty"><span>−</span><b>2</b><span class="p">+</span></div></div>
+  <div class="row"><i style="background:linear-gradient(#e8e8e6,#a9a9a5)"></i><div><b>C-118</b><small>฿180 · มี 14</small></div><div class="qty"><span>−</span><b>1</b><span class="p">+</span></div></div>
+  <div class="row"><i style="background:linear-gradient(#e3e7ec,#98a3b0)"></i><div><b>B-220</b><small>฿280 · มี 1</small></div><div class="qty"><span>−</span><b>0</b><span class="p">+</span></div></div>
+ </div>
+ <div class="foot" style="margin-top:auto"><div class="big"><span>ถัดไป · 3 แพ็ก</span><span>฿660</span></div></div>
+</div><h2>ออกบิล (ขั้น 1)</h2><p>ยังเป็น 3 ขั้นเหมือนเดิม แต่ละแถวเป็นการ์ดมีเส้นขอบแบบการ์ดบริการของ fastwork ปุ่มหลักเป็นแคปซูลสีดำแสดงยอดรวม</p></div>
+
+</div></body></html>
